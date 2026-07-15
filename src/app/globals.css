@@ -12,6 +12,10 @@
   --accent-soft: #e8f0ec;
   --success: #287a52;
   --error: #b94242;
+  --motion-fast: 150ms;
+  --motion-standard: 220ms;
+  --motion-enter: 420ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @theme inline {
@@ -47,6 +51,29 @@ body {
 ::selection {
   background: var(--accent-soft);
   color: var(--primary-hover);
+}
+
+:focus-visible {
+  scroll-margin: 96px;
+}
+
+.motion-ready [data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.motion-ready [data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--motion-enter) var(--ease-standard), transform var(--motion-enter) var(--ease-standard);
+}
+
+@keyframes rrs-pulse {
+  50% { opacity: 0.55; }
+}
+
+.animate-pulse {
+  animation: rrs-pulse 1.5s var(--ease-standard) infinite;
 }
 
 button,

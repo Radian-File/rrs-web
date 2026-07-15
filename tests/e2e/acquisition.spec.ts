@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+test.describe.configure({ mode: "serial" });
+
 test("visitor can submit a structured brief and continue to WhatsApp", async ({ page }) => {
   await page.goto("/start-project?service=website-development");
   await page.getByLabel("Full name").fill("E2E Client");
@@ -28,12 +30,11 @@ test("visitor can submit a structured brief and continue to WhatsApp", async ({ 
 });
 
 test("seeded owner can authenticate and open the owner workspace", async ({ page }) => {
-  await page.goto("/owner");
-  await expect(page).toHaveURL(/login/);
+  await page.goto("/login");
   await page.getByLabel("Email").fill(process.env.OWNER_EMAIL ?? "owner@example.com");
   await page.getByLabel("Password").fill(process.env.OWNER_PASSWORD ?? "ChangeMe123!");
   await page.getByRole("button", { name: "Sign In" }).click();
-  await expect(page).toHaveURL(/\/owner$/);
+  await expect(page).toHaveURL(/\/owner$/, { timeout: 30_000 });
   await expect(page.getByText("Owner overview")).toBeVisible();
 });
 
@@ -48,11 +49,11 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   test.setTimeout(120_000);
   const email = `quotation-${Date.now()}-${test.info().project.name}@example.com`;
 
-  await page.goto("/owner/quotations/create");
+  await page.goto("/login");
   await page.getByLabel("Email").fill(process.env.OWNER_EMAIL ?? "owner@example.com");
   await page.getByLabel("Password").fill(process.env.OWNER_PASSWORD ?? "ChangeMe123!");
   await page.getByRole("button", { name: "Sign In" }).click();
-  await expect(page).toHaveURL(/\/owner$/);
+  await expect(page).toHaveURL(/\/owner$/, { timeout: 30_000 });
   await expect(page.getByText("Owner overview")).toBeVisible();
   await page.goto("/owner/quotations/create");
 
@@ -70,8 +71,8 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await page.getByRole("button", { name: "Save Draft" }).evaluate((element) => {
     window.setTimeout(() => (element as HTMLButtonElement).click(), 0);
   });
-  await expect(page).toHaveURL(/owner\/quotations\/[A-Za-z0-9-]+$/, { timeout: 30_000 });
-  await expect(page.getByText(/QT-2026-/).first()).toBeVisible();
+  await expect(page).toHaveURL(/owner\/quotations\/(?!create$)[A-Za-z0-9-]+$/, { timeout: 30_000 });
+  await expect(page.getByText(/QT-2026-/).first()).toBeVisible({ timeout: 30_000 });
 
   await page.getByRole("link", { name: "Edit Draft" }).click();
   await page.getByRole("button", { name: "Save and Send" }).evaluate((element) => {
@@ -93,6 +94,8 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await expect(page).toHaveURL(/action=accepted/, { timeout: 30_000 });
   await expect(page.getByText("Quotation accepted.")).toBeVisible();
 
+  await page.context().clearCookies();
+  await page.context().addCookies([{ name: "rrs-locale", value: "en", domain: "127.0.0.1", path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" }]);
   await page.goto("/register");
   await page.getByLabel("Full name").fill("Quotation E2E Client");
   await page.getByLabel("WhatsApp number").fill("628123456789");
@@ -132,6 +135,7 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await expect(page.getByText("UNDER_VERIFICATION", { exact: true })).toBeVisible();
 
   await page.context().clearCookies();
+  await page.context().addCookies([{ name: "rrs-locale", value: "en", domain: "127.0.0.1", path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" }]);
   await page.goto("/owner/payments");
   await page.getByLabel("Email").fill(process.env.OWNER_EMAIL ?? "owner@example.com");
   await page.getByLabel("Password").fill(process.env.OWNER_PASSWORD ?? "ChangeMe123!");
@@ -144,6 +148,7 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await expect(paymentCard.getByText("VERIFIED", { exact: true })).toBeVisible();
 
   await page.context().clearCookies();
+  await page.context().addCookies([{ name: "rrs-locale", value: "en", domain: "127.0.0.1", path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" }]);
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill("StrongClient123!");

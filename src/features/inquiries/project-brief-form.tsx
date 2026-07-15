@@ -14,7 +14,7 @@ export function ProjectBriefForm({ services, selectedService }: { services: { sl
   const [state, action, pending] = useActionState(submitProjectBrief, {});
   const error = (name: string) => state.errors?.[name]?.[0];
 
-  return <form action={action} encType="multipart/form-data">
+  return <form action={action}>
     <div className="mb-8 flex items-center gap-3">{[1,2,3].map((item)=><div key={item} className="flex flex-1 items-center gap-3"><span className={`grid size-8 shrink-0 place-items-center rounded-full text-xs font-bold ${step>=item?"bg-primary text-white":"bg-surface-container text-secondary"}`}>{item}</span>{item<3&&<span className={`h-px flex-1 ${step>item?"bg-primary":"bg-border"}`}/>}</div>)}</div>
     <section hidden={step!==1} className="grid gap-5 sm:grid-cols-2">
       <Field label="Full name" name="clientName" error={error("clientName")} />

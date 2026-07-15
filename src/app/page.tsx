@@ -12,6 +12,7 @@ import {
   Star,
 } from "lucide-react";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { ScrollReveal } from "@/components/scroll-reveal";
 import { SiteHeader } from "@/components/layout/site-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -70,6 +71,7 @@ export default async function Home() {
     <>
       <SiteHeader />
       <main>
+        <ScrollReveal />
         <section className="overflow-hidden border-b border-border">
           <div className="mx-auto grid max-w-[1280px] gap-16 px-5 py-20 md:px-8 lg:grid-cols-[1.02fr_.98fr] lg:px-16 lg:py-28">
             <div className="flex flex-col justify-center">
@@ -150,7 +152,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="bg-surface py-24 lg:py-[120px]">
+        <section data-reveal className="bg-surface py-24 lg:py-[120px]">
           <div className="mx-auto max-w-[1280px] px-5 md:px-8 lg:px-16">
             <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
               <div><p className="text-sm font-bold uppercase tracking-[.16em] text-primary">{dictionary.home.servicesEyebrow}</p><h2 className="mt-4 max-w-2xl font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.servicesTitle}</h2></div>
@@ -178,7 +180,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section id="process" className="mx-auto max-w-[1280px] px-5 py-24 md:px-8 lg:px-16 lg:py-[120px]">
+        <section id="process" data-reveal className="mx-auto max-w-[1280px] px-5 py-24 md:px-8 lg:px-16 lg:py-[120px]">
           <div className="grid gap-16 lg:grid-cols-[.8fr_1.2fr]">
             <div className="lg:sticky lg:top-32 lg:self-start"><p className="text-sm font-bold uppercase tracking-[.16em] text-primary">{dictionary.home.processEyebrow}</p><h2 className="text-balance mt-4 font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.processTitle}</h2><p className="mt-6 max-w-md leading-7 text-secondary">{dictionary.home.processDescription}</p></div>
             <ol className="border-t border-border">
@@ -191,7 +193,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="bg-primary py-24 text-white lg:py-[120px]">
+        <section data-reveal className="bg-primary py-24 text-white lg:py-[120px]">
           <div className="mx-auto grid max-w-[1280px] gap-14 px-5 md:px-8 lg:grid-cols-[.8fr_1.2fr] lg:px-16">
             <div className="flex flex-col justify-center"><Badge className="w-fit bg-white/10 text-white">{dictionary.home.quoteEyebrow}</Badge><h2 className="text-balance mt-5 font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.quoteTitle}</h2><p className="mt-6 max-w-lg leading-7 text-white/70">{dictionary.home.quoteDescription}</p><ul className="mt-8 space-y-3 text-sm text-white/85">{["Itemized scope and pricing", "Versioned revision history", "Secure client approval", "Payment schedule before invoicing"].map((item) => <li key={item} className="flex items-center gap-3"><Check className="size-4 text-[#9ad6b8]" />{item}</li>)}</ul></div>
             <Card className="border-white/10 shadow-2xl">

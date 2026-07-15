@@ -21,7 +21,7 @@ export async function loginAction(
   _state: AuthActionState,
   formData: FormData,
 ): Promise<AuthActionState> {
-  await assertRequestRateLimit("login", 8, 15 * 60 * 1000, String(formData.get("email") ?? "anonymous"));
+  await assertRequestRateLimit("login", process.env.NODE_ENV === "production" ? 8 : 100, 15 * 60 * 1000, String(formData.get("email") ?? "anonymous"));
   const parsed = loginSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     return { errors: parsed.error.flatten().fieldErrors };

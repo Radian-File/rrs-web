@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { saveQuotationAction } from "@/features/quotations/actions";
 import { Button } from "@/components/ui/button";
@@ -20,13 +20,15 @@ const selectClass="h-12 w-full rounded-[12px] border border-border bg-surface px
 
 export function QuotationBuilder({ defaults }: { defaults: QuotationDefaults }) {
   const [state, action, pending] = useActionState(saveQuotationAction, {});
+  const dirtyRef = useRef(false);
   const [items, setItems] = useState<Item[]>((defaults.items?.length ? defaults.items : [{ title: "", description: "", quantity: 1, unitPrice: 0 }]).map((item,index)=>({ ...item, id: `item-${index}` })));
   const [discount,setDiscount]=useState(defaults.discount??0);const [tax,setTax]=useState(defaults.tax??0);
   const totals=useMemo(()=>{const subtotal=items.reduce((sum,item)=>sum+Number(item.quantity||0)*Number(item.unitPrice||0),0);return{subtotal,total:Math.max(0,subtotal-Number(discount||0)+Number(tax||0))}},[items,discount,tax]);
   const update=(id:string,key:keyof Omit<Item,"id">,value:string|number)=>setItems((current)=>current.map((item)=>item.id===id?{...item,[key]:value}:item));
-  const add=()=>setItems((current)=>[...current,{id:crypto.randomUUID(),title:"",description:"",quantity:1,unitPrice:0}]);
+  const add=()=>{dirtyRef.current=true;setItems((current)=>[...current,{id:crypto.randomUUID(),title:"",description:"",quantity:1,unitPrice:0}])};
+  useEffect(()=>{const warn=(event:BeforeUnloadEvent)=>{if(dirtyRef.current&&!pending){event.preventDefault();event.returnValue=""}};window.addEventListener("beforeunload",warn);return()=>window.removeEventListener("beforeunload",warn)},[pending]);
 
-  return <form action={action} className="space-y-6"><input type="hidden" name="quotationId" value={defaults.quotationId??""}/><input type="hidden" name="inquiryId" value={defaults.inquiryId??""}/><input type="hidden" name="clientId" value={defaults.clientId??""}/><input type="hidden" name="itemsJson" value={JSON.stringify(items.map((item)=>({ title:item.title, description:item.description, quantity:item.quantity, unitPrice:item.unitPrice })))}/>
+  return <form action={action} className="space-y-6" onChange={()=>{dirtyRef.current=true}} onSubmit={()=>{dirtyRef.current=false}}><input type="hidden" name="quotationId" value={defaults.quotationId??""}/><input type="hidden" name="inquiryId" value={defaults.inquiryId??""}/><input type="hidden" name="clientId" value={defaults.clientId??""}/><input type="hidden" name="itemsJson" value={JSON.stringify(items.map((item)=>({ title:item.title, description:item.description, quantity:item.quantity, unitPrice:item.unitPrice })))}/>
     <Card><CardContent><div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[.14em] text-secondary">Quotation</p><h2 className="mt-2 font-display text-xl font-extrabold">{defaults.quotationNumber ? `${defaults.quotationNumber} v${defaults.version}` : "Generated after save"}</h2></div><span className="text-sm font-semibold text-secondary">{defaults.quotationId?"DRAFT":"UNSAVED"}</span></div></CardContent></Card>
     <Card><CardContent><SectionTitle title="Client information"/><div className="mt-6 grid gap-5 sm:grid-cols-2"><Field label="Client name" name="clientName" defaultValue={defaults.clientName}/><Field label="Company (optional)" name="companyName" required={false} defaultValue={defaults.companyName}/><Field label="Email" name="clientEmail" type="email" required={false} defaultValue={defaults.clientEmail}/><Field label="WhatsApp" name="clientPhone" required={false} defaultValue={defaults.clientPhone}/><Field label="Address (optional)" name="clientAddress" required={false} defaultValue={defaults.clientAddress} className="sm:col-span-2"/></div></CardContent></Card>
     <Card><CardContent><SectionTitle title="Project information"/><div className="mt-6 grid gap-5 sm:grid-cols-2"><Field label="Project title" name="projectTitle" defaultValue={defaults.projectTitle} className="sm:col-span-2"/><Field label="Project type" name="projectType" required={false} defaultValue={defaults.projectType}/><Field label="Valid until" name="validUntil" type="date" defaultValue={defaults.validUntil}/><Field label="Estimated start" name="estimatedStartDate" type="date" required={false} defaultValue={defaults.estimatedStartDate}/><Field label="Estimated completion" name="estimatedCompletionAt" type="date" required={false} defaultValue={defaults.estimatedCompletionAt}/><Area label="Project summary" name="projectSummary" defaultValue={defaults.projectSummary} className="sm:col-span-2"/></div></CardContent></Card>
