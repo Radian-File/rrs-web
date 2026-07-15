@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Bell, type LucideIcon } from "lucide-react";
 import { Brand } from "@/components/brand";
+import { SignOutButton } from "@/features/auth/sign-out-button";
 import { cn } from "@/lib/utils";
 
 export type PortalNavItem = { label: string; href: string; icon: LucideIcon };
@@ -24,7 +25,7 @@ export function PortalShell({ title, userLabel, items, children }: { title: stri
       <div className="min-w-0">
         <header className="flex h-16 items-center justify-between border-b border-border bg-surface px-5 md:px-8">
           <div className="lg:hidden"><Brand /></div>
-          <div className="ml-auto flex items-center gap-3"><Link href={notificationHref} className="grid size-9 place-items-center rounded-[10px] text-secondary hover:bg-accent-soft hover:text-primary" aria-label="Notifications"><Bell className="size-4" /></Link><p className="text-sm font-semibold">{userLabel}</p></div>
+          <div className="ml-auto flex items-center gap-3"><Link href={notificationHref} className="grid size-9 place-items-center rounded-[10px] text-secondary hover:bg-accent-soft hover:text-primary" aria-label="Notifications"><Bell className="size-4" /></Link><p className="hidden text-sm font-semibold md:block">{userLabel}</p><SignOutButton /></div>
         </header>
         <main className={cn("mx-auto max-w-[1440px] p-5 md:p-8")}>{children}</main>
         <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-surface px-1 py-2 lg:hidden" aria-label="Mobile portal navigation">

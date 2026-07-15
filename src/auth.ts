@@ -10,7 +10,7 @@ const credentialsSchema = z.object({
 });
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: 8 * 60 * 60 },
   pages: { signIn: "/login" },
   providers: [
     Credentials({
@@ -53,6 +53,35 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   callbacks: {
+    authorized({ auth: session, request }) {
+      const pathname = request.nextUrl.pathname;
+      const role = session?.user?.role;
+      const isOwnerRoute = pathname.startsWith("/owner");
+      const isClientRoute = pathname.startsWith("/client");
+      const isAuthRoute = pathname === "/login" || pathname === "/register";
+
+      if (isOwnerRoute) {
+        if (!session?.user) return false;
+        if (role !== "OWNER") {
+          return Response.redirect(new URL("/client", request.nextUrl));
+        }
+      }
+
+      if (isClientRoute) {
+        if (!session?.user) return false;
+        if (role !== "CLIENT") {
+          return Response.redirect(new URL("/owner", request.nextUrl));
+        }
+      }
+
+      if (isAuthRoute && session?.user) {
+        return Response.redirect(
+          new URL(role === "OWNER" ? "/owner" : "/client", request.nextUrl),
+        );
+      }
+
+      return true;
+    },
     jwt({ token, user }) {
       if (user) {
         token.id = user.id;

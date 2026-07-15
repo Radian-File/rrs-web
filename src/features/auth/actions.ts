@@ -27,11 +27,17 @@ export async function loginAction(
     return { errors: parsed.error.flatten().fieldErrors };
   }
 
+  const account = await prisma.user.findUnique({
+    where: { email: parsed.data.email },
+    select: { role: true },
+  });
+  const roleHome = account?.role === "OWNER" ? "/owner" : "/client";
+
   try {
     await signIn("credentials", {
       email: parsed.data.email,
       password: parsed.data.password,
-      redirectTo: safeRedirect(parsed.data.redirectTo, "/client"),
+      redirectTo: safeRedirect(parsed.data.redirectTo, roleHome),
     });
   } catch (error) {
     if (error instanceof AuthError) {
