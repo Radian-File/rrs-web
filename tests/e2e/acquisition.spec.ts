@@ -101,7 +101,7 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await page.getByLabel("Confirm password").fill("StrongClient123!");
   await page.evaluate(() => {
     const button = [...document.querySelectorAll("button")].find(
-      (element) => element.textContent?.trim() === "Create Client Account",
+      (element) => element.textContent?.trim() === "Create an account",
     );
     window.setTimeout(() => (button as HTMLButtonElement | undefined)?.click(), 100);
   });

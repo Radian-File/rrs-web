@@ -17,6 +17,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { getDictionary } from "@/i18n/dictionaries";
+import { getLocale } from "@/i18n/server";
 import { formatIdr } from "@/lib/utils";
 
 const services = [
@@ -61,7 +63,9 @@ const steps = [
   ["05", "Approve and complete", "Accept the final delivery and leave a verified project review."],
 ];
 
-export default function Home() {
+export default async function Home() {
+  const locale = await getLocale();
+  const dictionary = getDictionary(locale);
   return (
     <>
       <SiteHeader />
@@ -69,27 +73,27 @@ export default function Home() {
         <section className="overflow-hidden border-b border-border">
           <div className="mx-auto grid max-w-[1280px] gap-16 px-5 py-20 md:px-8 lg:grid-cols-[1.02fr_.98fr] lg:px-16 lg:py-28">
             <div className="flex flex-col justify-center">
-              <Badge className="mb-6 w-fit">Digital projects, managed clearly</Badge>
+              <Badge className="mb-6 w-fit">{dictionary.home.eyebrow}</Badge>
               <h1 className="text-balance font-display text-[clamp(2.75rem,6vw,5.25rem)] font-extrabold leading-[1.02] tracking-[-0.055em]">
-                The right process for your next digital project.
+                {dictionary.home.title}
               </h1>
               <p className="mt-7 max-w-xl text-lg leading-8 text-secondary">
-                Explore professional services, discuss what you actually need, receive a clear quotation, and manage the work from the first brief to final delivery.
+                {dictionary.home.description}
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button asChild size="lg"><Link href="/start-project">Start a Project <ArrowRight className="size-4" /></Link></Button>
-                <Button asChild size="lg" variant="outline"><Link href="/services">Explore Services</Link></Button>
+                <Button asChild size="lg"><Link href="/start-project">{dictionary.home.primary} <ArrowRight className="size-4" /></Link></Button>
+                <Button asChild size="lg" variant="outline"><Link href="/services">{dictionary.home.secondary}</Link></Button>
               </div>
               <p className="mt-5 flex items-center gap-2 text-sm font-medium text-secondary">
-                <ShieldCheck className="size-4 text-primary" /> Clear scope. Transparent workflow. Reliable delivery.
+                <ShieldCheck className="size-4 text-primary" /> {dictionary.home.trust}
               </p>
               <form action="/services" className="relative mt-10 max-w-xl">
                 <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-secondary" aria-hidden="true" />
-                <Input name="q" aria-label="Search services" placeholder="Search for a service" className="h-14 pl-12 pr-32 shadow-sm" />
-                <Button type="submit" size="sm" className="absolute right-2 top-2 h-10">Search</Button>
+                <Input name="q" aria-label="Search services" placeholder={dictionary.home.searchPlaceholder} className="h-14 pl-12 pr-32 shadow-sm" />
+                <Button type="submit" size="sm" className="absolute right-2 top-2 h-10">{dictionary.common.search}</Button>
               </form>
               <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-secondary">
-                <span>Popular:</span><Link href="/services" className="hover:text-primary">Website Development</Link><Link href="/services" className="hover:text-primary">UI/UX Design</Link><Link href="/services" className="hover:text-primary">Web Application</Link>
+                <span>{dictionary.home.popular}</span><Link href="/services" className="hover:text-primary">Website Development</Link><Link href="/services" className="hover:text-primary">UI/UX Design</Link><Link href="/services" className="hover:text-primary">Web Application</Link>
               </div>
             </div>
 
@@ -133,8 +137,8 @@ export default function Home() {
 
         <section className="mx-auto max-w-[1280px] px-5 py-24 md:px-8 lg:px-16 lg:py-[120px]">
           <div className="max-w-3xl">
-            <p className="text-sm font-bold uppercase tracking-[.16em] text-primary">A better way to collaborate</p>
-            <h2 className="text-balance mt-4 font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">Professional services with a clearer way of working.</h2>
+            <p className="text-sm font-bold uppercase tracking-[.16em] text-primary">{dictionary.home.valueEyebrow}</p>
+            <h2 className="text-balance mt-4 font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.valueTitle}</h2>
           </div>
           <div className="mt-14 grid border-y border-border md:grid-cols-2">
             {values.map(([number, title, description], index) => (
@@ -149,7 +153,7 @@ export default function Home() {
         <section className="bg-surface py-24 lg:py-[120px]">
           <div className="mx-auto max-w-[1280px] px-5 md:px-8 lg:px-16">
             <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-              <div><p className="text-sm font-bold uppercase tracking-[.16em] text-primary">Selected expertise</p><h2 className="mt-4 max-w-2xl font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">Services shaped around the project.</h2></div>
+              <div><p className="text-sm font-bold uppercase tracking-[.16em] text-primary">{dictionary.home.servicesEyebrow}</p><h2 className="mt-4 max-w-2xl font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.servicesTitle}</h2></div>
               <Button asChild variant="outline"><Link href="/services">View all services <ArrowRight className="size-4" /></Link></Button>
             </div>
             <div className="mt-12 grid gap-5 lg:grid-cols-3">
@@ -176,7 +180,7 @@ export default function Home() {
 
         <section id="process" className="mx-auto max-w-[1280px] px-5 py-24 md:px-8 lg:px-16 lg:py-[120px]">
           <div className="grid gap-16 lg:grid-cols-[.8fr_1.2fr]">
-            <div className="lg:sticky lg:top-32 lg:self-start"><p className="text-sm font-bold uppercase tracking-[.16em] text-primary">How it works</p><h2 className="text-balance mt-4 font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">A clear process from idea to completion.</h2><p className="mt-6 max-w-md leading-7 text-secondary">No instant checkout and no hidden scope. Every project begins with context, discussion, and a quotation you can review.</p></div>
+            <div className="lg:sticky lg:top-32 lg:self-start"><p className="text-sm font-bold uppercase tracking-[.16em] text-primary">{dictionary.home.processEyebrow}</p><h2 className="text-balance mt-4 font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.processTitle}</h2><p className="mt-6 max-w-md leading-7 text-secondary">{dictionary.home.processDescription}</p></div>
             <ol className="border-t border-border">
               {steps.map(([number, title, description]) => (
                 <li key={number} className="grid grid-cols-[52px_1fr] gap-5 border-b border-border py-7 md:grid-cols-[72px_180px_1fr] md:gap-8">
@@ -189,7 +193,7 @@ export default function Home() {
 
         <section className="bg-primary py-24 text-white lg:py-[120px]">
           <div className="mx-auto grid max-w-[1280px] gap-14 px-5 md:px-8 lg:grid-cols-[.8fr_1.2fr] lg:px-16">
-            <div className="flex flex-col justify-center"><Badge className="w-fit bg-white/10 text-white">Quotation-first workflow</Badge><h2 className="text-balance mt-5 font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">Know the scope and cost before the work begins.</h2><p className="mt-6 max-w-lg leading-7 text-white/70">Every quotation documents deliverables, exclusions, timeline, revision limits, payment terms, and project total. You can accept, request changes, or reject it before any invoice is issued.</p><ul className="mt-8 space-y-3 text-sm text-white/85">{["Itemized scope and pricing", "Versioned revision history", "Secure client approval", "Payment schedule before invoicing"].map((item) => <li key={item} className="flex items-center gap-3"><Check className="size-4 text-[#9ad6b8]" />{item}</li>)}</ul></div>
+            <div className="flex flex-col justify-center"><Badge className="w-fit bg-white/10 text-white">{dictionary.home.quoteEyebrow}</Badge><h2 className="text-balance mt-5 font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.quoteTitle}</h2><p className="mt-6 max-w-lg leading-7 text-white/70">{dictionary.home.quoteDescription}</p><ul className="mt-8 space-y-3 text-sm text-white/85">{["Itemized scope and pricing", "Versioned revision history", "Secure client approval", "Payment schedule before invoicing"].map((item) => <li key={item} className="flex items-center gap-3"><Check className="size-4 text-[#9ad6b8]" />{item}</li>)}</ul></div>
             <Card className="border-white/10 shadow-2xl">
               <CardContent className="p-6 md:p-9">
                 <div className="flex flex-col justify-between gap-4 border-b border-border pb-6 sm:flex-row"><div><p className="text-xs font-bold uppercase tracking-[.14em] text-secondary">Quotation #QT-2026-0012</p><h3 className="mt-2 font-display text-2xl font-extrabold">Company Profile Website</h3></div><Badge variant="warning" className="h-fit w-fit">Waiting for approval</Badge></div>
@@ -205,10 +209,10 @@ export default function Home() {
         <section className="mx-auto max-w-[1280px] px-5 py-24 md:px-8 lg:px-16 lg:py-[120px]">
           <div className="rounded-[20px] border border-border bg-surface px-6 py-12 text-center shadow-[0_18px_60px_rgba(21,21,21,0.05)] md:px-12 md:py-16">
             <span className="mx-auto grid size-12 place-items-center rounded-full bg-accent-soft text-primary"><MessageCircle className="size-5" /></span>
-            <h2 className="text-balance mx-auto mt-6 max-w-3xl font-display text-4xl font-extrabold tracking-[-0.04em] md:text-5xl">Start your next project with a clearer process.</h2>
-            <p className="mx-auto mt-5 max-w-2xl leading-7 text-secondary">Share the brief, discuss the real needs, and receive a quotation before committing to the work.</p>
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><Button asChild size="lg"><Link href="/start-project">Start a Project <ArrowRight className="size-4" /></Link></Button><Button asChild size="lg" variant="outline"><Link href="/services">Explore Services</Link></Button></div>
-            <p className="mt-5 flex items-center justify-center gap-2 text-xs text-secondary"><FileCheck2 className="size-4 text-primary" /> No payment is requested before the quotation and agreement are approved.</p>
+            <h2 className="text-balance mx-auto mt-6 max-w-3xl font-display text-4xl font-extrabold tracking-[-0.04em] md:text-5xl">{dictionary.home.finalTitle}</h2>
+            <p className="mx-auto mt-5 max-w-2xl leading-7 text-secondary">{dictionary.home.finalDescription}</p>
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><Button asChild size="lg"><Link href="/start-project">{dictionary.home.primary} <ArrowRight className="size-4" /></Link></Button><Button asChild size="lg" variant="outline"><Link href="/services">{dictionary.home.secondary}</Link></Button></div>
+            <p className="mt-5 flex items-center justify-center gap-2 text-xs text-secondary"><FileCheck2 className="size-4 text-primary" /> {dictionary.home.noPayment}</p>
           </div>
         </section>
       </main>
