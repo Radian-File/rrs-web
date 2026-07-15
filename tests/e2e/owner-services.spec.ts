@@ -12,15 +12,16 @@ test("owner can create, publish, and unpublish a service without deleting it", a
   await expect(page).toHaveURL(/\/owner$/, { timeout: 30_000 });
 
   await page.goto("/owner/services/create");
-  await page.getByLabel("Nama layanan").fill("Service Reference Test");
-  await page.getByLabel("Slug URL").fill(slug);
-  await page.getByLabel("Kategori").fill("Reference");
-  await page.getByLabel("Harga mulai dari (IDR)").fill("1000000");
-  await page.getByLabel("Ringkasan layanan").fill("Layanan referensi untuk menguji kontrol Owner.");
-  await page.getByLabel("Deskripsi lengkap").fill("Deskripsi layanan referensi yang cukup lengkap untuk memvalidasi pembuatan, publikasi, dan unpublish dari Owner Dashboard.");
-  await page.getByLabel("Deliverables").fill("Discovery\nImplementation");
-  await page.getByLabel("Teknologi / keahlian").fill("Next.js\nTypeScript");
-  await page.getByRole("button", { name: "Buat layanan" }).click();
+  const main = page.locator("main:visible");
+  await main.getByLabel("Nama layanan").fill("Service Reference Test");
+  await main.getByLabel("Slug URL").fill(slug);
+  await main.getByLabel("Kategori").fill("Reference");
+  await main.getByLabel("Harga mulai dari (IDR)").fill("1000000");
+  await main.getByLabel("Ringkasan layanan").fill("Layanan referensi untuk menguji kontrol Owner.");
+  await main.getByLabel("Deskripsi lengkap").fill("Deskripsi layanan referensi yang cukup lengkap untuk memvalidasi pembuatan, publikasi, dan unpublish dari Owner Dashboard.");
+  await main.getByLabel("Deliverables").fill("Discovery\nImplementation");
+  await main.getByLabel("Teknologi / keahlian").fill("Next.js\nTypeScript");
+  await main.getByRole("button", { name: "Buat layanan" }).click();
   await expect(page.getByText("Layanan dibuat sebagai draf", { exact: false })).toBeVisible({ timeout: 30_000 });
   const editUrl = page.url();
 

@@ -36,6 +36,8 @@ App Router page/layout
 - Project transitions are explicit and guarded.
 - Invoice and payment allocation cannot exceed project totals.
 - Reviews require completed projects and are unique by project.
+- Inquiry and quotation archiving is a reversible list-visibility flag; it never changes workflow status, financial values, public quotation access, or related records.
+- Dashboard analytics include archived inquiries and quotations by default. Queries may filter `archivedAt: null` only when explicitly calculating an active-list metric.
 
 ## Provider contracts
 

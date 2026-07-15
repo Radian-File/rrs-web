@@ -324,6 +324,7 @@ model Inquiry {
   source             InquirySource @default(WEBSITE_TO_WHATSAPP)
   status             InquiryStatus @default(SUBMITTED)
   internalNotes      String?       @db.Text
+  archivedAt         DateTime?
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
@@ -337,6 +338,7 @@ model Inquiry {
   @@index([clientId])
   @@index([selectedServiceId])
   @@index([status, createdAt])
+  @@index([archivedAt, createdAt])
   @@index([clientEmail])
 }
 
@@ -407,6 +409,7 @@ model Quotation {
   acceptedAt            DateTime?
   rejectedAt            DateTime?
   cancelledAt           DateTime?
+  archivedAt            DateTime?
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
 
@@ -424,6 +427,7 @@ model Quotation {
   @@unique([groupId, version])
   @@index([groupId, isCurrent])
   @@index([status, createdAt])
+  @@index([archivedAt, updatedAt])
   @@index([clientId])
   @@index([inquiryId])
 }

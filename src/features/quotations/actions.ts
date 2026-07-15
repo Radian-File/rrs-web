@@ -2,6 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import Decimal from "decimal.js";
+import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
@@ -76,6 +77,32 @@ export async function saveQuotationAction(_state: QuotationActionState, formData
     if (error && typeof error === "object" && "digest" in error) throw error;
     return { message: error instanceof Error ? error.message : "Unable to save quotation." };
   }
+}
+
+const archiveSchema = z.object({ quotationId: z.string().min(1) });
+
+export async function archiveQuotationAction(formData: FormData) {
+  await setQuotationArchiveState(formData, true);
+}
+
+export async function restoreQuotationAction(formData: FormData) {
+  await setQuotationArchiveState(formData, false);
+}
+
+async function setQuotationArchiveState(formData: FormData, archive: boolean) {
+  await requireOwner();
+  const { quotationId } = archiveSchema.parse(Object.fromEntries(formData));
+  await prisma.quotation.findUniqueOrThrow({ where: { id: quotationId }, select: { id: true } });
+  await prisma.quotation.update({
+    where: { id: quotationId },
+    data: {
+      archivedAt: archive ? new Date() : null,
+      activities: { create: { type: archive ? "ARCHIVED" : "RESTORED", description: archive ? "Quotation archived from the active list." : "Quotation restored to the active list." } },
+    },
+  });
+  revalidatePath("/owner/quotations");
+  revalidatePath("/owner/quotations/archive");
+  revalidatePath(`/owner/quotations/${quotationId}`);
 }
 
 export async function createRevisionVersionAction(formData: FormData) {

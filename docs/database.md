@@ -23,6 +23,7 @@ Inquiry
 - `DocumentSequence(type, year)` has a composite unique constraint and must only be incremented in a transaction.
 - Public tokens are stored as unique hashes with expiry/revocation metadata.
 - Activity tables capture user-facing domain history; `AuditLog` captures security and sensitive mutation evidence.
+- `Inquiry.archivedAt` and `Quotation.archivedAt` are nullable, reversible list-visibility fields. Active list queries filter to `archivedAt: null`; aggregate and analytics queries include both active and archived records unless they explicitly need an active-only metric.
 
 ## Local database
 
