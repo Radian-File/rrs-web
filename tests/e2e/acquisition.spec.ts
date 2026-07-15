@@ -26,7 +26,7 @@ test("visitor can submit a structured brief and continue to WhatsApp", async ({ 
 
   await expect(page).toHaveURL(/brief-submitted/, { timeout: 30_000 });
   await expect(page.getByText("Brief received")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Open WhatsApp" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Lanjut ke WhatsApp" })).toBeVisible();
 });
 
 test("seeded owner can authenticate and open the owner workspace", async ({ page }) => {
@@ -100,8 +100,8 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await page.getByLabel("Full name").fill("Quotation E2E Client");
   await page.getByLabel("WhatsApp number").fill("628123456789");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password", { exact: true }).fill("StrongClient123!");
-  await page.getByLabel("Confirm password").fill("StrongClient123!");
+  await page.getByLabel("Password", { exact: true }).fill("password");
+  await page.getByLabel("Confirm password").fill("password");
   await page.evaluate(() => {
     const button = [...document.querySelectorAll("button")].find(
       (element) => element.textContent?.trim() === "Create an account",
@@ -151,7 +151,7 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await page.context().addCookies([{ name: "rrs-locale", value: "en", domain: "127.0.0.1", path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" }]);
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("StrongClient123!");
+  await page.getByLabel("Password").fill("password");
   await page.getByRole("button", { name: "Sign In" }).click();
   await expect(page).toHaveURL(/\/client$/);
   await page.goto(invoiceUrl!);

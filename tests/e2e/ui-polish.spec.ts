@@ -20,8 +20,8 @@ test("portal navigation exposes active state and breadcrumbs", async ({ page }) 
   await page.getByLabel("Full name").fill("UI Polish Client");
   await page.getByLabel("WhatsApp number").fill("628111999888");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password", { exact: true }).fill("StrongClient123!");
-  await page.getByLabel("Confirm password").fill("StrongClient123!");
+  await page.getByLabel("Password", { exact: true }).fill("password");
+  await page.getByLabel("Confirm password").fill("password");
   await page.evaluate(() => {
     const button = [...document.querySelectorAll("button")].find(
       (element) => element.textContent?.trim() === "Create an account",

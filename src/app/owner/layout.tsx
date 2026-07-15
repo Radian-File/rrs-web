@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { CreditCard, FileText, FolderKanban, LayoutDashboard, MessageSquareText, ReceiptText, Settings, Star } from "lucide-react";
+import { BriefcaseBusiness, CreditCard, FileText, FolderKanban, LayoutDashboard, MessageSquareText, ReceiptText, Settings, Star } from "lucide-react";
 import { auth } from "@/auth";
 import { PortalShell } from "@/components/layout/portal-shell";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -17,6 +17,7 @@ export default async function OwnerLayout({ children }: { children: React.ReactN
   const items = [
     { label: dictionary.portal.overview, href: "/owner", icon: LayoutDashboard },
     { label: dictionary.portal.inquiries, href: "/owner/inquiries", icon: MessageSquareText },
+    { label: dictionary.portal.services, href: "/owner/services", icon: BriefcaseBusiness },
     { label: dictionary.portal.quotations, href: "/owner/quotations", icon: FileText },
     { label: dictionary.portal.projects, href: "/owner/projects", icon: FolderKanban },
     { label: dictionary.portal.invoices, href: "/owner/invoices", icon: ReceiptText },

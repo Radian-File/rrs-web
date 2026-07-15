@@ -67,6 +67,14 @@ const steps = [
 export default async function Home() {
   const locale = await getLocale();
   const dictionary = getDictionary(locale);
+  const isId = locale === "id";
+  const landingServices = isId ? [
+    { category: "Web Development", title: "Website bisnis responsif dengan Next.js", summary: "Cepat, aksesibel, dan dirancang berdasarkan tujuan bisnis—bukan template generik.", price: 5_000_000, delivery: "14–30 hari", tags: ["Next.js", "SEO", "Responsive"] },
+    { category: "Product Design", title: "Desain UI/UX lengkap untuk web application", summary: "User flow yang jelas dan interface system yang scalable serta siap diimplementasikan.", price: 2_500_000, delivery: "10–21 hari", tags: ["Figma", "UX", "Design System"] },
+    { category: "Custom Application", title: "Web application full-stack untuk workflow Anda", summary: "Dashboard aman, client portal, dan tools operasional yang dibuat sesuai proses kerja.", price: 8_000_000, delivery: "30–60 hari", tags: ["Full-Stack", "Database", "Dashboard"] },
+  ] : services;
+  const landingValues = isId ? [["01", "Keahlian yang fokus", "Bekerja langsung dengan spesialis yang memahami desain produk dan implementasi."], ["02", "Quotation yang jelas", "Tinjau scope, timeline, pembayaran, dan pengecualian sebelum project dimulai."], ["03", "Progress transparan", "Pantau milestone, file, approval, dan pembaruan project dari client portal."], ["04", "Delivery terarah", "Alur delivery, pembayaran, dan review terverifikasi membantu menyamakan ekspektasi."]] : values;
+  const landingSteps = isId ? [["01", "Kirim brief", "Ceritakan project, tujuan, rentang budget, dan timeline yang diharapkan."], ["02", "Diskusi di WhatsApp", "Kita menyusun scope, prioritas, referensi, dan rencana delivery yang realistis."], ["03", "Tinjau quotation", "Terima quotation terperinci dengan scope, harga, terms, dan milestone yang jelas."], ["04", "Pantau project", "Setujui agreement, ikuti progress, tinjau file, dan kelola invoice."], ["05", "Selesaikan project", "Setujui hasil akhir dan berikan review project yang terverifikasi."]] : steps;
   return (
     <>
       <SiteHeader />
@@ -143,7 +151,7 @@ export default async function Home() {
             <h2 className="text-balance mt-4 font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.valueTitle}</h2>
           </div>
           <div className="mt-14 grid border-y border-border md:grid-cols-2">
-            {values.map(([number, title, description], index) => (
+            {landingValues.map(([number, title, description], index) => (
               <article key={number} className={`grid grid-cols-[48px_1fr] gap-5 py-8 md:p-9 ${index % 2 === 0 ? "md:border-r" : ""} ${index < 2 ? "md:border-b" : ""}`}>
                 <span className="font-display text-sm font-extrabold text-primary">{number}</span>
                 <div><h3 className="font-display text-xl font-extrabold">{title}</h3><p className="mt-3 max-w-md leading-7 text-secondary">{description}</p></div>
@@ -156,10 +164,10 @@ export default async function Home() {
           <div className="mx-auto max-w-[1280px] px-5 md:px-8 lg:px-16">
             <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
               <div><p className="text-sm font-bold uppercase tracking-[.16em] text-primary">{dictionary.home.servicesEyebrow}</p><h2 className="mt-4 max-w-2xl font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.servicesTitle}</h2></div>
-              <Button asChild variant="outline"><Link href="/services">View all services <ArrowRight className="size-4" /></Link></Button>
+              <Button asChild variant="outline"><Link href="/services">{isId ? "Lihat semua layanan" : "View all services"} <ArrowRight className="size-4" /></Link></Button>
             </div>
             <div className="mt-12 grid gap-5 lg:grid-cols-3">
-              {services.map((service) => (
+              {landingServices.map((service) => (
                 <Card key={service.title} className="group transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(21,21,21,0.08)]">
                   <CardContent className="flex h-full flex-col">
                     <div className="mb-8 flex h-44 items-end rounded-[10px] bg-[linear-gradient(145deg,#e8f0ec,#d7e6dd)] p-5">
@@ -170,7 +178,7 @@ export default async function Home() {
                     <p className="mt-3 text-sm leading-6 text-secondary">{service.summary}</p>
                     <div className="mt-5 flex flex-wrap gap-2">{service.tags.map((tag) => <Badge key={tag} variant="neutral">{tag}</Badge>)}</div>
                     <div className="mt-auto flex items-end justify-between border-t border-border pt-6">
-                      <div><p className="text-xs text-secondary">Starting from</p><p className="mt-1 font-display text-lg font-extrabold">{formatIdr(service.price)}</p></div>
+                      <div><p className="text-xs text-secondary">{isId ? "Mulai dari" : "Starting from"}</p><p className="mt-1 font-display text-lg font-extrabold">{formatIdr(service.price)}</p></div>
                       <span className="flex items-center gap-1 text-xs text-secondary"><Clock3 className="size-4" /> {service.delivery}</span>
                     </div>
                   </CardContent>
@@ -184,7 +192,7 @@ export default async function Home() {
           <div className="grid gap-16 lg:grid-cols-[.8fr_1.2fr]">
             <div className="lg:sticky lg:top-32 lg:self-start"><p className="text-sm font-bold uppercase tracking-[.16em] text-primary">{dictionary.home.processEyebrow}</p><h2 className="text-balance mt-4 font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.processTitle}</h2><p className="mt-6 max-w-md leading-7 text-secondary">{dictionary.home.processDescription}</p></div>
             <ol className="border-t border-border">
-              {steps.map(([number, title, description]) => (
+              {landingSteps.map(([number, title, description]) => (
                 <li key={number} className="grid grid-cols-[52px_1fr] gap-5 border-b border-border py-7 md:grid-cols-[72px_180px_1fr] md:gap-8">
                   <span className="font-display text-sm font-extrabold text-primary">{number}</span><h3 className="font-display text-lg font-extrabold">{title}</h3><p className="col-start-2 text-sm leading-6 text-secondary md:col-start-auto">{description}</p>
                 </li>
@@ -195,14 +203,14 @@ export default async function Home() {
 
         <section data-reveal className="bg-primary py-24 text-white lg:py-[120px]">
           <div className="mx-auto grid max-w-[1280px] gap-14 px-5 md:px-8 lg:grid-cols-[.8fr_1.2fr] lg:px-16">
-            <div className="flex flex-col justify-center"><Badge className="w-fit bg-white/10 text-white">{dictionary.home.quoteEyebrow}</Badge><h2 className="text-balance mt-5 font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.quoteTitle}</h2><p className="mt-6 max-w-lg leading-7 text-white/70">{dictionary.home.quoteDescription}</p><ul className="mt-8 space-y-3 text-sm text-white/85">{["Itemized scope and pricing", "Versioned revision history", "Secure client approval", "Payment schedule before invoicing"].map((item) => <li key={item} className="flex items-center gap-3"><Check className="size-4 text-[#9ad6b8]" />{item}</li>)}</ul></div>
+            <div className="flex flex-col justify-center"><Badge className="w-fit bg-white/10 text-white">{dictionary.home.quoteEyebrow}</Badge><h2 className="text-balance mt-5 font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.quoteTitle}</h2><p className="mt-6 max-w-lg leading-7 text-white/70">{dictionary.home.quoteDescription}</p><ul className="mt-8 space-y-3 text-sm text-white/85">{(isId ? ["Scope dan harga terperinci", "Riwayat revisi berversi", "Persetujuan client yang aman", "Jadwal pembayaran sebelum invoice"] : ["Itemized scope and pricing", "Versioned revision history", "Secure client approval", "Payment schedule before invoicing"]).map((item) => <li key={item} className="flex items-center gap-3"><Check className="size-4 text-[#9ad6b8]" />{item}</li>)}</ul></div>
             <Card className="border-white/10 shadow-2xl">
               <CardContent className="p-6 md:p-9">
-                <div className="flex flex-col justify-between gap-4 border-b border-border pb-6 sm:flex-row"><div><p className="text-xs font-bold uppercase tracking-[.14em] text-secondary">Quotation #QT-2026-0012</p><h3 className="mt-2 font-display text-2xl font-extrabold">Company Profile Website</h3></div><Badge variant="warning" className="h-fit w-fit">Waiting for approval</Badge></div>
-                <div className="mt-6 grid gap-4 text-sm sm:grid-cols-2"><div><p className="text-xs text-secondary">Prepared for</p><p className="mt-1 font-semibold">Client Name</p></div><div><p className="text-xs text-secondary">Valid until</p><p className="mt-1 font-semibold">30 July 2026</p></div></div>
+                <div className="flex flex-col justify-between gap-4 border-b border-border pb-6 sm:flex-row"><div><p className="text-xs font-bold uppercase tracking-[.14em] text-secondary">Quotation #QT-2026-0012</p><h3 className="mt-2 font-display text-2xl font-extrabold">{isId ? "Website Company Profile" : "Company Profile Website"}</h3></div><Badge variant="warning" className="h-fit w-fit">{isId ? "Menunggu persetujuan" : "Waiting for approval"}</Badge></div>
+                <div className="mt-6 grid gap-4 text-sm sm:grid-cols-2"><div><p className="text-xs text-secondary">{isId ? "Disiapkan untuk" : "Prepared for"}</p><p className="mt-1 font-semibold">{isId ? "Nama client" : "Client Name"}</p></div><div><p className="text-xs text-secondary">{isId ? "Berlaku hingga" : "Valid until"}</p><p className="mt-1 font-semibold">30 July 2026</p></div></div>
                 <div className="mt-7 space-y-4 border-y border-border py-6 text-sm">{[["UI/UX Design", "Rp2.000.000"], ["Website Development", "Rp5.000.000"], ["Basic SEO Setup", "Rp1.000.000"]].map(([item, price]) => <div key={item} className="flex justify-between gap-4"><span className="text-secondary">{item}</span><span className="font-semibold">{price}</span></div>)}</div>
-                <div className="flex items-center justify-between py-6"><span className="font-semibold">Grand total</span><span className="font-display text-2xl font-extrabold text-primary">Rp8.000.000</span></div>
-                <div className="grid gap-3 sm:grid-cols-3"><Button>Accept</Button><Button variant="outline">Request revision</Button><Button variant="ghost">Reject</Button></div>
+                <div className="flex items-center justify-between py-6"><span className="font-semibold">{isId ? "Total" : "Grand total"}</span><span className="font-display text-2xl font-extrabold text-primary">Rp8.000.000</span></div>
+                <div className="grid gap-3 sm:grid-cols-3"><Button>{isId ? "Setujui" : "Accept"}</Button><Button variant="outline">{isId ? "Minta revisi" : "Request revision"}</Button><Button variant="ghost">{isId ? "Tolak" : "Reject"}</Button></div>
               </CardContent>
             </Card>
           </div>

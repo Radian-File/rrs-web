@@ -1,0 +1,16 @@
+import Link from "next/link";
+import { Plus, Pencil, Eye, EyeOff, Star } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { prisma } from "@/lib/db/prisma";
+import { formatIdr } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
+
+export default async function OwnerServicesPage() {
+  const services = await prisma.service.findMany({ orderBy: [{ isPublished: "asc" }, { isFeatured: "desc" }, { updatedAt: "desc" }] });
+  const published = services.filter((service) => service.isPublished).length;
+  return <><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p className="text-sm font-bold uppercase tracking-[.14em] text-primary">Layanan</p><h1 className="mt-3 font-display text-3xl font-extrabold">Kelola layanan yang ditampilkan ke client.</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-secondary">Draf tidak tampil di halaman publik. Gunakan unpublish untuk menyimpan riwayat quotation dan inquiry tanpa menghapus relasinya.</p></div><Button asChild><Link href="/owner/services/create"><Plus className="size-4" />Buat layanan</Link></Button></div><div className="mt-8 grid gap-4 sm:grid-cols-3"><Metric label="Total layanan" value={services.length}/><Metric label="Sudah dipublikasikan" value={published}/><Metric label="Draf / belum tayang" value={services.length - published}/></div><div className="mt-8 grid gap-5 lg:grid-cols-2">{services.map((service) => <Card key={service.id}><CardContent><div className="flex justify-between gap-4"><div><div className="flex flex-wrap gap-2"><Badge variant={service.isPublished ? "success" : "neutral"}>{service.isPublished ? "Published" : "Draft"}</Badge>{service.isFeatured && <Badge><Star className="size-3"/>Unggulan</Badge>}</div><h2 className="mt-4 font-display text-xl font-extrabold">{service.title}</h2><p className="mt-2 text-sm text-secondary">{service.category} · {service.startingPrice ? formatIdr(service.startingPrice.toString()) : "Custom scope"}</p></div>{service.isPublished ? <Eye className="size-5 text-success" aria-label="Dipublikasikan"/> : <EyeOff className="size-5 text-secondary" aria-label="Draf"/>}</div><p className="mt-5 line-clamp-2 text-sm leading-6 text-secondary">{service.summary}</p><div className="mt-6 flex justify-between border-t border-border pt-5"><p className="text-xs text-secondary">Diperbarui {service.updatedAt.toLocaleDateString("id-ID")}</p><Button asChild size="sm" variant="outline"><Link href={`/owner/services/${service.id}/edit`}><Pencil className="size-4"/>Edit</Link></Button></div></CardContent></Card>)}</div>{services.length === 0 && <Card className="mt-8"><CardContent className="py-12 text-center"><h2 className="font-display text-xl font-extrabold">Belum ada layanan</h2><p className="mt-2 text-sm text-secondary">Buat layanan pertama atau jalankan seed untuk memuat referensi layanan.</p></CardContent></Card>}</>;
+}
+function Metric({ label, value }: { label: string; value: number }) { return <Card><CardContent><p className="font-display text-3xl font-extrabold">{value}</p><p className="mt-2 text-sm text-secondary">{label}</p></CardContent></Card>; }
