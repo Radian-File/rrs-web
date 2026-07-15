@@ -15,6 +15,7 @@
   --motion-fast: 150ms;
   --motion-standard: 220ms;
   --motion-enter: 420ms;
+  --motion-page-enter: 320ms;
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -57,15 +58,55 @@ body {
   scroll-margin: 96px;
 }
 
-.motion-ready [data-reveal] {
+.motion-ready [data-page-enter] {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.motion-ready [data-page-enter].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--motion-page-enter) var(--ease-standard), transform var(--motion-page-enter) var(--ease-standard);
+}
+
+.motion-ready [data-reveal],
+.motion-ready [data-reveal-group] [data-reveal-item] {
   opacity: 0;
   transform: translateY(18px);
 }
 
-.motion-ready [data-reveal].is-visible {
+.motion-ready [data-reveal].is-visible,
+.motion-ready [data-reveal-group].is-visible [data-reveal-item] {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity var(--motion-enter) var(--ease-standard), transform var(--motion-enter) var(--ease-standard);
+  transition: opacity var(--motion-enter) var(--ease-standard) var(--reveal-delay, 0ms), transform var(--motion-enter) var(--ease-standard) var(--reveal-delay, 0ms);
+}
+
+[data-motion-card] {
+  transition: transform var(--motion-standard) var(--ease-standard), box-shadow var(--motion-standard) var(--ease-standard), border-color var(--motion-standard) var(--ease-standard);
+}
+
+[data-motion-card] [data-card-media] {
+  transition: transform var(--motion-standard) var(--ease-standard);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-motion-card]:hover,
+  [data-motion-card]:focus-within {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
+    box-shadow: 0 18px 50px rgba(21, 21, 21, 0.09);
+  }
+
+  [data-motion-card]:hover [data-card-media],
+  [data-motion-card]:focus-within [data-card-media] {
+    transform: scale(1.02);
+  }
+}
+
+[data-motion-card]:focus-within {
+  outline: 2px solid color-mix(in srgb, var(--primary) 58%, transparent);
+  outline-offset: 3px;
 }
 
 @keyframes rrs-pulse {

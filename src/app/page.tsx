@@ -12,7 +12,7 @@ import {
   Star,
 } from "lucide-react";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { ScrollReveal } from "@/components/scroll-reveal";
+import { PageEntrance } from "@/components/page-entrance";
 import { SiteHeader } from "@/components/layout/site-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -78,8 +78,7 @@ export default async function Home() {
   return (
     <>
       <SiteHeader />
-      <main>
-        <ScrollReveal />
+      <PageEntrance><main>
         <section className="overflow-hidden border-b border-border">
           <div className="mx-auto grid max-w-[1280px] gap-16 px-5 py-20 md:px-8 lg:grid-cols-[1.02fr_.98fr] lg:px-16 lg:py-28">
             <div className="flex flex-col justify-center">
@@ -150,9 +149,9 @@ export default async function Home() {
             <p className="text-sm font-bold uppercase tracking-[.16em] text-primary">{dictionary.home.valueEyebrow}</p>
             <h2 className="text-balance mt-4 font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.valueTitle}</h2>
           </div>
-          <div className="mt-14 grid border-y border-border md:grid-cols-2">
+          <div data-reveal-group className="mt-14 grid border-y border-border md:grid-cols-2">
             {landingValues.map(([number, title, description], index) => (
-              <article key={number} className={`grid grid-cols-[48px_1fr] gap-5 py-8 md:p-9 ${index % 2 === 0 ? "md:border-r" : ""} ${index < 2 ? "md:border-b" : ""}`}>
+              <article key={number} data-reveal-item className={`grid grid-cols-[48px_1fr] gap-5 py-8 md:p-9 ${index % 2 === 0 ? "md:border-r" : ""} ${index < 2 ? "md:border-b" : ""}`}>
                 <span className="font-display text-sm font-extrabold text-primary">{number}</span>
                 <div><h3 className="font-display text-xl font-extrabold">{title}</h3><p className="mt-3 max-w-md leading-7 text-secondary">{description}</p></div>
               </article>
@@ -166,11 +165,11 @@ export default async function Home() {
               <div><p className="text-sm font-bold uppercase tracking-[.16em] text-primary">{dictionary.home.servicesEyebrow}</p><h2 className="mt-4 max-w-2xl font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.servicesTitle}</h2></div>
               <Button asChild variant="outline"><Link href="/services">{isId ? "Lihat semua layanan" : "View all services"} <ArrowRight className="size-4" /></Link></Button>
             </div>
-            <div className="mt-12 grid gap-5 lg:grid-cols-3">
+            <div data-reveal-group className="mt-12 grid gap-5 lg:grid-cols-3">
               {landingServices.map((service) => (
-                <Card key={service.title} className="group transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(21,21,21,0.08)]">
+                <Card key={service.title} data-reveal-item data-motion-card className="group overflow-hidden">
                   <CardContent className="flex h-full flex-col">
-                    <div className="mb-8 flex h-44 items-end rounded-[10px] bg-[linear-gradient(145deg,#e8f0ec,#d7e6dd)] p-5">
+                    <div data-card-media className="mb-8 flex h-44 items-end rounded-[10px] bg-[linear-gradient(145deg,#e8f0ec,#d7e6dd)] p-5">
                       <span className="grid size-11 place-items-center rounded-[10px] bg-surface text-primary shadow-sm"><Sparkles className="size-5" /></span>
                     </div>
                     <p className="text-xs font-bold uppercase tracking-[.12em] text-primary">{service.category}</p>
@@ -191,9 +190,9 @@ export default async function Home() {
         <section id="process" data-reveal className="mx-auto max-w-[1280px] px-5 py-24 md:px-8 lg:px-16 lg:py-[120px]">
           <div className="grid gap-16 lg:grid-cols-[.8fr_1.2fr]">
             <div className="lg:sticky lg:top-32 lg:self-start"><p className="text-sm font-bold uppercase tracking-[.16em] text-primary">{dictionary.home.processEyebrow}</p><h2 className="text-balance mt-4 font-display text-4xl font-extrabold tracking-[-0.035em] md:text-5xl">{dictionary.home.processTitle}</h2><p className="mt-6 max-w-md leading-7 text-secondary">{dictionary.home.processDescription}</p></div>
-            <ol className="border-t border-border">
+            <ol data-reveal-group className="border-t border-border">
               {landingSteps.map(([number, title, description]) => (
-                <li key={number} className="grid grid-cols-[52px_1fr] gap-5 border-b border-border py-7 md:grid-cols-[72px_180px_1fr] md:gap-8">
+                <li key={number} data-reveal-item className="grid grid-cols-[52px_1fr] gap-5 border-b border-border py-7 md:grid-cols-[72px_180px_1fr] md:gap-8">
                   <span className="font-display text-sm font-extrabold text-primary">{number}</span><h3 className="font-display text-lg font-extrabold">{title}</h3><p className="col-start-2 text-sm leading-6 text-secondary md:col-start-auto">{description}</p>
                 </li>
               ))}
@@ -225,7 +224,7 @@ export default async function Home() {
             <p className="mt-5 flex items-center justify-center gap-2 text-xs text-secondary"><FileCheck2 className="size-4 text-primary" /> {dictionary.home.noPayment}</p>
           </div>
         </section>
-      </main>
+      </main></PageEntrance>
       <SiteFooter />
     </>
   );

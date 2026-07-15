@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Bell, type LucideIcon } from "lucide-react";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { PortalActiveLink } from "@/components/layout/portal-active-link";
+import { PortalPageEntrance } from "@/components/layout/portal-page-entrance";
 import { Brand } from "@/components/brand";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SignOutButton } from "@/features/auth/sign-out-button";
@@ -36,7 +37,7 @@ export async function PortalShell({ kind, title, userLabel, unreadCount = 0, ite
             <SignOutButton label={dictionary.common.signOut} />
           </div>
         </header>
-        <main className={cn("mx-auto max-w-[1440px] p-5 pb-24 md:p-8 lg:pb-8")}><Breadcrumbs homeLabel={dictionary.portal.overview} items={items.map(({label,href})=>({label,href}))}/>{children}</main>
+        <main className={cn("mx-auto max-w-[1440px] p-5 pb-24 md:p-8 lg:pb-8")}><Breadcrumbs homeLabel={dictionary.portal.overview} items={items.map(({label,href})=>({label,href}))}/><PortalPageEntrance>{children}</PortalPageEntrance></main>
         <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-surface px-1 py-2 lg:hidden" aria-label="Mobile portal navigation">
           {items.slice(0, 5).map(({ label, href, icon: Icon }) => <PortalActiveLink key={href} href={href} label={label} mobile><Icon className="size-5" /></PortalActiveLink>)}
         </nav>

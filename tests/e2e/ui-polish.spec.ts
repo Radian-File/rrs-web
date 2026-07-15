@@ -6,11 +6,22 @@ test("keyboard users can skip repeated navigation", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
 });
 
-test("reduced motion prevents reveal initialization", async ({ page }) => {
+test("shared motion marks page entrance, reveal groups, and interactive cards", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveClass(/motion-ready/);
+  await expect(page.locator("[data-page-enter]")).toHaveClass(/is-visible/);
+  const revealGroup = page.locator("[data-reveal-group]").first();
+  await revealGroup.scrollIntoViewIfNeeded();
+  await expect(revealGroup).toHaveClass(/is-visible/);
+  await expect(page.locator("[data-motion-card]").first()).toBeVisible();
+});
+
+test("reduced motion prevents reveal initialization while content stays visible", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await page.waitForTimeout(300);
   await expect(page.locator("html")).not.toHaveClass(/motion-ready/);
+  await expect(page.locator("[data-page-enter]")).toBeVisible();
 });
 
 test("portal navigation exposes active state and breadcrumbs", async ({ page }) => {
