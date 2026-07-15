@@ -72,8 +72,13 @@ npm run test:e2e
 - `docs/architecture.md`
 - `docs/database.md`
 - `docs/security-baseline.md`
+- `docs/threat-model.md`
+- `docs/payment-testing.md`
+- `docs/production-readiness.md`
+- `docs/known-limitations.md`
+- `docs/phase-16-handoff.md`
 - `docs/development.md`
 
 ## Deployment
 
-AWS deployment is intentionally deferred to Phase 16. No AWS resource should be created during Phase 1–15.
+Phase 1–15 is implemented locally with Sandbox/provider adapters and automated quality gates. AWS deployment is intentionally deferred to Phase 16. No AWS resource should be created during Phase 1–15.

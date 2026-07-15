@@ -1,11 +1,13 @@
 import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
+import { Bell, type LucideIcon } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { cn } from "@/lib/utils";
 
 export type PortalNavItem = { label: string; href: string; icon: LucideIcon };
 
 export function PortalShell({ title, userLabel, items, children }: { title: string; userLabel: string; items: PortalNavItem[]; children: React.ReactNode }) {
+  const notificationHref = title.startsWith("Owner") ? "/owner/notifications" : "/client/notifications";
+
   return (
     <div className="min-h-screen bg-background lg:grid lg:grid-cols-[260px_1fr]">
       <aside className="hidden border-r border-border bg-surface p-6 lg:block">
@@ -22,7 +24,7 @@ export function PortalShell({ title, userLabel, items, children }: { title: stri
       <div className="min-w-0">
         <header className="flex h-16 items-center justify-between border-b border-border bg-surface px-5 md:px-8">
           <div className="lg:hidden"><Brand /></div>
-          <p className="ml-auto text-sm font-semibold">{userLabel}</p>
+          <div className="ml-auto flex items-center gap-3"><Link href={notificationHref} className="grid size-9 place-items-center rounded-[10px] text-secondary hover:bg-accent-soft hover:text-primary" aria-label="Notifications"><Bell className="size-4" /></Link><p className="text-sm font-semibold">{userLabel}</p></div>
         </header>
         <main className={cn("mx-auto max-w-[1440px] p-5 md:p-8")}>{children}</main>
         <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-surface px-1 py-2 lg:hidden" aria-label="Mobile portal navigation">

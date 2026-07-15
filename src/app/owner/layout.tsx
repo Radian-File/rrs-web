@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { FileText, FolderKanban, LayoutDashboard, MessageSquareText, ReceiptText, Settings, Star } from "lucide-react";
+import { CreditCard, FileText, FolderKanban, LayoutDashboard, MessageSquareText, ReceiptText, Settings, Star } from "lucide-react";
 import { auth } from "@/auth";
 import { PortalShell } from "@/components/layout/portal-shell";
 
@@ -9,6 +9,7 @@ const items = [
   { label: "Quotations", href: "/owner/quotations", icon: FileText },
   { label: "Projects", href: "/owner/projects", icon: FolderKanban },
   { label: "Invoices", href: "/owner/invoices", icon: ReceiptText },
+  { label: "Payments", href: "/owner/payments", icon: CreditCard },
   { label: "Reviews", href: "/owner/reviews", icon: Star },
   { label: "Settings", href: "/owner/settings", icon: Settings },
 ];

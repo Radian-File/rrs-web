@@ -40,6 +40,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
+  events: {
+    async signIn({ user }) {
+      await prisma.auditLog.create({
+        data: {
+          userId: user.id,
+          action: "LOGIN_SUCCESS",
+          entityType: "User",
+          entityId: user.id,
+        },
+      });
+    },
+  },
   callbacks: {
     jwt({ token, user }) {
       if (user) {

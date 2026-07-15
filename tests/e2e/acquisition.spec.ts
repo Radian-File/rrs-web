@@ -45,7 +45,7 @@ test("service detail keeps quotation as the primary conversion", async ({ page }
 });
 
 test("owner can draft and send a quotation that the client accepts atomically", async ({ page }) => {
-  test.setTimeout(60_000);
+  test.setTimeout(120_000);
   const email = `quotation-${Date.now()}-${test.info().project.name}@example.com`;
 
   await page.goto("/owner/quotations/create");
@@ -113,5 +113,44 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Accept Agreement" }).click();
   await expect(page.getByText("AWAITING DOWN PAYMENT", { exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: /View INV-2026-/ })).toBeVisible();
+  const clientProjectUrl = page.url();
+  const invoiceLink = page.getByRole("link", { name: /View INV-2026-/ });
+  await expect(invoiceLink).toBeVisible();
+  const invoiceUrl = await invoiceLink.getAttribute("href");
+  const invoiceLabel = await invoiceLink.textContent();
+  const invoiceNumber = invoiceLabel?.replace("View ", "").trim();
+  expect(invoiceUrl).toBeTruthy();
+  expect(invoiceNumber).toBeTruthy();
+
+  await page.goto(invoiceUrl!);
+  await page.locator('input[name="proof"]').setInputFiles({
+    name: "payment-proof.pdf",
+    mimeType: "application/pdf",
+    buffer: Buffer.from("%PDF-1.7\nRRS manual payment E2E fixture"),
+  });
+  await page.getByRole("button", { name: "Submit Proof" }).click();
+  await expect(page.getByText("UNDER_VERIFICATION", { exact: true })).toBeVisible();
+
+  await page.context().clearCookies();
+  await page.goto("/owner/payments");
+  await page.getByLabel("Email").fill(process.env.OWNER_EMAIL ?? "owner@example.com");
+  await page.getByLabel("Password").fill(process.env.OWNER_PASSWORD ?? "ChangeMe123!");
+  await page.getByRole("button", { name: "Sign In" }).click();
+  await expect(page.getByText("Owner overview")).toBeVisible();
+  await page.goto("/owner/payments");
+  const paymentCard = page.locator(`[data-invoice="${invoiceNumber}"]`);
+  await expect(paymentCard).toBeVisible();
+  await paymentCard.getByRole("button", { name: "Verify Payment" }).click();
+  await expect(paymentCard.getByText("VERIFIED", { exact: true })).toBeVisible();
+
+  await page.context().clearCookies();
+  await page.goto("/login");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill("StrongClient123!");
+  await page.getByRole("button", { name: "Sign In" }).click();
+  await expect(page).toHaveURL(/\/client$/);
+  await page.goto(invoiceUrl!);
+  await expect(page.getByText("PAID", { exact: true }).first()).toBeVisible();
+  await page.goto(clientProjectUrl);
+  await expect(page.getByText("PLANNING", { exact: true })).toBeVisible();
 });

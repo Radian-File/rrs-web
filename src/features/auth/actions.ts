@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { prisma } from "@/lib/db/prisma";
 import { loginSchema, registerSchema } from "@/features/auth/schemas";
+import { assertRequestRateLimit } from "@/lib/security/rate-limit";
 
 export type AuthActionState = {
   message?: string;
@@ -20,6 +21,7 @@ export async function loginAction(
   _state: AuthActionState,
   formData: FormData,
 ): Promise<AuthActionState> {
+  await assertRequestRateLimit("login", 8, 15 * 60 * 1000, String(formData.get("email") ?? "anonymous"));
   const parsed = loginSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     return { errors: parsed.error.flatten().fieldErrors };
@@ -45,6 +47,7 @@ export async function registerAction(
   _state: AuthActionState,
   formData: FormData,
 ): Promise<AuthActionState> {
+  await assertRequestRateLimit("register", 4, 60 * 60 * 1000, String(formData.get("email") ?? "anonymous"));
   const parsed = registerSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     return { errors: parsed.error.flatten().fieldErrors };

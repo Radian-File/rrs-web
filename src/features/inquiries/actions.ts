@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db/prisma";
 import { allocateDocumentNumber } from "@/features/documents/sequence";
 import { projectBriefSchema } from "@/features/inquiries/schemas";
 import { removePrivateFile, storePrivateFile, type StoredFile } from "@/lib/storage/local";
+import { assertRequestRateLimit } from "@/lib/security/rate-limit";
 
 export type BriefActionState = { message?: string; errors?: Record<string, string[]> };
 
@@ -15,6 +16,7 @@ export async function submitProjectBrief(
   _state: BriefActionState,
   formData: FormData,
 ): Promise<BriefActionState> {
+  await assertRequestRateLimit("project-brief", 5, 15 * 60 * 1000, String(formData.get("clientEmail") ?? "anonymous"));
   const parsed = projectBriefSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { errors: parsed.error.flatten().fieldErrors, message: "Please review the highlighted fields." };
 
