@@ -1,0 +1,829 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  OWNER
+  CLIENT
+}
+
+enum PortfolioSource {
+  MANUAL
+  GITHUB
+}
+
+enum InquiryStatus {
+  DRAFT
+  SUBMITTED
+  REVIEWING
+  DISCUSSING
+  WAITING_FOR_CLIENT
+  READY_FOR_QUOTATION
+  QUOTATION_SENT
+  ACCEPTED
+  REJECTED
+  CANCELLED
+  ARCHIVED
+}
+
+enum InquirySource {
+  WEBSITE_TO_WHATSAPP
+  MANUAL
+  REFERRAL
+}
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  VIEWED
+  REVISION_REQUESTED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CANCELLED
+}
+
+enum QuotationSource {
+  MANUAL
+  INQUIRY
+  EXISTING_CLIENT
+  EXISTING_PROJECT
+}
+
+enum PaymentPlanType {
+  FULL_PAYMENT
+  DOWN_PAYMENT_AND_FINAL
+  MILESTONE_BASED
+  CUSTOM
+}
+
+enum AgreementStatus {
+  PENDING
+  ACCEPTED
+  CANCELLED
+}
+
+enum ProjectStatus {
+  AWAITING_AGREEMENT
+  AWAITING_DOWN_PAYMENT
+  PLANNING
+  IN_PROGRESS
+  CLIENT_REVIEW
+  REVISION
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum MilestoneStatus {
+  PLANNED
+  IN_PROGRESS
+  CLIENT_REVIEW
+  APPROVED
+  COMPLETED
+  ON_HOLD
+}
+
+enum ReviewStatus {
+  PENDING
+  PUBLISHED
+  HIDDEN
+  REJECTED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PENDING
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+  VOID
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+  EXPIRED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  MIDTRANS
+  MANUAL
+}
+
+enum ManualPaymentStatus {
+  AWAITING_PROOF
+  UNDER_VERIFICATION
+  VERIFIED
+  REJECTED
+}
+
+enum FileType {
+  BRIEF_ATTACHMENT
+  REFERENCE
+  PROJECT_FILE
+  DELIVERY
+  REVISION
+  PAYMENT_PROOF
+  REVIEW_MEDIA
+  DOCUMENT
+  OTHER
+}
+
+enum NotificationType {
+  INQUIRY_SUBMITTED
+  QUOTATION_SENT
+  QUOTATION_VIEWED
+  QUOTATION_ACTIONED
+  AGREEMENT_READY
+  PROJECT_UPDATED
+  MESSAGE_RECEIVED
+  FILE_UPLOADED
+  INVOICE_ISSUED
+  PAYMENT_UPDATED
+  REVIEW_INVITED
+  REVIEW_SUBMITTED
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  WHATSAPP
+}
+
+enum NotificationDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+enum ContactMessageStatus {
+  NEW
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  emailVerified  DateTime?
+  passwordHash   String?
+  whatsappNumber String?
+  companyName    String?
+  address        String?
+  image          String?
+  role           UserRole  @default(CLIENT)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  accounts        Account[]
+  sessions        Session[]
+  inquiries       Inquiry[]
+  quotations      Quotation[]
+  projects        Project[]
+  invoices        Invoice[]
+  paymentAttempts PaymentAttempt[]
+  uploadedFiles   FileAsset[]
+  sentMessages    ProjectMessage[]
+  notifications   Notification[]
+  auditLogs       AuditLog[]
+  reviews         Review[]
+
+  @@index([role])
+  @@index([createdAt])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refreshToken      String? @db.Text
+  accessToken       String? @db.Text
+  expiresAt         Int?
+  tokenType         String?
+  scope             String?
+  idToken           String? @db.Text
+  sessionState      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Service {
+  id               String   @id @default(cuid())
+  title            String
+  slug             String   @unique
+  summary          String
+  description      String   @db.Text
+  category         String
+  startingPrice    Decimal? @db.Decimal(18, 2)
+  currency         String   @default("IDR")
+  deliveryEstimate String?
+  revisionGuidance String?
+  deliverables     String[]
+  technologies     String[]
+  coverImageUrl    String?
+  isFeatured       Boolean  @default(false)
+  isPublished      Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  inquiries  Inquiry[]
+  quotations Quotation[]
+  reviews    Review[]
+
+  @@index([category])
+  @@index([isPublished, isFeatured])
+}
+
+model PortfolioProject {
+  id            String          @id @default(cuid())
+  title         String
+  slug          String          @unique
+  summary       String
+  description   String          @db.Text
+  category      String
+  technologies  String[]
+  coverImageUrl String?
+  galleryUrls   String[]
+  liveUrl       String?
+  repositoryUrl String?
+  source        PortfolioSource @default(MANUAL)
+  isFeatured    Boolean         @default(false)
+  isPublished   Boolean         @default(false)
+  completedAt   DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  reviews Review[]
+
+  @@index([category])
+  @@index([isPublished, isFeatured])
+}
+
+model Inquiry {
+  id                 String        @id @default(cuid())
+  inquiryNumber      String        @unique
+  clientId           String?
+  selectedServiceId  String?
+  clientName         String
+  clientPhone        String
+  clientEmail        String
+  companyName        String?
+  projectTitle       String
+  projectType        String
+  projectDescription String        @db.Text
+  projectGoals       String        @db.Text
+  targetUsers        String?
+  requiredFeatures   String[]
+  referenceLinks     String[]
+  budgetRange        String?
+  expectedDeadline   DateTime?
+  hasDesign          Boolean?
+  hasDomain          Boolean?
+  hasHosting         Boolean?
+  needsMaintenance   Boolean?
+  isRedesign         Boolean?
+  source             InquirySource @default(WEBSITE_TO_WHATSAPP)
+  status             InquiryStatus @default(SUBMITTED)
+  internalNotes      String?       @db.Text
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  client          User?             @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  selectedService Service?          @relation(fields: [selectedServiceId], references: [id], onDelete: SetNull)
+  quotations      Quotation[]
+  projects        Project[]
+  files           FileAsset[]
+  activities      InquiryActivity[]
+
+  @@index([clientId])
+  @@index([selectedServiceId])
+  @@index([status, createdAt])
+  @@index([clientEmail])
+}
+
+model InquiryActivity {
+  id          String   @id @default(cuid())
+  inquiryId   String
+  type        String
+  description String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  inquiry Inquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+
+  @@index([inquiryId, createdAt])
+}
+
+model DocumentSequence {
+  id        String   @id @default(cuid())
+  type      String
+  year      Int
+  lastValue Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([type, year])
+}
+
+model Quotation {
+  id                    String          @id @default(cuid())
+  groupId               String
+  quotationNumber       String
+  version               Int             @default(1)
+  isCurrent             Boolean         @default(true)
+  status                QuotationStatus @default(DRAFT)
+  sourceType            QuotationSource @default(MANUAL)
+  inquiryId             String?
+  clientId              String?
+  serviceId             String?
+  clientName            String
+  companyName           String?
+  clientEmail           String?
+  clientPhone           String?
+  clientAddress         String?
+  projectTitle          String
+  projectSummary        String?         @db.Text
+  projectType           String?
+  currency              String          @default("IDR")
+  subtotal              Decimal         @db.Decimal(18, 2)
+  discount              Decimal         @default(0) @db.Decimal(18, 2)
+  tax                   Decimal         @default(0) @db.Decimal(18, 2)
+  total                 Decimal         @db.Decimal(18, 2)
+  paymentPlanType       PaymentPlanType
+  validUntil            DateTime
+  estimatedStartDate    DateTime?
+  estimatedCompletionAt DateTime?
+  scopeIncluded         String?         @db.Text
+  scopeExcluded         String?         @db.Text
+  revisionLimit         Int?
+  maintenanceDays       Int?
+  terms                 String?         @db.Text
+  notes                 String?         @db.Text
+  publicTokenHash       String?         @unique
+  publicTokenRevokedAt  DateTime?
+  viewCount             Int             @default(0)
+  sentAt                DateTime?
+  viewedAt              DateTime?
+  lastViewedAt          DateTime?
+  acceptedAt            DateTime?
+  rejectedAt            DateTime?
+  cancelledAt           DateTime?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  inquiry          Inquiry?                   @relation(fields: [inquiryId], references: [id], onDelete: SetNull)
+  client           User?                      @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  service          Service?                   @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  items            QuotationItem[]
+  paymentTerms     QuotationPaymentTerm[]
+  revisionRequests QuotationRevisionRequest[]
+  activities       QuotationActivity[]
+  project          Project?
+  agreement        Agreement?
+
+  @@unique([quotationNumber, version])
+  @@unique([groupId, version])
+  @@index([groupId, isCurrent])
+  @@index([status, createdAt])
+  @@index([clientId])
+  @@index([inquiryId])
+}
+
+model QuotationItem {
+  id          String  @id @default(cuid())
+  quotationId String
+  title       String
+  description String? @db.Text
+  quantity    Decimal @default(1) @db.Decimal(12, 2)
+  unitPrice   Decimal @db.Decimal(18, 2)
+  total       Decimal @db.Decimal(18, 2)
+  sequence    Int
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  @@unique([quotationId, sequence])
+  @@index([quotationId])
+}
+
+model QuotationPaymentTerm {
+  id          String   @id @default(cuid())
+  quotationId String
+  title       String
+  description String?  @db.Text
+  percentage  Decimal? @db.Decimal(5, 2)
+  amount      Decimal  @db.Decimal(18, 2)
+  dueTrigger  String
+  sequence    Int
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  @@unique([quotationId, sequence])
+  @@index([quotationId])
+}
+
+model QuotationRevisionRequest {
+  id          String   @id @default(cuid())
+  quotationId String
+  requestedBy String
+  reason      String   @db.Text
+  createdAt   DateTime @default(now())
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  @@index([quotationId, createdAt])
+}
+
+model QuotationActivity {
+  id          String   @id @default(cuid())
+  quotationId String
+  type        String
+  description String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  @@index([quotationId, createdAt])
+}
+
+model Project {
+  id            String        @id @default(cuid())
+  projectNumber String        @unique
+  quotationId   String        @unique
+  inquiryId     String?
+  clientId      String
+  title         String
+  summary       String?       @db.Text
+  status        ProjectStatus @default(AWAITING_AGREEMENT)
+  currency      String        @default("IDR")
+  total         Decimal       @db.Decimal(18, 2)
+  startDate     DateTime?
+  dueDate       DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  quotation    Quotation          @relation(fields: [quotationId], references: [id], onDelete: Restrict)
+  inquiry      Inquiry?           @relation(fields: [inquiryId], references: [id], onDelete: SetNull)
+  client       User               @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  agreement    Agreement?
+  milestones   ProjectMilestone[]
+  messages     ProjectMessage[]
+  files        FileAsset[]
+  activities   ProjectActivity[]
+  schedules    PaymentSchedule[]
+  invoices     Invoice[]
+  payments     PaymentAttempt[]
+  reviewInvite ReviewInvitation?
+  review       Review?
+
+  @@index([clientId, status])
+  @@index([inquiryId])
+  @@index([createdAt])
+}
+
+model Agreement {
+  id              String          @id @default(cuid())
+  agreementNumber String          @unique
+  projectId       String          @unique
+  quotationId     String          @unique
+  version         Int             @default(1)
+  status          AgreementStatus @default(PENDING)
+  contentSnapshot Json
+  acceptedByName  String?
+  acceptedByEmail String?
+  acceptedAt      DateTime?
+  acceptanceIp    String?
+  acceptanceAgent String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Restrict)
+}
+
+model ProjectMilestone {
+  id          String          @id @default(cuid())
+  projectId   String
+  title       String
+  description String?         @db.Text
+  status      MilestoneStatus @default(PLANNED)
+  sequence    Int
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, sequence])
+  @@index([projectId, status])
+}
+
+model ProjectMessage {
+  id        String   @id @default(cuid())
+  projectId String
+  senderId  String
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sender  User    @relation(fields: [senderId], references: [id], onDelete: Restrict)
+
+  @@index([projectId, createdAt])
+  @@index([senderId])
+}
+
+model ProjectActivity {
+  id          String   @id @default(cuid())
+  projectId   String
+  type        String
+  description String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+}
+
+model PaymentSchedule {
+  id          String    @id @default(cuid())
+  projectId   String
+  title       String
+  description String?   @db.Text
+  percentage  Decimal?  @db.Decimal(5, 2)
+  amount      Decimal   @db.Decimal(18, 2)
+  dueTrigger  String
+  dueDate     DateTime?
+  sequence    Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  project Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  invoice Invoice?
+
+  @@unique([projectId, sequence])
+  @@index([projectId])
+}
+
+model Invoice {
+  id                String        @id @default(cuid())
+  invoiceNumber     String        @unique
+  projectId         String
+  clientId          String
+  paymentScheduleId String?       @unique
+  currency          String        @default("IDR")
+  subtotal          Decimal       @db.Decimal(18, 2)
+  discount          Decimal       @default(0) @db.Decimal(18, 2)
+  tax               Decimal       @default(0) @db.Decimal(18, 2)
+  total             Decimal       @db.Decimal(18, 2)
+  paidAmount        Decimal       @default(0) @db.Decimal(18, 2)
+  status            InvoiceStatus @default(DRAFT)
+  dueDate           DateTime?
+  issuedAt          DateTime?
+  paidAt            DateTime?
+  voidedAt          DateTime?
+  notes             String?       @db.Text
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  project         Project          @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  client          User             @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  paymentSchedule PaymentSchedule? @relation(fields: [paymentScheduleId], references: [id], onDelete: SetNull)
+  payments        PaymentAttempt[]
+
+  @@index([projectId, status])
+  @@index([clientId, createdAt])
+  @@index([dueDate])
+}
+
+model PaymentAttempt {
+  id                    String               @id @default(cuid())
+  invoiceId             String
+  projectId             String
+  clientId              String
+  provider              PaymentProvider
+  status                PaymentStatus        @default(PENDING)
+  manualStatus          ManualPaymentStatus?
+  amount                Decimal              @db.Decimal(18, 2)
+  providerOrderId       String?              @unique
+  providerTransactionId String?
+  providerPaymentType   String?
+  providerStatus        String?
+  checkoutUrl           String?
+  snapToken             String?
+  rawResponse           Json?
+  submittedAt           DateTime?
+  verifiedAt            DateTime?
+  verifiedBy            String?
+  rejectionReason       String?              @db.Text
+  paidAt                DateTime?
+  expiredAt             DateTime?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  invoice Invoice     @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  project Project     @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  client  User        @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  files   FileAsset[]
+
+  @@index([invoiceId, status])
+  @@index([projectId])
+  @@index([clientId, createdAt])
+  @@index([provider, providerStatus])
+}
+
+model WebhookEvent {
+  id          String    @id @default(cuid())
+  provider    String
+  eventKey    String    @unique
+  eventType   String?
+  referenceId String?
+  payload     Json
+  processed   Boolean   @default(false)
+  error       String?
+  createdAt   DateTime  @default(now())
+  processedAt DateTime?
+
+  @@index([provider, referenceId])
+  @@index([processed, createdAt])
+}
+
+model ReviewInvitation {
+  id        String    @id @default(cuid())
+  projectId String    @unique
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  review  Review?
+}
+
+model Review {
+  id                  String       @id @default(cuid())
+  projectId           String       @unique
+  invitationId        String       @unique
+  clientId            String
+  serviceId           String?
+  portfolioProjectId  String?
+  overallRating       Int
+  communicationRating Int
+  qualityRating       Int
+  deliveryRating      Int
+  valueRating         Int
+  comment             String       @db.Text
+  ownerResponse       String?      @db.Text
+  status              ReviewStatus @default(PENDING)
+  isPublished         Boolean      @default(false)
+  submittedAt         DateTime     @default(now())
+  publishedAt         DateTime?
+  updatedAt           DateTime     @updatedAt
+
+  project          Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  invitation       ReviewInvitation  @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  client           User              @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  service          Service?          @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  portfolioProject PortfolioProject? @relation(fields: [portfolioProjectId], references: [id], onDelete: SetNull)
+
+  @@index([status, isPublished])
+  @@index([serviceId])
+  @@index([portfolioProjectId])
+}
+
+model FileAsset {
+  id               String   @id @default(cuid())
+  inquiryId        String?
+  projectId        String?
+  paymentAttemptId String?
+  uploaderId       String?
+  type             FileType @default(OTHER)
+  originalName     String
+  storageKey       String   @unique
+  mimeType         String
+  size             Int
+  checksum         String?
+  description      String?
+  createdAt        DateTime @default(now())
+
+  inquiry        Inquiry?        @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  project        Project?        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  paymentAttempt PaymentAttempt? @relation(fields: [paymentAttemptId], references: [id], onDelete: Cascade)
+  uploader       User?           @relation(fields: [uploaderId], references: [id], onDelete: SetNull)
+
+  @@index([inquiryId, type])
+  @@index([projectId, type])
+  @@index([paymentAttemptId])
+  @@index([uploaderId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String           @db.Text
+  href      String?
+  metadata  Json?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries NotificationDelivery[]
+
+  @@index([userId, isRead, createdAt])
+}
+
+model NotificationDelivery {
+  id             String                     @id @default(cuid())
+  notificationId String
+  channel        NotificationChannel
+  status         NotificationDeliveryStatus @default(PENDING)
+  recipient      String?
+  attempts       Int                        @default(0)
+  lastError      String?
+  sentAt         DateTime?
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, channel])
+  @@index([status, createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String?
+  entityId   String?
+  ipAddress  String?
+  userAgent  String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@index([entityType, entityId])
+}
+
+model ContactMessage {
+  id             String               @id @default(cuid())
+  name           String
+  email          String
+  whatsappNumber String?
+  subject        String
+  message        String               @db.Text
+  status         ContactMessageStatus @default(NEW)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@index([status, createdAt])
+  @@index([email])
+}
