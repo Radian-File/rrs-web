@@ -1,17 +1,21 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import { createServiceAction, updateServiceAction } from "@/features/services/actions";
 import { Button } from "@/components/ui/button";
+import { FieldError, fieldErrorClass } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useRetainedFormValues } from "@/components/ui/use-retained-form-values";
 
 export type EditableService = { id: string; title: string; slug: string; summary: string; description: string; category: string; startingPrice: string | null; deliveryEstimate: string | null; revisionGuidance: string | null; deliverables: string[]; technologies: string[]; coverImageUrl: string | null; isFeatured: boolean; isPublished: boolean };
 
 export function ServiceEditor({ service }: { service?: EditableService }) {
+  const formRef = useRef<HTMLFormElement>(null);
   const [state, action, pending] = useActionState(service ? updateServiceAction : createServiceAction, {});
+  const { capture } = useRetainedFormValues(formRef, Boolean(state.errors || state.message));
   const error = (name: string) => state.errors?.[name]?.[0];
-  return <form action={action} className="space-y-6">
+  return <form ref={formRef} action={action} onSubmit={capture} className="space-y-6">
     {service && <input type="hidden" name="id" value={service.id} />}
     <section className="grid gap-5 md:grid-cols-2">
       <Field label="Nama layanan" name="title" defaultValue={service?.title} error={error("title")} />
@@ -34,6 +38,6 @@ export function ServiceEditor({ service }: { service?: EditableService }) {
   </form>;
 }
 
-function Field({ label, name, error, className, ...props }: React.ComponentProps<typeof Input> & { label: string; name: string; error?: string }) { return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Input name={name} required={name !== "startingPrice" && name !== "deliveryEstimate" && name !== "revisionGuidance" && name !== "coverImageUrl"} {...props} />{error && <span role="alert" className="mt-2 block text-xs text-error">{error}</span>}</label>; }
-function Area({ label, hint, name, error, className, ...props }: React.ComponentProps<typeof Textarea> & { label: string; hint?: string; name: string; error?: string }) { return <label><span className="mb-2 block text-sm font-semibold">{label}</span>{hint && <span className="-mt-1 mb-2 block text-xs text-secondary">{hint}</span>}<Textarea name={name} required className={className} {...props} />{error && <span role="alert" className="mt-2 block text-xs text-error">{error}</span>}</label>; }
+function Field({ label, name, error, className, ...props }: React.ComponentProps<typeof Input> & { label: string; name: string; error?: string }) { const errorId=`${name}-error`;return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Input name={name} required={name !== "startingPrice" && name !== "deliveryEstimate" && name !== "revisionGuidance" && name !== "coverImageUrl"} aria-invalid={Boolean(error)} aria-describedby={error?errorId:undefined} className={fieldErrorClass(error)} {...props} /><FieldError id={errorId} error={error}/></label>; }
+function Area({ label, hint, name, error, className, ...props }: React.ComponentProps<typeof Textarea> & { label: string; hint?: string; name: string; error?: string }) { const errorId=`${name}-error`;return <label><span className="mb-2 block text-sm font-semibold">{label}</span>{hint && <span className="-mt-1 mb-2 block text-xs text-secondary">{hint}</span>}<Textarea name={name} required aria-invalid={Boolean(error)} aria-describedby={error?errorId:undefined} className={fieldErrorClass(error, className)} {...props} /><FieldError id={errorId} error={error}/></label>; }
 function Check({ label, name, defaultChecked }: { label: string; name: string; defaultChecked: boolean }) { return <label className="flex items-center gap-3 text-sm font-semibold"><input name={name} type="checkbox" defaultChecked={defaultChecked} className="size-4 accent-primary" />{label}</label>; }

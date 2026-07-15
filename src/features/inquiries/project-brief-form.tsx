@@ -5,8 +5,10 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { submitProjectBrief } from "@/features/inquiries/actions";
 import { projectBriefSchema } from "@/features/inquiries/schemas";
 import { Button } from "@/components/ui/button";
+import { FieldError, fieldErrorClass } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useRetainedFormValues } from "@/components/ui/use-retained-form-values";
 
 const selectClass = "h-12 w-full rounded-[12px] border border-border bg-surface px-4 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10";
 const stepOneSchema = projectBriefSchema.pick({ clientName: true, clientPhone: true, clientEmail: true, companyName: true, serviceSlug: true });
@@ -17,6 +19,7 @@ export function ProjectBriefForm({ services, selectedService }: { services: { sl
   const [step, setStep] = useState(1);
   const [clientErrors, setClientErrors] = useState<Record<string, string[]>>({});
   const [state, action, pending] = useActionState(submitProjectBrief, {});
+  const { capture } = useRetainedFormValues(formRef, Boolean(state.errors || state.message), ["attachment"]);
   const error = (name: string) => clientErrors[name]?.[0] ?? state.errors?.[name]?.[0];
   const continueToNextStep = () => {
     if (!formRef.current) return;
@@ -29,7 +32,7 @@ export function ProjectBriefForm({ services, selectedService }: { services: { sl
     setStep((value) => Math.min(3, value + 1));
   };
 
-  return <form ref={formRef} action={action} onInput={(event) => { const name = (event.target as HTMLInputElement).name; if (name in clientErrors) setClientErrors((errors) => { const next = { ...errors }; delete next[name]; return next; }); }}>
+  return <form ref={formRef} action={action} onSubmit={capture} onInput={(event) => { const name = (event.target as HTMLInputElement).name; if (name in clientErrors) setClientErrors((errors) => { const next = { ...errors }; delete next[name]; return next; }); }}>
     <div className="mb-8 flex items-center gap-3">{[1,2,3].map((item)=><div key={item} className="flex flex-1 items-center gap-3"><span className={`grid size-8 shrink-0 place-items-center rounded-full text-xs font-bold ${step>=item?"bg-primary text-white":"bg-surface-container text-secondary"}`}>{item}</span>{item<3&&<span className={`h-px flex-1 ${step>item?"bg-primary":"bg-border"}`}/>}</div>)}</div>
     <section hidden={step!==1} className="grid gap-5 sm:grid-cols-2">
       <Field label="Full name" name="clientName" error={error("clientName")} />
@@ -62,5 +65,5 @@ export function ProjectBriefForm({ services, selectedService }: { services: { sl
   </form>;
 }
 
-function Field({label,name,type="text",required=true,error,className,placeholder}:{label:string;name:string;type?:string;required?:boolean;error?:string;className?:string;placeholder?:string}){return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Input name={name} type={type} required={required} placeholder={placeholder}/>{error&&<span role="alert" className="mt-2 block text-xs text-error">{error}</span>}</label>}
-function Area({label,name,required=true,error,className,placeholder}:{label:string;name:string;required?:boolean;error?:string;className?:string;placeholder?:string}){return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Textarea name={name} required={required} placeholder={placeholder}/>{error&&<span role="alert" className="mt-2 block text-xs text-error">{error}</span>}</label>}
+function Field({label,name,type="text",required=true,error,className,placeholder}:{label:string;name:string;type?:string;required?:boolean;error?:string;className?:string;placeholder?:string}){const errorId=`${name}-error`;return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Input name={name} type={type} required={required} placeholder={placeholder} aria-invalid={Boolean(error)} aria-describedby={error?errorId:undefined} className={fieldErrorClass(error)}/><FieldError id={errorId} error={error}/></label>}
+function Area({label,name,required=true,error,className,placeholder}:{label:string;name:string;required?:boolean;error?:string;className?:string;placeholder?:string}){const errorId=`${name}-error`;return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Textarea name={name} required={required} placeholder={placeholder} aria-invalid={Boolean(error)} aria-describedby={error?errorId:undefined} className={fieldErrorClass(error)}/><FieldError id={errorId} error={error}/></label>}
