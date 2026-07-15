@@ -92,4 +92,26 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   });
   await expect(page).toHaveURL(/action=accepted/, { timeout: 30_000 });
   await expect(page.getByText("Quotation accepted.")).toBeVisible();
+
+  await page.goto("/register");
+  await page.getByLabel("Full name").fill("Quotation E2E Client");
+  await page.getByLabel("WhatsApp number").fill("628123456789");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password", { exact: true }).fill("StrongClient123!");
+  await page.getByLabel("Confirm password").fill("StrongClient123!");
+  await page.evaluate(() => {
+    const button = [...document.querySelectorAll("button")].find(
+      (element) => element.textContent?.trim() === "Create Client Account",
+    );
+    window.setTimeout(() => (button as HTMLButtonElement | undefined)?.click(), 100);
+  });
+  await expect(page).toHaveURL(/\/client$/, { timeout: 30_000 });
+
+  await page.goto("/client/projects");
+  await page.getByText("Quotation workflow test", { exact: true }).click();
+  await expect(page.getByText("Project agreement is ready")).toBeVisible();
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Accept Agreement" }).click();
+  await expect(page.getByText("AWAITING DOWN PAYMENT", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /View INV-2026-/ })).toBeVisible();
 });

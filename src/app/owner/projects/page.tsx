@@ -1,0 +1,7 @@
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { Card,CardContent } from "@/components/ui/card";
+import { prisma } from "@/lib/db/prisma";
+import { formatIdr } from "@/lib/utils";
+export const dynamic="force-dynamic";
+export default async function OwnerProjectsPage(){const projects=await prisma.project.findMany({include:{client:true},orderBy:{updatedAt:"desc"}});return <><p className="text-sm font-bold uppercase tracking-[.14em] text-primary">Projects</p><h1 className="mt-3 font-display text-3xl font-extrabold">Delivery workspaces created from accepted quotations.</h1><div className="mt-8 grid gap-4">{projects.map((project)=><Link key={project.id} href={`/owner/projects/${project.id}`}><Card className="transition-all hover:-translate-y-0.5 hover:shadow-md"><CardContent className="flex flex-col justify-between gap-5 md:flex-row md:items-center"><div><p className="font-display text-lg font-extrabold">{project.title}</p><p className="mt-1 text-xs text-secondary">{project.projectNumber} · {project.client.name}</p></div><div className="flex items-center gap-4"><p className="font-semibold text-primary">{formatIdr(project.total.toString())}</p><Badge>{project.status.replaceAll("_"," ")}</Badge></div></CardContent></Card></Link>)}</div>{projects.length===0&&<p className="mt-8 rounded-[14px] border border-dashed border-border p-10 text-center text-sm text-secondary">No accepted quotation has created a project yet.</p>}</>}

@@ -1,5 +1,6 @@
 import {
   InquiryStatus,
+  InvoiceStatus,
   ProjectStatus,
   QuotationStatus,
 } from "@/generated/prisma/enums";
@@ -27,6 +28,17 @@ const quotationTransitions: Record<QuotationStatus, readonly QuotationStatus[]> 
   REJECTED: [],
   EXPIRED: [],
   CANCELLED: [],
+};
+
+const invoiceTransitions: Record<InvoiceStatus, readonly InvoiceStatus[]> = {
+  DRAFT: ["ISSUED", "VOID"],
+  ISSUED: ["PENDING", "PARTIALLY_PAID", "PAID", "OVERDUE", "VOID"],
+  PENDING: ["PARTIALLY_PAID", "PAID", "OVERDUE", "VOID"],
+  PARTIALLY_PAID: ["PAID", "OVERDUE", "REFUNDED"],
+  PAID: ["REFUNDED"],
+  OVERDUE: ["PARTIALLY_PAID", "PAID", "VOID"],
+  VOID: [],
+  REFUNDED: [],
 };
 
 const projectTransitions: Record<ProjectStatus, readonly ProjectStatus[]> = {
@@ -57,6 +69,11 @@ export const inquiryWorkflow = {
 export const quotationWorkflow = {
   canTransition: (from: QuotationStatus, to: QuotationStatus) =>
     canTransition(quotationTransitions, from, to),
+};
+
+export const invoiceWorkflow = {
+  canTransition: (from: InvoiceStatus, to: InvoiceStatus) =>
+    canTransition(invoiceTransitions, from, to),
 };
 
 export const projectWorkflow = {

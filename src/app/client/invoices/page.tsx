@@ -1,0 +1,10 @@
+import Link from "next/link";
+import { ReceiptText } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card,CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { requireClient } from "@/lib/authz";
+import { prisma } from "@/lib/db/prisma";
+import { formatIdr } from "@/lib/utils";
+export const dynamic="force-dynamic";
+export default async function ClientInvoicesPage(){const user=await requireClient();const invoices=await prisma.invoice.findMany({where:{clientId:user.id},include:{project:true},orderBy:{createdAt:"desc"}});return <><p className="text-sm font-bold uppercase tracking-[.14em] text-primary">Invoices & payments</p><h1 className="mt-3 font-display text-3xl font-extrabold">Payment documents for your projects.</h1>{invoices.length===0?<EmptyState className="mt-8" icon={ReceiptText} title="No invoice yet" description="The first invoice is created after quotation acceptance. Additional invoices follow the agreed payment schedule."/>:<div className="mt-8 grid gap-4">{invoices.map((invoice)=><Link key={invoice.id} href={`/client/invoices/${invoice.id}`}><Card className="transition-all hover:-translate-y-0.5 hover:shadow-md"><CardContent className="flex justify-between gap-4"><div><p className="font-display text-lg font-extrabold">{invoice.invoiceNumber}</p><p className="mt-1 text-xs text-secondary">{invoice.project.title} · due {invoice.dueDate?.toLocaleDateString("id-ID")??"—"}</p></div><div className="text-right"><p className="font-semibold text-primary">{formatIdr(invoice.total.toString())}</p><Badge className="mt-2">{invoice.status.replaceAll("_"," ")}</Badge></div></CardContent></Card></Link>)}</div>}</>}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   inquiryWorkflow,
+  invoiceWorkflow,
   projectWorkflow,
   quotationWorkflow,
 } from "@/features/workflow/transitions";
@@ -24,6 +25,19 @@ describe("quotation workflow", () => {
 
   it("keeps accepted quotations terminal", () => {
     expect(quotationWorkflow.canTransition("ACCEPTED", "CANCELLED")).toBe(false);
+  });
+});
+
+describe("invoice workflow", () => {
+  it("supports issue, partial payment, payment, and refund progression", () => {
+    expect(invoiceWorkflow.canTransition("DRAFT", "ISSUED")).toBe(true);
+    expect(invoiceWorkflow.canTransition("ISSUED", "PARTIALLY_PAID")).toBe(true);
+    expect(invoiceWorkflow.canTransition("PARTIALLY_PAID", "PAID")).toBe(true);
+    expect(invoiceWorkflow.canTransition("PAID", "REFUNDED")).toBe(true);
+  });
+
+  it("keeps void invoices terminal", () => {
+    expect(invoiceWorkflow.canTransition("VOID", "ISSUED")).toBe(false);
   });
 });
 
