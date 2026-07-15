@@ -34,6 +34,17 @@ export async function updateInquiryAction(formData: FormData) {
   revalidatePath("/owner/inquiries");
 }
 
+export async function bulkArchiveInquiriesAction(formData: FormData) {
+  await requireOwner();
+  const mode = String(formData.get("mode") ?? "selected");
+  const ids = [...new Set(formData.getAll("recordId").map(String).filter(Boolean))];
+  const where = mode === "all" ? { archivedAt: null } : { id: { in: ids }, archivedAt: null };
+  const records = await prisma.inquiry.findMany({ where, select: { id: true } });
+  const now = new Date();
+  await prisma.$transaction([prisma.inquiry.updateMany({ where: { id: { in: records.map((record) => record.id) } }, data: { archivedAt: now } }), prisma.inquiryActivity.createMany({ data: records.map((record) => ({ inquiryId: record.id, type: "ARCHIVED", description: "Inquiry bulk-archived from the active list." })) })]);
+  revalidatePath("/owner/inquiries"); revalidatePath("/owner/inquiries/archive");
+}
+
 export async function archiveInquiryAction(formData: FormData) {
   await setInquiryArchiveState(formData, true);
 }

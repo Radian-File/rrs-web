@@ -81,6 +81,16 @@ export async function saveQuotationAction(_state: QuotationActionState, formData
 
 const archiveSchema = z.object({ quotationId: z.string().min(1) });
 
+export async function bulkArchiveQuotationsAction(formData: FormData) {
+  await requireOwner();
+  const mode = String(formData.get("mode") ?? "selected");
+  const ids = [...new Set(formData.getAll("recordId").map(String).filter(Boolean))];
+  const where = mode === "all" ? { isCurrent: true, archivedAt: null } : { id: { in: ids }, isCurrent: true, archivedAt: null };
+  const records = await prisma.quotation.findMany({ where, select: { id: true } }); const now = new Date();
+  await prisma.$transaction([prisma.quotation.updateMany({ where: { id: { in: records.map((record) => record.id) } }, data: { archivedAt: now } }), prisma.quotationActivity.createMany({ data: records.map((record) => ({ quotationId: record.id, type: "ARCHIVED", description: "Quotation bulk-archived from the active list." })) })]);
+  revalidatePath("/owner/quotations"); revalidatePath("/owner/quotations/archive");
+}
+
 export async function archiveQuotationAction(formData: FormData) {
   await setQuotationArchiveState(formData, true);
 }

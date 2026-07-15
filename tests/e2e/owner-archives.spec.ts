@@ -32,7 +32,7 @@ test("owner archives and restores an inquiry without changing its status", async
   await page.goto(`/owner/inquiries?q=${encodeURIComponent(title)}`);
   await page.getByRole("row").filter({ hasText: title }).getByRole("link").click();
   await expect(page.getByText("SUBMITTED", { exact: true }).first()).toBeVisible();
-  await page.getByRole("button", { name: /Archive|Arsipkan/ }).click();
+  await page.getByRole("button", { name: "Archive", exact: true }).click();
   await expect(page.getByText("Archived", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("SUBMITTED", { exact: true }).first()).toBeVisible();
   await page.goto("/owner/inquiries");
@@ -65,7 +65,7 @@ test("owner archives and restores a quotation without changing its total", async
   await main.getByRole("button", { name: "Save Draft" }).click();
   await expect(page).toHaveURL(/owner\/quotations\/(?!create$)[A-Za-z0-9-]+$/, { timeout: 30_000 });
   await expect(page.getByText(/Rp\s?2\.500\.000/, { exact: true }).first()).toBeVisible();
-  await page.getByRole("button", { name: /Archive|Arsipkan/ }).click();
+  await page.getByRole("button", { name: "Archive", exact: true }).click();
   await expect(page.getByText("Archived", { exact: true }).first()).toBeVisible();
   await expect(page.getByText(/Rp\s?2\.500\.000/, { exact: true }).first()).toBeVisible();
   await page.goto("/owner/quotations");
