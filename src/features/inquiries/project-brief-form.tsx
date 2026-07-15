@@ -1,20 +1,35 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { submitProjectBrief } from "@/features/inquiries/actions";
+import { projectBriefSchema } from "@/features/inquiries/schemas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 const selectClass = "h-12 w-full rounded-[12px] border border-border bg-surface px-4 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10";
+const stepOneSchema = projectBriefSchema.pick({ clientName: true, clientPhone: true, clientEmail: true, companyName: true, serviceSlug: true });
+const stepTwoSchema = projectBriefSchema.pick({ projectTitle: true, projectType: true, targetUsers: true, projectDescription: true, projectGoals: true, requiredFeatures: true });
 
 export function ProjectBriefForm({ services, selectedService }: { services: { slug: string; title: string }[]; selectedService?: string }) {
+  const formRef = useRef<HTMLFormElement>(null);
   const [step, setStep] = useState(1);
+  const [clientErrors, setClientErrors] = useState<Record<string, string[]>>({});
   const [state, action, pending] = useActionState(submitProjectBrief, {});
-  const error = (name: string) => state.errors?.[name]?.[0];
+  const error = (name: string) => clientErrors[name]?.[0] ?? state.errors?.[name]?.[0];
+  const continueToNextStep = () => {
+    if (!formRef.current) return;
+    const result = (step === 1 ? stepOneSchema : stepTwoSchema).safeParse(Object.fromEntries(new FormData(formRef.current)));
+    if (!result.success) {
+      setClientErrors(result.error.flatten().fieldErrors);
+      return;
+    }
+    setClientErrors({});
+    setStep((value) => Math.min(3, value + 1));
+  };
 
-  return <form action={action}>
+  return <form ref={formRef} action={action} onInput={(event) => { const name = (event.target as HTMLInputElement).name; if (name in clientErrors) setClientErrors((errors) => { const next = { ...errors }; delete next[name]; return next; }); }}>
     <div className="mb-8 flex items-center gap-3">{[1,2,3].map((item)=><div key={item} className="flex flex-1 items-center gap-3"><span className={`grid size-8 shrink-0 place-items-center rounded-full text-xs font-bold ${step>=item?"bg-primary text-white":"bg-surface-container text-secondary"}`}>{item}</span>{item<3&&<span className={`h-px flex-1 ${step>item?"bg-primary":"bg-border"}`}/>}</div>)}</div>
     <section hidden={step!==1} className="grid gap-5 sm:grid-cols-2">
       <Field label="Full name" name="clientName" error={error("clientName")} />
@@ -43,9 +58,9 @@ export function ProjectBriefForm({ services, selectedService }: { services: { sl
       <label><span className="mb-2 block text-sm font-semibold">Supporting file (optional)</span><Input name="attachment" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="pt-3" /><span className="mt-2 block text-xs text-secondary">JPG, PNG, WebP, or PDF. Maximum 10 MB.</span></label>
     </section>
     {state.message&&<p role="alert" className="mt-6 rounded-[10px] bg-[#fbe8e8] px-4 py-3 text-sm text-error">{state.message}</p>}
-    <div className="mt-8 flex justify-between gap-3"><Button type="button" variant="ghost" disabled={step===1||pending} onClick={()=>setStep((value)=>Math.max(1,value-1))}><ArrowLeft className="size-4"/>Back</Button>{step<3?<Button type="button" onClick={()=>setStep((value)=>Math.min(3,value+1))}>Continue<ArrowRight className="size-4"/></Button>:<Button type="submit" disabled={pending}>{pending?"Submitting…":"Submit Project Brief"}</Button>}</div>
+    <div className="mt-8 flex justify-between gap-3"><Button type="button" variant="ghost" disabled={step===1||pending} onClick={()=>{ setClientErrors({}); setStep((value)=>Math.max(1,value-1)); }}><ArrowLeft className="size-4"/>Back</Button>{step<3?<Button type="button" onClick={continueToNextStep}>Continue<ArrowRight className="size-4"/></Button>:<Button type="submit" disabled={pending}>{pending?"Submitting…":"Submit Project Brief"}</Button>}</div>
   </form>;
 }
 
-function Field({label,name,type="text",required=true,error,className,placeholder}:{label:string;name:string;type?:string;required?:boolean;error?:string;className?:string;placeholder?:string}){return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Input name={name} type={type} required={required} placeholder={placeholder}/>{error&&<span className="mt-2 block text-xs text-error">{error}</span>}</label>}
-function Area({label,name,required=true,error,className,placeholder}:{label:string;name:string;required?:boolean;error?:string;className?:string;placeholder?:string}){return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Textarea name={name} required={required} placeholder={placeholder}/>{error&&<span className="mt-2 block text-xs text-error">{error}</span>}</label>}
+function Field({label,name,type="text",required=true,error,className,placeholder}:{label:string;name:string;type?:string;required?:boolean;error?:string;className?:string;placeholder?:string}){return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Input name={name} type={type} required={required} placeholder={placeholder}/>{error&&<span role="alert" className="mt-2 block text-xs text-error">{error}</span>}</label>}
+function Area({label,name,required=true,error,className,placeholder}:{label:string;name:string;required?:boolean;error?:string;className?:string;placeholder?:string}){return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Textarea name={name} required={required} placeholder={placeholder}/>{error&&<span role="alert" className="mt-2 block text-xs text-error">{error}</span>}</label>}
