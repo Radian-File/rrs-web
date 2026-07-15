@@ -22,19 +22,20 @@ test("owner can create, publish, and unpublish a service without deleting it", a
   await page.getByLabel("Teknologi / keahlian").fill("Next.js\nTypeScript");
   await page.getByRole("button", { name: "Buat layanan" }).click();
   await expect(page.getByText("Layanan dibuat sebagai draf", { exact: false })).toBeVisible({ timeout: 30_000 });
+  const editUrl = page.url();
 
   await page.goto(`/services/${slug}`);
   await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
 
-  await page.goBack();
-  await page.getByLabel("Publikasikan ke halaman publik").check();
+  await page.goto(editUrl);
+  await page.getByRole("checkbox", { name: "Publikasikan ke halaman publik" }).check();
   await page.getByRole("button", { name: "Simpan perubahan" }).click();
   await expect(page.getByText("berhasil diperbarui dan dipublikasikan", { exact: false })).toBeVisible();
   await page.goto(`/services/${slug}`);
   await expect(page.getByRole("heading", { name: "Service Reference Test" })).toBeVisible();
 
-  await page.goBack();
-  await page.getByLabel("Publikasikan ke halaman publik").uncheck();
+  await page.goto(editUrl);
+  await page.getByRole("checkbox", { name: "Publikasikan ke halaman publik" }).uncheck();
   await page.getByRole("button", { name: "Simpan perubahan" }).click();
   await expect(page.getByText("Draf layanan berhasil disimpan.", { exact: true })).toBeVisible();
   await page.goto(`/services/${slug}`);

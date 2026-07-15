@@ -57,18 +57,19 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await expect(page.getByText("Owner overview")).toBeVisible();
   await page.goto("/owner/quotations/create");
 
-  await page.getByLabel("Client name").fill("Quotation E2E Client");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("WhatsApp").fill("628123456789");
-  await page.getByLabel("Project title").fill("Quotation workflow test");
-  await page.getByLabel("Project type").fill("Web application");
-  await page.getByLabel("Project summary").fill("A complete project used to validate quotation drafting, secure delivery, and atomic acceptance.");
-  await page.getByLabel("Item 1 title").fill("Product design and development");
-  await page.getByLabel("Item 1 description").fill("Discovery, interface design, and implementation");
-  await page.getByLabel("Unit price").fill("8000000");
-  await page.getByLabel("Scope included").fill("- Discovery\n- UI/UX design\n- Full-stack implementation");
-  await page.getByLabel("Terms and conditions").fill("Work begins after agreement acceptance and the first invoice is confirmed as paid.");
-  await page.getByRole("button", { name: "Save Draft" }).evaluate((element) => {
+  const ownerMain = page.locator("main:visible");
+  await ownerMain.getByLabel("Client name").fill("Quotation E2E Client");
+  await ownerMain.getByLabel("Email").fill(email);
+  await ownerMain.getByLabel("WhatsApp").fill("628123456789");
+  await ownerMain.getByLabel("Project title").fill("Quotation workflow test");
+  await ownerMain.getByLabel("Project type").fill("Web application");
+  await ownerMain.getByLabel("Project summary").fill("A complete project used to validate quotation drafting, secure delivery, and atomic acceptance.");
+  await ownerMain.getByLabel("Item 1 title").fill("Product design and development");
+  await ownerMain.getByLabel("Item 1 description").fill("Discovery, interface design, and implementation");
+  await ownerMain.getByLabel("Unit price").fill("8000000");
+  await ownerMain.getByLabel("Scope included").fill("- Discovery\n- UI/UX design\n- Full-stack implementation");
+  await ownerMain.getByLabel("Terms and conditions").fill("Work begins after agreement acceptance and the first invoice is confirmed as paid.");
+  await ownerMain.getByRole("button", { name: "Save Draft" }).evaluate((element) => {
     window.setTimeout(() => (element as HTMLButtonElement).click(), 0);
   });
   await expect(page).toHaveURL(/owner\/quotations\/(?!create$)[A-Za-z0-9-]+$/, { timeout: 30_000 });
@@ -83,16 +84,17 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   expect(publicHref).toBeTruthy();
 
   await page.goto(publicHref!);
-  await expect(page.getByText("VIEWED", { exact: true })).toBeVisible();
-  await page.getByPlaceholder("Full name").fill("Quotation E2E Client");
-  await page.getByPlaceholder("Email").fill(email);
-  await page.getByPlaceholder("WhatsApp number").fill("628123456789");
-  await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Accept Quotation" }).evaluate((element) => {
+  const publicMain = page.locator("main:visible");
+  await expect(publicMain.getByText("VIEWED", { exact: true })).toBeVisible();
+  await publicMain.getByPlaceholder("Full name").fill("Quotation E2E Client");
+  await publicMain.getByPlaceholder("Email").fill(email);
+  await publicMain.getByPlaceholder("WhatsApp number").fill("628123456789");
+  await publicMain.getByRole("checkbox").check();
+  await publicMain.getByRole("button", { name: "Accept Quotation" }).evaluate((element) => {
     window.setTimeout(() => (element as HTMLButtonElement).click(), 0);
   });
   await expect(page).toHaveURL(/action=accepted/, { timeout: 30_000 });
-  await expect(page.getByText("Quotation accepted.")).toBeVisible();
+  await expect(page.locator("main:visible").getByText("Quotation accepted.")).toBeVisible();
 
   await page.context().clearCookies();
   await page.context().addCookies([{ name: "rrs-locale", value: "en", domain: "127.0.0.1", path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" }]);
@@ -111,7 +113,7 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await expect(page).toHaveURL(/\/client$/, { timeout: 30_000 });
 
   await page.goto("/client/projects");
-  await page.getByText("Quotation workflow test", { exact: true }).click();
+  await page.locator("main:visible").getByText("Quotation workflow test", { exact: true }).click();
   await expect(page.getByText("Project agreement is ready")).toBeVisible();
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Accept Agreement" }).click();
@@ -142,7 +144,7 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await page.getByRole("button", { name: "Sign In" }).click();
   await expect(page.getByText("Owner overview")).toBeVisible();
   await page.goto("/owner/payments");
-  const paymentCard = page.locator(`[data-invoice="${invoiceNumber}"]`);
+  const paymentCard = page.locator("main:visible").locator(`[data-invoice="${invoiceNumber}"]`);
   await expect(paymentCard).toBeVisible();
   await paymentCard.getByRole("button", { name: "Verify Payment" }).click();
   await expect(paymentCard.getByText("VERIFIED", { exact: true })).toBeVisible();
@@ -157,5 +159,5 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await page.goto(invoiceUrl!);
   await expect(page.getByText("PAID", { exact: true }).first()).toBeVisible();
   await page.goto(clientProjectUrl);
-  await expect(page.getByText("PLANNING", { exact: true })).toBeVisible();
+  await expect(page.locator("main:visible").getByText("PLANNING", { exact: true })).toBeVisible();
 });

@@ -15,7 +15,7 @@
   --motion-fast: 150ms;
   --motion-standard: 220ms;
   --motion-enter: 420ms;
-  --motion-page-enter: 320ms;
+  --motion-page-enter: 380ms;
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -58,12 +58,12 @@ body {
   scroll-margin: 96px;
 }
 
-.motion-ready [data-page-enter] {
+[data-page-enter="from"] {
   opacity: 0;
-  transform: translateY(12px);
+  transform: translateY(16px);
 }
 
-.motion-ready [data-page-enter].is-visible {
+[data-page-enter="visible"] {
   opacity: 1;
   transform: translateY(0);
   transition: opacity var(--motion-page-enter) var(--ease-standard), transform var(--motion-page-enter) var(--ease-standard);

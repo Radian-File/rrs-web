@@ -43,10 +43,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang={locale} data-scroll-behavior="smooth" className={`${inter.variable} ${manrope.variable}`}>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
-        <MotionProvider />
-        <a href="#main-content" className="sr-only fixed left-4 top-4 z-[100] rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-white focus:not-sr-only">{locale === "id" ? "Lewati ke konten" : "Skip to content"}</a>
-        <div id="main-content" tabIndex={-1}>{children}</div>
-        <Toaster richColors position="top-right" />
+        <MotionProvider>
+          <a href="#main-content" className="sr-only fixed left-4 top-4 z-[100] rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-white focus:not-sr-only">{locale === "id" ? "Lewati ke konten" : "Skip to content"}</a>
+          <div id="main-content" tabIndex={-1}>{children}</div>
+          <Toaster richColors position="top-right" />
+        </MotionProvider>
       </body>
     </html>
   );

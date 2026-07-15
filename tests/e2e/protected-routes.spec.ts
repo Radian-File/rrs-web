@@ -51,5 +51,5 @@ test("owner sessions are redirected away from client-only routes", async ({ page
 
   await page.goto("/client/projects");
   await expect(page).toHaveURL(/\/owner$/);
-  await expect(page.getByText("Owner overview")).toBeVisible();
+  await expect(page.locator("main:visible").getByText("Owner overview")).toBeVisible();
 });

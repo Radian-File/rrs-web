@@ -9,7 +9,7 @@ test("keyboard users can skip repeated navigation", async ({ page }) => {
 test("shared motion marks page entrance, reveal groups, and interactive cards", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("html")).toHaveClass(/motion-ready/);
-  await expect(page.locator("[data-page-enter]")).toHaveClass(/is-visible/);
+  await expect(page.locator("[data-page-enter]")).toHaveAttribute("data-page-enter", "visible");
   const revealGroup = page.locator("[data-reveal-group]").first();
   await revealGroup.scrollIntoViewIfNeeded();
   await expect(revealGroup).toHaveClass(/is-visible/);
@@ -21,6 +21,7 @@ test("reduced motion prevents reveal initialization while content stays visible"
   await page.goto("/");
   await page.waitForTimeout(300);
   await expect(page.locator("html")).not.toHaveClass(/motion-ready/);
+  await expect(page.locator("[data-page-enter]")).toHaveAttribute("data-page-enter", "idle");
   await expect(page.locator("[data-page-enter]")).toBeVisible();
 });
 
