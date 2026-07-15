@@ -1,0 +1,8 @@
+import { FolderKanban } from "lucide-react";
+import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
+import { EmptyState } from "@/components/ui/empty-state";
+import { prisma } from "@/lib/db/prisma";
+
+export const dynamic = "force-dynamic";
+export default async function PortfolioPage() { const projects = await prisma.portfolioProject.findMany({ where: { isPublished: true }, orderBy: [{ isFeatured: "desc" }, { completedAt: "desc" }] }); return <><SiteHeader /><main className="mx-auto max-w-[1280px] px-5 py-20 md:px-8 lg:px-16"><p className="text-sm font-bold uppercase tracking-[.14em] text-primary">Selected work</p><h1 className="text-balance mt-4 font-display text-5xl font-extrabold tracking-[-0.05em]">Projects, decisions, and measurable outcomes.</h1><p className="mt-5 max-w-2xl leading-7 text-secondary">Only real, publishable work will appear here. No fabricated case studies or client claims.</p>{projects.length === 0 ? <EmptyState className="mt-12" icon={FolderKanban} title="Case studies are being prepared" description="Published project stories will include context, process, technology, and outcomes." /> : <div className="mt-12 grid gap-6 md:grid-cols-2">{projects.map((project) => <article key={project.id} className="rounded-[20px] border border-border bg-surface p-6"><div className="aspect-[16/9] rounded-[12px] bg-accent-soft" /><p className="mt-6 text-xs font-bold uppercase text-primary">{project.category}</p><h2 className="mt-2 font-display text-2xl font-extrabold">{project.title}</h2><p className="mt-3 text-sm leading-6 text-secondary">{project.summary}</p></article>)}</div>}</main><SiteFooter /></>; }

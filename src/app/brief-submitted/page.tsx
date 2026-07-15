@@ -1,0 +1,11 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { CheckCircle2, MessageCircle } from "lucide-react";
+import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { getServerEnv } from "@/lib/env";
+import { prisma } from "@/lib/db/prisma";
+export const dynamic="force-dynamic";
+export default async function BriefSubmittedPage({searchParams}:{searchParams:Promise<{id?:string}>}){const {id}=await searchParams;if(!id)notFound();const inquiry=await prisma.inquiry.findUnique({where:{id},include:{selectedService:{select:{title:true}}}});if(!inquiry)notFound();const env=getServerEnv();const message=`Halo, saya sudah mengirimkan project brief melalui website.\n\nInquiry ID: ${inquiry.inquiryNumber}\nProject: ${inquiry.projectTitle}\nLayanan: ${inquiry.selectedService?.title??inquiry.projectType}\nBudget: ${inquiry.budgetRange??"Akan didiskusikan"}\n\nSaya ingin melanjutkan konsultasi mengenai project tersebut.`;const whatsapp=`https://wa.me/${env.OWNER_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;return <><SiteHeader/><main className="grid min-h-[70vh] place-items-center px-5 py-16"><Card className="w-full max-w-xl"><CardContent className="p-8 text-center md:p-10"><CheckCircle2 className="mx-auto size-12 text-success"/><p className="mt-6 text-sm font-bold uppercase tracking-[.14em] text-primary">Brief received</p><h1 className="mt-3 font-display text-3xl font-extrabold">Continue the conversation on WhatsApp.</h1><p className="mt-4 leading-7 text-secondary">Your inquiry number is <strong className="text-foreground">{inquiry.inquiryNumber}</strong>. The prepared message includes this reference so the discussion stays connected to your brief.</p><Button asChild size="lg" className="mt-8 w-full"><a href={whatsapp} target="_blank" rel="noreferrer"><MessageCircle className="size-5"/>Open WhatsApp</a></Button><Button asChild variant="ghost" className="mt-3"><Link href="/">Return home</Link></Button></CardContent></Card></main><SiteFooter/></>}

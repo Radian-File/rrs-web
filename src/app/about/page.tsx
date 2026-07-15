@@ -1,0 +1,4 @@
+import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
+import { Badge } from "@/components/ui/badge";
+export default function AboutPage(){return <><SiteHeader/><main className="mx-auto max-w-[1000px] px-5 py-20 md:px-8"><Badge>About RRS</Badge><h1 className="text-balance mt-5 font-display text-5xl font-extrabold tracking-[-0.05em] md:text-6xl">Digital work should begin with understanding, not checkout.</h1><div className="mt-10 grid gap-8 text-lg leading-8 text-secondary md:grid-cols-2"><p>RRS combines product thinking, interface design, and full-stack development for businesses that need a clear, practical path from idea to delivery.</p><p>Every engagement starts with a brief and discussion. The resulting quotation documents what will be built, what is excluded, how long it takes, and how payment is scheduled.</p></div></main><SiteFooter/></>}
