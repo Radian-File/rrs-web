@@ -37,7 +37,7 @@ export function ProjectBriefForm({ services, selectedService }: { services: { sl
     <section hidden={step!==1} className="grid gap-5 sm:grid-cols-2">
       <Field label="Full name" name="clientName" error={error("clientName")} />
       <Field label="WhatsApp number" name="clientPhone" error={error("clientPhone")} />
-      <Field label="Email" name="clientEmail" type="email" error={error("clientEmail")} />
+      <Field label="Email" name="clientEmail" type="email" error={error("clientEmail")} hint="Gunakan email aktif yang dapat Anda akses. Email ini menerima quotation dan akan menghubungkan project, invoice, serta file ke Client Portal saat Anda membuat akun nanti." />
       <Field label="Company (optional)" name="companyName" required={false} error={error("companyName")} />
       <label className="sm:col-span-2"><span className="mb-2 block text-sm font-semibold">Service of interest</span><select name="serviceSlug" defaultValue={selectedService ?? ""} className={selectClass}><option value="">Custom / not sure yet</option>{services.map((service)=><option key={service.slug} value={service.slug}>{service.title}</option>)}</select></label>
     </section>
@@ -65,5 +65,5 @@ export function ProjectBriefForm({ services, selectedService }: { services: { sl
   </form>;
 }
 
-function Field({label,name,type="text",required=true,error,className,placeholder}:{label:string;name:string;type?:string;required?:boolean;error?:string;className?:string;placeholder?:string}){const errorId=`${name}-error`;return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Input name={name} type={type} required={required} placeholder={placeholder} aria-invalid={Boolean(error)} aria-describedby={error?errorId:undefined} className={fieldErrorClass(error)}/><FieldError id={errorId} error={error}/></label>}
+function Field({label,name,type="text",required=true,error,className,placeholder,hint}:{label:string;name:string;type?:string;required?:boolean;error?:string;className?:string;placeholder?:string;hint?:string}){const errorId=`${name}-error`;const hintId=`${name}-hint`;return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Input name={name} type={type} required={required} placeholder={placeholder} aria-invalid={Boolean(error)} aria-describedby={[hint?hintId:"",error?errorId:""].filter(Boolean).join(" ")||undefined} className={fieldErrorClass(error)}/>{hint&&<span id={hintId} className="mt-2 block text-xs leading-5 text-secondary">{hint}</span>}<FieldError id={errorId} error={error}/></label>}
 function Area({label,name,required=true,error,className,placeholder}:{label:string;name:string;required?:boolean;error?:string;className?:string;placeholder?:string}){const errorId=`${name}-error`;return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Textarea name={name} required={required} placeholder={placeholder} aria-invalid={Boolean(error)} aria-describedby={error?errorId:undefined} className={fieldErrorClass(error)}/><FieldError id={errorId} error={error}/></label>}
