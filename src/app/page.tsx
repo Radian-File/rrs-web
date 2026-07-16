@@ -102,7 +102,7 @@ export default async function Home() {
                 <Button type="submit" size="sm" className="absolute right-2 top-2 h-10">{dictionary.common.search}</Button>
               </form>
               <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-secondary">
-                <span>{dictionary.home.popular}</span><Link href="/services" className="hover:text-primary">Website Development</Link><Link href="/services" className="hover:text-primary">UI/UX Design</Link><Link href="/services" className="hover:text-primary">Web Application</Link>
+                <span>{dictionary.home.popular}</span><Link href="/services?category=Web%20Development" className="hover:text-primary">Website Development</Link><Link href="/services?category=Design" className="hover:text-primary">UI/UX Design</Link><Link href="/services?category=Web%20Application" className="hover:text-primary">Web Application</Link>
               </div>
             </div>
 
