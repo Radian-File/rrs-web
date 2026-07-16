@@ -20,16 +20,16 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
   title: {
-    default: "RRS Freelancer — Digital Projects with a Clearer Process",
-    template: "%s | RRS Freelancer",
+    default: "RRS Studio — Web & Product Projects with Clear Scope",
+    template: "%s | RRS Studio",
   },
-  description: "Professional web development and UI/UX services with clear quotations, transparent project progress, and structured delivery.",
-  applicationName: "RRS Freelancer",
+  description: "Independent web and product studio with clear quotations, transparent project progress, and structured delivery.",
+  applicationName: "RRS Studio",
   openGraph: {
     type: "website",
     locale: "id_ID",
-    title: "RRS Freelancer",
-    description: "From project brief to final delivery, managed through one clear workflow.",
+    title: "RRS Studio",
+    description: "From project brief to final delivery, managed through one transparent workflow.",
   },
 };
 
@@ -44,7 +44,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html lang={locale} data-scroll-behavior="smooth" className={`${inter.variable} ${manrope.variable}`}>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
         <MotionProvider>
-          <a href="#main-content" className="sr-only fixed left-4 top-4 z-[100] rounded-[10px] bg-primary px-4 py-2 text-sm font-semibold text-white focus:not-sr-only">{locale === "id" ? "Lewati ke konten" : "Skip to content"}</a>
+          <a href="#main-content" className="sr-only fixed left-4 top-4 z-[100] rounded-[8px] bg-primary px-4 py-2 text-sm font-semibold text-white focus:not-sr-only">{locale === "id" ? "Lewati ke konten" : "Skip to content"}</a>
           <div id="main-content" tabIndex={-1}>{children}</div>
           <Toaster richColors position="top-right" />
         </MotionProvider>

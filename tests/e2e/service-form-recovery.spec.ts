@@ -11,7 +11,7 @@ test("service editor retains entered fields when the slug is already used", asyn
   const main = page.locator("main:visible");
   await main.getByLabel("Nama layanan").fill("Retained Service Draft");
   await main.getByLabel("Slug URL").fill("website-development");
-  await main.getByLabel("Kategori").fill("Website");
+  await main.getByLabel("Jenis layanan").selectOption({ label: "Web Development" });
   await main.getByLabel("Ringkasan layanan").fill("Ringkasan layanan yang tidak boleh hilang saat slug ditolak.");
   await main.getByLabel("Deskripsi lengkap").fill("Deskripsi lengkap layanan yang cukup panjang untuk membuktikan seluruh input tetap tersedia setelah validasi slug gagal.");
   await main.locator('textarea[name="deliverables"]').fill("Discovery\nImplementation");

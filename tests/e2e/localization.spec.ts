@@ -11,7 +11,7 @@ test("defaults to Indonesian and persists an English language change", async ({
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: "Proses yang tepat untuk proyek digital Anda.",
+      name: "Bangun project digital dengan scope yang jelas.",
     }),
   ).toBeVisible();
 
@@ -30,7 +30,7 @@ test("defaults to Indonesian and persists an English language change", async ({
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: "The right process for your next digital project.",
+      name: "Build digital products with a clear scope.",
     }),
   ).toBeVisible();
 

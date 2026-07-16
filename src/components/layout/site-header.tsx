@@ -13,18 +13,18 @@ export async function SiteHeader() {
   const links = [
     [dictionary.nav.services, "/services"],
     [dictionary.nav.portfolio, "/portfolio"],
-    [dictionary.nav.process, "/#process"],
+    [dictionary.nav.process, "/cara-kerja"],
     [dictionary.nav.reviews, "/reviews"],
     [dictionary.nav.about, "/about"],
   ] as const;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/80 bg-background/95 backdrop-blur-sm">
-      <div className="mx-auto flex h-[72px] max-w-[1280px] items-center justify-between px-5 md:px-8 lg:px-16">
+    <header className="sticky top-0 z-50 border-b border-border/70 bg-background/95 backdrop-blur-sm">
+      <div className="mx-auto flex h-[68px] max-w-[1360px] items-center justify-between px-5 md:px-8 lg:px-12 xl:px-16">
         <Brand />
-        <nav className="hidden items-center gap-7 lg:flex" aria-label="Primary navigation">
+        <nav className="hidden items-center gap-8 lg:flex" aria-label="Primary navigation">
           {links.map(([label, href]) => (
-            <Link key={href} href={href} className="text-sm font-medium text-secondary transition-colors hover:text-foreground">{label}</Link>
+            <Link key={href} href={href} className="text-[13px] font-semibold text-secondary transition-colors hover:text-foreground">{label}</Link>
           ))}
         </nav>
         <div className="flex items-center gap-2">
