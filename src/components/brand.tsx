@@ -3,15 +3,12 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export function Brand({ className }: { className?: string }) {
-  return (
-    <Link href="/" className={cn("inline-flex items-center gap-3", className)} aria-label="RRS home">
-      <span className="relative size-8 overflow-hidden rounded-[7px] bg-black">
-        <Image src="/rrs-mark.png" alt="" fill sizes="32px" priority className="object-cover object-center" />
-      </span>
-      <span className="leading-none">
-        <span className="block font-display text-[17px] font-extrabold tracking-[-0.03em]">RRS</span>
-        <span className="mt-1 hidden text-[9px] font-semibold uppercase tracking-[.16em] text-secondary sm:block">Web & Product Studio</span>
-      </span>
-    </Link>
-  );
+  return <Link href="/" className={cn("inline-flex items-center", className)} aria-label="RRS Studio home">
+    <span className="relative hidden h-9 w-[180px] sm:block">
+      <Image src="/rrs-studio-lockup.png" alt="RRS Studio — Web & Product Studio" fill sizes="180px" priority className="object-contain object-left mix-blend-multiply" />
+    </span>
+    <span className="relative size-9 sm:hidden">
+      <Image src="/rrs-studio-mark.png" alt="RRS Studio" fill sizes="36px" priority className="object-contain mix-blend-multiply" />
+    </span>
+  </Link>;
 }
