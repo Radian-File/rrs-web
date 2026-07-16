@@ -3,6 +3,11 @@ import { expect, test } from "@playwright/test";
 test("anonymous users are redirected before a deep owner route renders", async ({
   page,
 }) => {
+  await page.goto("/owner/analytics");
+
+  await expect(page).toHaveURL(/\/login/);
+  expect(decodeURIComponent(page.url())).toContain("/owner/analytics");
+
   await page.goto("/owner/quotations/create");
 
   await expect(page).toHaveURL(/\/login/);
@@ -31,6 +36,9 @@ test("client sessions cannot access owner routes and logout removes access", asy
   await expect(page).toHaveURL(/\/client$/, { timeout: 30_000 });
 
   await page.goto("/owner/inquiries");
+  await expect(page).toHaveURL(/\/client$/);
+
+  await page.goto("/owner/analytics");
   await expect(page).toHaveURL(/\/client$/);
 
   await page.getByRole("button", { name: "Sign out" }).evaluate((element) => {

@@ -15,7 +15,7 @@ test("owner can create, publish, and unpublish a service without deleting it", a
   const main = page.locator("main:visible");
   await main.getByLabel("Nama layanan").fill("Service Reference Test");
   await main.getByLabel("Slug URL").fill(slug);
-  await main.getByLabel("Jenis layanan").selectOption({ label: "Reference" });
+  await main.getByLabel("Jenis layanan").selectOption({ label: "Web Development" });
   await main.getByLabel("Harga mulai dari (IDR)").fill("1000000");
   await main.getByLabel("Ringkasan layanan").fill("Layanan referensi untuk menguji kontrol Owner.");
   await main.getByLabel("Deskripsi lengkap").fill("Deskripsi layanan referensi yang cukup lengkap untuk memvalidasi pembuatan, publikasi, dan unpublish dari Owner Dashboard.");

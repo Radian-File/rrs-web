@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { BriefcaseBusiness, CreditCard, FileText, FolderKanban, LayoutDashboard, MessageSquareText, ReceiptText, Settings, Star } from "lucide-react";
+import { BriefcaseBusiness, ChartNoAxesCombined, CreditCard, FileText, FolderKanban, LayoutDashboard, MessageSquareText, ReceiptText, Settings, Star } from "lucide-react";
 import { auth } from "@/auth";
 import { PortalShell } from "@/components/layout/portal-shell";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -23,6 +23,7 @@ export default async function OwnerLayout({ children }: { children: React.ReactN
     { label: dictionary.portal.invoices, href: "/owner/invoices", icon: ReceiptText },
     { label: dictionary.portal.payments, href: "/owner/payments", icon: CreditCard },
     { label: dictionary.portal.reviews, href: "/owner/reviews", icon: Star },
+    { label: dictionary.portal.analytics, href: "/owner/analytics", icon: ChartNoAxesCombined },
     { label: dictionary.portal.settings, href: "/owner/settings", icon: Settings },
   ];
   return <PortalShell kind="owner" title={dictionary.portal.ownerWorkspace} userLabel={session.user.name ?? session.user.email ?? "Owner"} unreadCount={unreadCount} items={items}>{children}</PortalShell>;

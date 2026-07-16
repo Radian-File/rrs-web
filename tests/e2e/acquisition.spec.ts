@@ -128,12 +128,13 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   expect(invoiceNumber).toBeTruthy();
 
   await page.goto(invoiceUrl!);
-  await page.locator('input[name="proof"]').setInputFiles({
+  const proofForm = page.locator('main:visible form:has(input[name="proof"])');
+  await proofForm.locator('input[name="proof"]').setInputFiles({
     name: "payment-proof.pdf",
     mimeType: "application/pdf",
     buffer: Buffer.from("%PDF-1.7\nRRS manual payment E2E fixture"),
   });
-  await page.getByRole("button", { name: "Submit Proof" }).click();
+  await proofForm.getByRole("button", { name: "Submit Proof" }).click();
   await expect(page.getByText("UNDER_VERIFICATION", { exact: true })).toBeVisible();
 
   await page.context().clearCookies();
