@@ -13,8 +13,12 @@ function createPrismaClient() {
   return new PrismaClient({ adapter });
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+// Do not retain a development singleton across Fast Refresh: Prisma schema changes can
+// add delegates (for example, `serviceType`) that an older cached instance does not expose.
+export const prisma = process.env.NODE_ENV === "production"
+  ? (globalForPrisma.prisma ?? createPrismaClient())
+  : createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV === "production") {
   globalForPrisma.prisma = prisma;
 }

@@ -136,11 +136,16 @@ async function main() {
     },
   ];
 
-  for (const service of services) {
+  for (const [index, service] of services.entries()) {
+    const type = await prisma.serviceType.upsert({
+      where: { name: service.category },
+      update: {},
+      create: { name: service.category, slug: service.category.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""), icon: "globe", sortOrder: index },
+    });
     await prisma.service.upsert({
       where: { slug: service.slug },
-      update: service,
-      create: service,
+      update: { ...service, serviceTypeId: type.id },
+      create: { ...service, serviceTypeId: type.id },
     });
   }
 }

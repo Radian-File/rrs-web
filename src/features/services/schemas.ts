@@ -8,7 +8,7 @@ export const serviceSchema = z.object({
   slug: z.string().trim().toLowerCase().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Gunakan slug huruf kecil, angka, dan tanda hubung.").max(160),
   summary: z.string().trim().min(10, "Ringkasan minimal 10 karakter.").max(500),
   description: z.string().trim().min(20, "Deskripsi minimal 20 karakter.").max(10000),
-  category: z.string().trim().min(2, "Kategori wajib diisi.").max(100),
+  serviceTypeId: z.string().cuid("Pilih jenis layanan yang valid."),
   startingPrice: z.preprocess((value) => value === "" ? undefined : value, z.coerce.number().finite().min(0, "Harga tidak boleh negatif.").optional()),
   deliveryEstimate: optionalText,
   revisionGuidance: optionalText,

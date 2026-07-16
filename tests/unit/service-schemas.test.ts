@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { serviceSchema } from "@/features/services/schemas";
 
-const input = { title: "Website Bisnis", slug: "website-bisnis", summary: "Website bisnis yang jelas dan profesional.", description: "Layanan untuk membangun website bisnis dengan struktur konten, performa, dan pengalaman pengguna yang terarah.", category: "Website", startingPrice: "5000000", deliveryEstimate: "14–30 hari", revisionGuidance: "Sesuai quotation", deliverables: "Responsive website\nSEO foundation", technologies: "Next.js\nTypeScript", coverImageUrl: "", isFeatured: "on", isPublished: "on" };
+const input = { title: "Website Bisnis", slug: "website-bisnis", summary: "Website bisnis yang jelas dan profesional.", description: "Layanan untuk membangun website bisnis dengan struktur konten, performa, dan pengalaman pengguna yang terarah.", serviceTypeId: "cmrmjxffa002yucfp5k27kf5d", startingPrice: "5000000", deliveryEstimate: "14–30 hari", revisionGuidance: "Sesuai quotation", deliverables: "Responsive website\nSEO foundation", technologies: "Next.js\nTypeScript", coverImageUrl: "", isFeatured: "on", isPublished: "on" };
 
 describe("serviceSchema", () => {
   it("transforms editor text and visibility controls into service data", () => {

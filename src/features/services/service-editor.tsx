@@ -8,9 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRetainedFormValues } from "@/components/ui/use-retained-form-values";
 
-export type EditableService = { id: string; title: string; slug: string; summary: string; description: string; category: string; startingPrice: string | null; deliveryEstimate: string | null; revisionGuidance: string | null; deliverables: string[]; technologies: string[]; coverImageUrl: string | null; isFeatured: boolean; isPublished: boolean };
+export type EditableService = { id: string; title: string; slug: string; summary: string; description: string; category: string; serviceTypeId: string | null; startingPrice: string | null; deliveryEstimate: string | null; revisionGuidance: string | null; deliverables: string[]; technologies: string[]; coverImageUrl: string | null; isFeatured: boolean; isPublished: boolean };
 
-export function ServiceEditor({ service }: { service?: EditableService }) {
+export function ServiceEditor({ service, types }: { service?: EditableService; types: { id: string; name: string }[] }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, action, pending] = useActionState(service ? updateServiceAction : createServiceAction, {});
   const { capture } = useRetainedFormValues(formRef, Boolean(state.errors || state.message));
@@ -20,7 +20,7 @@ export function ServiceEditor({ service }: { service?: EditableService }) {
     <section className="grid gap-5 md:grid-cols-2">
       <Field label="Nama layanan" name="title" defaultValue={service?.title} error={error("title")} />
       <Field label="Slug URL" name="slug" defaultValue={service?.slug} placeholder="website-development" error={error("slug")} />
-      <Field label="Kategori" name="category" defaultValue={service?.category} placeholder="Web Development" error={error("category")} />
+      <label><span className="mb-2 block text-sm font-semibold">Jenis layanan</span><select name="serviceTypeId" required defaultValue={service?.serviceTypeId ?? ""} className={fieldErrorClass(error("serviceTypeId"), "h-12 w-full rounded-[12px] border border-border bg-surface px-4 text-sm")}><option value="">Pilih jenis layanan</option>{types.map((type)=><option key={type.id} value={type.id}>{type.name}</option>)}</select><FieldError id="serviceTypeId-error" error={error("serviceTypeId")}/></label>
       <Field label="Harga mulai dari (IDR)" name="startingPrice" type="number" min="0" step="1000" defaultValue={service?.startingPrice ?? ""} error={error("startingPrice")} />
       <Field label="Estimasi pengerjaan" name="deliveryEstimate" defaultValue={service?.deliveryEstimate ?? ""} placeholder="14–30 hari" error={error("deliveryEstimate")} />
       <Field label="Panduan revisi" name="revisionGuidance" defaultValue={service?.revisionGuidance ?? ""} placeholder="Sesuai quotation" error={error("revisionGuidance")} />

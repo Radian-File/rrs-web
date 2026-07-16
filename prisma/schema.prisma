@@ -246,6 +246,21 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model ServiceType {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  icon        String    @default("globe")
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  services    Service[]
+
+  @@index([isActive, sortOrder])
+}
+
 model Service {
   id               String   @id @default(cuid())
   title            String
@@ -253,6 +268,7 @@ model Service {
   summary          String
   description      String   @db.Text
   category         String
+  serviceTypeId    String?
   startingPrice    Decimal? @db.Decimal(18, 2)
   currency         String   @default("IDR")
   deliveryEstimate String?
@@ -265,11 +281,13 @@ model Service {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
+  serviceType ServiceType? @relation(fields: [serviceTypeId], references: [id], onDelete: SetNull)
   inquiries  Inquiry[]
   quotations Quotation[]
   reviews    Review[]
 
   @@index([category])
+  @@index([serviceTypeId])
   @@index([isPublished, isFeatured])
 }
 
