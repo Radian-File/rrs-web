@@ -76,7 +76,12 @@ export const invoiceWorkflow = {
     canTransition(invoiceTransitions, from, to),
 };
 
+export function getAllowedProjectTransitions(from: ProjectStatus): readonly ProjectStatus[] {
+  return projectTransitions[from];
+}
+
 export const projectWorkflow = {
   canTransition: (from: ProjectStatus, to: ProjectStatus) =>
     canTransition(projectTransitions, from, to),
+  allowedTransitions: getAllowedProjectTransitions,
 };

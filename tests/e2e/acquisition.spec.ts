@@ -157,6 +157,11 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await expect(paymentCard).toBeVisible();
   await paymentCard.getByRole("button", { name: "Verify Payment" }).click();
   await expect(paymentCard.getByText("VERIFIED", { exact: true })).toBeVisible();
+  await page.goto(`/owner/projects/${projectId}`);
+  const nextStep = page.locator("main:visible").getByLabel("Next available step").first();
+  await expect(nextStep).toHaveValue("IN_PROGRESS");
+  await expect(nextStep.locator("option")).toHaveCount(3);
+  await expect(nextStep.locator('option[value="CLIENT_REVIEW"]')).toHaveCount(0);
 
   await page.context().clearCookies();
   await page.context().addCookies([{ name: "rrs-locale", value: "en", domain: "127.0.0.1", path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" }]);

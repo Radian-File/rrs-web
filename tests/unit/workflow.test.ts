@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  getAllowedProjectTransitions,
   inquiryWorkflow,
   invoiceWorkflow,
   projectWorkflow,
@@ -50,5 +51,11 @@ describe("project workflow", () => {
 
   it("does not complete a project directly from planning", () => {
     expect(projectWorkflow.canTransition("PLANNING", "COMPLETED")).toBe(false);
+  });
+
+  it("exposes only valid next states for Owner status controls", () => {
+    expect(getAllowedProjectTransitions("PLANNING")).toEqual(["IN_PROGRESS", "ON_HOLD", "CANCELLED"]);
+    expect(getAllowedProjectTransitions("IN_PROGRESS")).toContain("CLIENT_REVIEW");
+    expect(getAllowedProjectTransitions("PLANNING")).not.toContain("CLIENT_REVIEW");
   });
 });
