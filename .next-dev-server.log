@@ -1,0 +1,135 @@
+
+> rrs-web@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.56.1:3000
+- Environments: .env
+✓ Ready in 700ms
+
+○ Compiling /quotation/[token] ...
+ GET /owner 200 in 7.5s (next.js: 5.2s, proxy.ts: 426ms, application-code: 1870ms)
+ GET /quotation/KOYZlKleHFwOeb_zx1Ke-Bgtc9I9BaP9EyntNCx27Qg?action=accepted 200 in 7.1s (next.js: 6.4s, application-code: 653ms)
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/owner" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head headCacheNode={{rsc:{...}, ...}}>
+                    <__next_viewport_boundary__>
+                    <MetadataWrapper>
+                      <div
+                        hidden={true}
+-                       bis_skin_checked="1"
+                      >
+                    ...
+                  <__next_root_layout_boundary__>
+                    <LoadingBoundaryProvider loading={[...]}>
+                      <SegmentViewNode type="layout" pagePath="layout.tsx">
+                        <SegmentTrieNode>
+                        <link>
+                        <script>
+                        <script>
+                        <script>
+                        <RootLayout>
+                          <html lang="id" data-scroll-behavior="smooth" className="inter_c15e...">
+                            <body
+                              className="min-h-screen bg-background font-sans text-foreground antialiased"
+-                             __processed_23533af5-a557-45a6-bd39-bb57d5a07bc1__="true"
+-                             bis_register="W3sibWFzdGVyIjp0cnVlLCJleHRlbnNpb25JZCI6ImVwcGlvY2VtaG1ubGJoanBsY2drb2ZjaW..."
+                            >
+                              <MotionProvider>
+                                <a>
+                                <div
+                                  id="main-content"
+                                  tabIndex={-1}
+-                                 bis_skin_checked="1"
+                                >
+                                ...
+                  ...
+ 
+ GET /owner 200 in 411ms (next.js: 20ms, proxy.ts: 27ms, application-code: 364ms)
+[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/owner" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <LoadingBoundaryProvider loading={[...]}>
+                      <SegmentViewNode type="layout" pagePath="layout.tsx">
+                        <SegmentTrieNode>
+                        <link>
+                        <script>
+                        <script>
+                        <script>
+                        <RootLayout>
+                          <html lang="id" data-scroll-behavior="smooth" className="inter_c15e...">
+                            <body
+                              className="min-h-screen bg-background font-sans text-foreground antialiased"
+-                             __processed_10fda29f-2c05-416c-b2a5-b2034809fd8b__="true"
+-                             bis_register="W3sibWFzdGVyIjp0cnVlLCJleHRlbnNpb25JZCI6ImVwcGlvY2VtaG1ubGJoanBsY2drb2ZjaW..."
+                            >
+                  ...
+ 
+ GET /owner/quotations 200 in 695ms (next.js: 559ms, proxy.ts: 13ms, application-code: 123ms)
+ GET /owner/services 200 in 438ms (next.js: 343ms, proxy.ts: 8ms, application-code: 86ms)
+ GET /owner 200 in 43ms (next.js: 5ms, proxy.ts: 7ms, application-code: 31ms)
+ GET /owner 200 in 18ms (next.js: 5ms, proxy.ts: 7ms, application-code: 6ms)
+ GET /owner 200 in 55ms (next.js: 5ms, proxy.ts: 7ms, application-code: 43ms)
+ GET /owner/payments 200 in 470ms (next.js: 363ms, proxy.ts: 7ms, application-code: 100ms)
+ GET /owner/invoices 200 in 437ms (next.js: 352ms, proxy.ts: 7ms, application-code: 78ms)
+ GET /owner/projects 200 in 364ms (next.js: 296ms, proxy.ts: 7ms, application-code: 60ms)
+ GET /owner/projects/cmrodxh4y000h38fpokkoxfru 200 in 1551ms (next.js: 1373ms, proxy.ts: 8ms, application-code: 170ms)
+ GET /owner/projects/cmrodxh4y000h38fpokkoxfru 200 in 133ms (next.js: 19ms, proxy.ts: 36ms, application-code: 78ms)
+ POST /owner/projects/cmrodxh4y000h38fpokkoxfru 200 in 287ms (next.js: 23ms, proxy.ts: 16ms, application-code: 249ms)
+  └─ ƒ updateProjectStatusAction({"status":"idle"}, {}) in 91ms src/features/projects/actions.ts
+ POST /owner/projects/cmrodxh4y000h38fpokkoxfru 200 in 176ms (next.js: 16ms, proxy.ts: 7ms, application-code: 153ms)
+  └─ ƒ updateProjectStatusAction({"message":"Project status updated.","status":"success"}, {}) in 33ms src/features/projects/actions.ts
+Project status update failed Error: Project completion requires client delivery approval.
+    at <unknown> (src\features\projects\actions.ts:16:501)
+    at async updateProjectStatusAction (src\features\projects\actions.ts:16:350)
+  14 | ...=requestHeaders.get("user-agent");await prisma.$transaction(async(tx)=>{const project=a...
+  15 | ...
+> 16 | ...ctId}});if(data.status==="COMPLETED")throw new Error("Project completion requires clien...
+     |                                               ^
+  17 | ...
+  18 | ...ncomplete=project.milestones.some((milestone)=>!["APPROVED","COMPLETED"].includes(miles...
+  19 | ...
+ POST /owner/projects/cmrodxh4y000h38fpokkoxfru 200 in 491ms (next.js: 14ms, proxy.ts: 8ms, application-code: 469ms)
+  └─ ƒ updateProjectStatusAction({"message":"Project status updated.","status":"success"}, {}) in 454ms src/features/projects/actions.ts
+ GET / 200 in 421ms (next.js: 347ms, application-code: 74ms)
+^C^C
