@@ -9,7 +9,7 @@
 - Auth.js credentials sessions with OWNER/CLIENT roles
 - Inquiry → quotation → project → invoice workflow
 - Atomic document numbering and quotation acceptance
-- Project ownership, protected files, and verified reviews
+- Project ownership, protected files, immutable agreement snapshots with audited client acceptance, and verified reviews
 - Midtrans Sandbox adapter and signed/idempotent webhook
 - Manual payment verification with audit evidence
 - In-app notification outbox and provider-based email boundary
@@ -28,7 +28,9 @@
 - Register HTTPS webhook and verify GET Status API reconciliation
 - Configure shared rate limiting if more than one app process is used
 - Add monitoring, alerting, log retention, and incident contacts
-- Complete legal Privacy Policy, Terms, cancellation, ownership, and refund language
+- Complete legal Privacy Policy, Terms, cancellation, ownership, refund, and agreement-clause review with counsel appropriate to the operating jurisdiction
+- Back up the production database, run `npx tsx scripts/backfill-agreement-snapshots.ts` in dry-run mode, review output, then run it with `--apply` before exposing legacy agreement documents
+- Configure trusted proxy headers before relying on production agreement acceptance IP metadata
 - Run accessibility and browser QA with final brand content
 
 ## Release gate commands

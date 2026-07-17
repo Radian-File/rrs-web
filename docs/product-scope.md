@@ -19,7 +19,7 @@ There is no public specialist/seller onboarding.
 3. Owner records discussion and prepares a quotation.
 4. Client accepts, rejects, or requests a versioned revision.
 5. Accepted quotation atomically provisions agreement, project, payment schedule, and first invoice.
-6. Agreement and required payment unlock project work.
+6. Client opens a protected, immutable agreement snapshot, reviews the scope/commercial terms, and accepts it explicitly; agreement and required payment unlock project work.
 7. Client tracks milestones, messages, files, delivery, and approvals.
 8. Completed project can issue exactly one verified review invitation.
 
@@ -31,4 +31,5 @@ There is no public specialist/seller onboarding.
 - Automatic WhatsApp bot messaging
 - AI features
 - Production Midtrans keys
+- Public agreement links or public agreement download endpoints
 - Fabricated testimonials, reviews, or client logos

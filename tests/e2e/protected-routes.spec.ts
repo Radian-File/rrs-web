@@ -8,6 +8,11 @@ test("anonymous users are redirected before a deep owner route renders", async (
   await expect(page).toHaveURL(/\/login/);
   expect(decodeURIComponent(page.url())).toContain("/owner/analytics");
 
+  await page.goto("/client/projects/private-project/agreement");
+
+  await expect(page).toHaveURL(/\/login/);
+  expect(decodeURIComponent(page.url())).toContain("/client/projects/private-project/agreement");
+
   await page.goto("/owner/quotations/create");
 
   await expect(page).toHaveURL(/\/login/);

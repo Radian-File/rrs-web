@@ -115,10 +115,16 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await page.goto("/client/projects");
   await page.locator("main:visible").getByText("Quotation workflow test", { exact: true }).click();
   await expect(page.getByText("Project agreement is ready")).toBeVisible();
+  await page.getByRole("link", { name: "Review Agreement" }).click();
+  await expect(page.getByRole("heading", { name: /AGR-2026-/ })).toBeVisible();
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Accept Agreement" }).click();
+  await expect(page.getByText("Agreement accepted.", { exact: false })).toBeVisible();
+  await page.getByRole("link", { name: "Back to project" }).click();
   await expect(page.getByText("AWAITING DOWN PAYMENT", { exact: true })).toBeVisible();
   const clientProjectUrl = page.url();
+  const projectId = clientProjectUrl.split("/").at(-1);
+  expect(projectId).toBeTruthy();
   const invoiceLink = page.getByRole("link", { name: /View INV-2026-/ });
   await expect(invoiceLink).toBeVisible();
   const invoiceUrl = await invoiceLink.getAttribute("href");
@@ -144,6 +150,8 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await page.getByLabel("Password").fill(process.env.OWNER_PASSWORD ?? "ChangeMe123!");
   await page.getByRole("button", { name: "Sign In" }).click();
   await expect(page.getByText("Owner overview")).toBeVisible();
+  await page.goto(`/owner/projects/${projectId}/agreement`);
+  await expect(page.getByRole("heading", { name: /AGR-2026-/ })).toBeVisible();
   await page.goto("/owner/payments");
   const paymentCard = page.locator("main:visible").locator(`[data-invoice="${invoiceNumber}"]`);
   await expect(paymentCard).toBeVisible();

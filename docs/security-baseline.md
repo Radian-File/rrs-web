@@ -12,6 +12,7 @@
 - Enforce role and resource ownership on the server for every query and mutation.
 - Protect file access independently of page access.
 - Treat public quotation/review tokens as scoped capabilities, not full sessions.
+- Agreements are never public capabilities: Client agreement pages require an authenticated CLIENT session and a server-side `project.clientId` ownership match; Owner agreement pages require OWNER role.
 
 ## Input and financial safety
 
@@ -34,6 +35,7 @@
 - CSP and security headers.
 - Error responses must not expose stack traces, secrets, database details, or provider payloads.
 - Logs and audit metadata must be redacted.
+- Agreement acceptance stores the accepting client identity, timestamp, and limited request metadata for audit purposes. This evidence is visible only to Owner and must follow the production privacy policy/retention rules.
 
 ## Secret handling
 
