@@ -1,10 +1,18 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { prisma } from "@/lib/db/prisma";
 
 export async function requireUser() {
   const session = await auth();
-  if (!session?.user) redirect("/login");
-  return session.user;
+  if (!session?.user?.id || !session.user.role) redirect("/login");
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true, name: true, email: true, role: true },
+  });
+
+  if (!user || user.role !== session.user.role) redirect("/auth/session-expired");
+  return user;
 }
 
 export async function requireOwner() {

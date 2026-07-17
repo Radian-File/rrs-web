@@ -1,18 +1,15 @@
-import { redirect } from "next/navigation";
 import { BriefcaseBusiness, ChartNoAxesCombined, CreditCard, FileText, FolderKanban, LayoutDashboard, MessageSquareText, ReceiptText, Settings, Star } from "lucide-react";
-import { auth } from "@/auth";
 import { PortalShell } from "@/components/layout/portal-shell";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getLocale } from "@/i18n/server";
 import { prisma } from "@/lib/db/prisma";
+import { requireOwner } from "@/lib/authz";
 
 export default async function OwnerLayout({ children }: { children: React.ReactNode }) {
-  const [session, locale] = await Promise.all([auth(), getLocale()]);
-  if (!session?.user) redirect("/login?callbackUrl=/owner");
-  if (session.user.role !== "OWNER") redirect("/client");
+  const [owner, locale] = await Promise.all([requireOwner(), getLocale()]);
   const [dictionary, unreadCount] = await Promise.all([
     Promise.resolve(getDictionary(locale)),
-    prisma.notification.count({ where: { userId: session.user.id, isRead: false } }),
+    prisma.notification.count({ where: { userId: owner.id, isRead: false } }),
   ]);
   const items = [
     { label: dictionary.portal.overview, href: "/owner", icon: LayoutDashboard },
@@ -26,5 +23,5 @@ export default async function OwnerLayout({ children }: { children: React.ReactN
     { label: dictionary.portal.analytics, href: "/owner/analytics", icon: ChartNoAxesCombined },
     { label: dictionary.portal.settings, href: "/owner/settings", icon: Settings },
   ];
-  return <PortalShell kind="owner" title={dictionary.portal.ownerWorkspace} userLabel={session.user.name ?? session.user.email ?? "Owner"} unreadCount={unreadCount} items={items}>{children}</PortalShell>;
+  return <PortalShell kind="owner" title={dictionary.portal.ownerWorkspace} userLabel={owner.name ?? owner.email} unreadCount={unreadCount} items={items}>{children}</PortalShell>;
 }

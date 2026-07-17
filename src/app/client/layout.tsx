@@ -1,18 +1,15 @@
-import { redirect } from "next/navigation";
 import { FileText, FolderKanban, Home, MessageSquare, ReceiptText, UserRound } from "lucide-react";
-import { auth } from "@/auth";
 import { PortalShell } from "@/components/layout/portal-shell";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getLocale } from "@/i18n/server";
 import { prisma } from "@/lib/db/prisma";
+import { requireClient } from "@/lib/authz";
 
 export default async function ClientLayout({ children }: { children: React.ReactNode }) {
-  const [session, locale] = await Promise.all([auth(), getLocale()]);
-  if (!session?.user) redirect("/login?callbackUrl=/client");
-  if (session.user.role === "OWNER") redirect("/owner");
+  const [client, locale] = await Promise.all([requireClient(), getLocale()]);
   const [dictionary, unreadCount] = await Promise.all([
     Promise.resolve(getDictionary(locale)),
-    prisma.notification.count({ where: { userId: session.user.id, isRead: false } }),
+    prisma.notification.count({ where: { userId: client.id, isRead: false } }),
   ]);
   const items = [
     { label: dictionary.portal.home, href: "/client", icon: Home },
@@ -22,5 +19,5 @@ export default async function ClientLayout({ children }: { children: React.React
     { label: dictionary.portal.profile, href: "/client/profile", icon: UserRound },
     { label: dictionary.portal.invoices, href: "/client/invoices", icon: ReceiptText },
   ];
-  return <PortalShell kind="client" title={dictionary.portal.clientPortal} userLabel={session.user.name ?? session.user.email ?? "Client"} unreadCount={unreadCount} items={items}>{children}</PortalShell>;
+  return <PortalShell kind="client" title={dictionary.portal.clientPortal} userLabel={client.name ?? client.email} unreadCount={unreadCount} items={items}>{children}</PortalShell>;
 }
