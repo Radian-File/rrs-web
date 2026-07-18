@@ -12,7 +12,8 @@
 - Enforce role and resource ownership on the server for every query and mutation.
 - Treat JWT role/ID claims as session transport only: validate the authenticated identity against the current `User` record before protected workspace access or mutations, and clear stale sessions after database reset/reseed or role changes.
 - Protect file access independently of page access.
-- Treat public quotation/review tokens as scoped capabilities, not full sessions.
+- Treat public quotation/review tokens as scoped capabilities, not full sessions. A quotation token permits viewing and guest revision/rejection only; it never authorizes acceptance, invoices, payments, agreement access, or project data.
+- Quotation acceptance requires a current authenticated CLIENT record and an exact normalized email match with the quotation recipient. Owner accounts and mismatched client accounts are rejected server-side.
 - Agreements are never public capabilities: Client agreement pages require an authenticated CLIENT session and a server-side `project.clientId` ownership match; Owner agreement pages require OWNER role.
 
 ## Input and financial safety

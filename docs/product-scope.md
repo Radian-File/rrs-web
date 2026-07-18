@@ -16,8 +16,8 @@ There is no public specialist/seller onboarding.
 
 1. Visitor chooses a service or starts a project brief.
 2. System creates an inquiry and WhatsApp continuation message.
-3. Owner records discussion and prepares a quotation.
-4. Client accepts, rejects, or requests a versioned revision.
+3. Owner records discussion and prepares a quotation with the client recipient email.
+4. Client can view the secure quotation link, reject it, or request a versioned revision as a guest; accepting requires login or account creation with the recipient email.
 5. Accepted quotation atomically provisions agreement, project, payment schedule, and first invoice.
 6. Client opens a protected, immutable agreement snapshot, reviews the scope/commercial terms, and accepts it explicitly; agreement and required payment unlock project work.
 7. Client tracks milestones, messages, files, delivery, and approvals.

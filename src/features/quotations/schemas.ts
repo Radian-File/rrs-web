@@ -36,4 +36,12 @@ export const quotationFormSchema = z.object({
     try { return JSON.parse(value); } catch { context.addIssue({ code: "custom", message: "Quotation items are invalid." }); return z.NEVER; }
   }).pipe(z.array(quotationItemSchema).min(1).max(50)),
   intent: z.enum(["DRAFT", "SENT"]),
+}).superRefine((data, context) => {
+  if (data.intent === "SENT" && !data.clientEmail) {
+    context.addIssue({
+      code: "custom",
+      path: ["clientEmail"],
+      message: "Recipient email is required before sending a quotation.",
+    });
+  }
 });

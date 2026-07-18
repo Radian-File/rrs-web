@@ -83,25 +83,17 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   const publicHref = await page.getByRole("link", { name: "Open Client View" }).getAttribute("href");
   expect(publicHref).toBeTruthy();
 
+  await page.context().clearCookies();
+  await page.context().addCookies([{ name: "rrs-locale", value: "en", domain: "127.0.0.1", path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" }]);
   await page.goto(publicHref!);
   const publicMain = page.locator("main:visible");
   await expect(publicMain.getByText("VIEWED", { exact: true })).toBeVisible();
-  await publicMain.getByPlaceholder("Full name").fill("Quotation E2E Client");
-  await publicMain.getByPlaceholder("Email").fill(email);
-  await publicMain.getByPlaceholder("WhatsApp number").fill("628123456789");
-  await publicMain.getByRole("checkbox").check();
-  await publicMain.getByRole("button", { name: "Accept Quotation" }).evaluate((element) => {
-    window.setTimeout(() => (element as HTMLButtonElement).click(), 0);
-  });
-  await expect(page).toHaveURL(/action=accepted/, { timeout: 30_000 });
-  await expect(page.locator("main:visible").getByText("Quotation accepted.")).toBeVisible();
-
-  await page.context().clearCookies();
-  await page.context().addCookies([{ name: "rrs-locale", value: "en", domain: "127.0.0.1", path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" }]);
-  await page.goto("/register");
+  await expect(publicMain.getByRole("link", { name: "Create client account" })).toBeVisible();
+  await publicMain.getByRole("link", { name: "Create client account" }).click();
+  await expect(page.getByRole("status")).toContainText("quotation recipient email");
+  await expect(page.getByLabel("Email")).toHaveValue(email);
   await page.getByLabel("Full name").fill("Quotation E2E Client");
   await page.getByLabel("WhatsApp number").fill("628123456789");
-  await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill("password");
   await page.getByLabel("Confirm password").fill("password");
   await page.evaluate(() => {
@@ -110,7 +102,18 @@ test("owner can draft and send a quotation that the client accepts atomically", 
     );
     window.setTimeout(() => (button as HTMLButtonElement | undefined)?.click(), 100);
   });
-  await expect(page).toHaveURL(/\/client$/, { timeout: 30_000 });
+  await expect(page).toHaveURL(/quotation\//, { timeout: 30_000 });
+  await expect(page.locator("main:visible").getByText("VIEWED", { exact: true })).toBeVisible();
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Accept Quotation" }).evaluate((element) => {
+    window.setTimeout(() => (element as HTMLButtonElement).click(), 0);
+  });
+  await expect(page).toHaveURL(/action=accepted/, { timeout: 30_000 });
+  await expect(page.locator("main:visible").getByText("Quotation accepted.")).toBeVisible();
+
+  await page.goto("/client");
+  await expect(page.getByRole("link", { name: "Explore Services" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Share Project Brief" })).toBeVisible();
 
   await page.goto("/client/projects");
   await page.locator("main:visible").getByText("Quotation workflow test", { exact: true }).click();

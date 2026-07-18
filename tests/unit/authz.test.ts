@@ -19,7 +19,7 @@ describe("database-backed authorization", () => {
     mocks.findUnique.mockResolvedValue({ id: "owner-current", name: "Radian", email: "owner@example.com", role: "OWNER" });
 
     await expect(requireOwner()).resolves.toMatchObject({ id: "owner-current", role: "OWNER" });
-    expect(mocks.findUnique).toHaveBeenCalledWith({ where: { id: "owner-current" }, select: { id: true, name: true, email: true, role: true } });
+    expect(mocks.findUnique).toHaveBeenCalledWith({ where: { id: "owner-current" }, select: { id: true, name: true, email: true, companyName: true, role: true } });
   });
 
   it("sends a stale JWT session through the cookie-clearing route after a reset", async () => {

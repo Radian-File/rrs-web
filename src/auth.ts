@@ -75,9 +75,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       if (isAuthRoute && session?.user) {
-        return Response.redirect(
-          new URL(role === "OWNER" ? "/owner" : "/client", request.nextUrl),
-        );
+        const callbackUrl = request.nextUrl.searchParams.get("callbackUrl");
+        const destination = callbackUrl?.startsWith("/") && !callbackUrl.startsWith("//")
+          ? callbackUrl
+          : role === "OWNER" ? "/owner" : "/client";
+        return Response.redirect(new URL(destination, request.nextUrl));
       }
 
       return true;
