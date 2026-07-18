@@ -1,0 +1,80 @@
+services:
+  db:
+    image: postgres:17-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - rrs_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  migrate:
+    build:
+      context: .
+      target: migration
+    env_file: ${RRS_ENV_FILE:-.env.production}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [internal]
+    restart: "no"
+
+  uploads-init:
+    image: alpine:3.21
+    command: ["sh", "-c", "chown -R 1001:1001 /uploads"]
+    volumes:
+      - rrs_uploads:/uploads
+    networks: [internal]
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    env_file: ${RRS_ENV_FILE:-.env.production}
+    environment:
+      NODE_ENV: production
+      LOCAL_UPLOAD_DIR: /app/uploads
+    volumes:
+      - rrs_uploads:/app/uploads
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      uploads-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks: [edge, internal]
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/nginx/rrs.http.conf:/etc/nginx/conf.d/default.conf:ro
+    networks: [edge]
+
+networks:
+  edge:
+  internal:
+    internal: true
+
+volumes:
+  rrs_postgres_data:
+  rrs_uploads:

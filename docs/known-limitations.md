@@ -1,8 +1,8 @@
 # Known Limitations After Phase 15
 
-- AWS infrastructure and deployment are not created.
-- Storage uses a private local adapter; S3 activation is pending Phase 16.
-- Email delivery uses the console adapter; SES activation is pending Phase 16.
+- Tencent Cloud CVM self-hosted deployment configuration exists, but no staging or production deployment has been performed.
+- Storage uses a private local Docker volume; backup/restore rehearsal is required and COS/S3-compatible storage remains a future scale option.
+- Email delivery uses the console adapter; an approved production provider and worker activation are pending.
 - Midtrans is Sandbox-only and requires user-provided sandbox keys for a live Snap checkout.
 - Webhook signature verification is implemented; production should additionally reconcile against Midtrans GET Status API.
 - Rate limiting is process-local and assumes the initial single-instance/single-process deployment.

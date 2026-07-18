@@ -19,10 +19,10 @@
 
 - Replace all local placeholder credentials
 - Rotate owner password and `AUTH_SECRET`
-- Activate AWS Budget before other AWS resources
-- Provision production PostgreSQL strategy and backup/restore rehearsal
-- Replace local storage with private S3 adapter
-- Activate SES identity/domain and delivery worker
+- Complete Tencent Cloud CVM host hardening, Security Group rules, and UFW/fail2ban verification
+- Provision Docker PostgreSQL strategy and backup/restore rehearsal
+- Back up persistent local upload volume together with PostgreSQL, or migrate to private COS/S3-compatible storage before scale requires it
+- Activate an approved production email provider and delivery worker
 - Configure domain, HTTPS, Nginx, and trusted proxy headers
 - Configure Midtrans production keys only after account approval
 - Register HTTPS webhook and verify GET Status API reconciliation
@@ -48,4 +48,4 @@ npm run build
 npm audit --audit-level=moderate
 ```
 
-No deployment is authorized by this document; deployment remains Phase 16.
+No deployment is authorized by this document; deployment requires explicit user approval after the Tencent Cloud staging checklist passes.
