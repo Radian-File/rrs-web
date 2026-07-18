@@ -11,7 +11,17 @@ RUN npm ci
 FROM deps AS builder
 COPY . .
 # Build-time placeholders only. Runtime secrets are never baked into the image.
-RUN mkdir -p public uploads && DATABASE_URL="postgresql://build:build@db:5432/rrs?schema=public" NEXT_PUBLIC_APP_URL="http://localhost" AUTH_SECRET="build-only-secret-that-is-never-used-at-runtime" OWNER_EMAIL="owner@example.com" OWNER_PASSWORD="build-only-owner-password" OWNER_WHATSAPP_NUMBER="6280000000000" STORAGE_DRIVER="local" LOCAL_UPLOAD_DIR="/app/uploads" MAX_UPLOAD_SIZE_MB="10" EMAIL_DRIVER="console" EMAIL_FROM="RRS Studio <noreply@example.com>" npm run build
+RUN mkdir -p public uploads \
+  && export DATABASE_URL="postgresql://build:build@db:5432/rrs?schema=public" \
+  && export NEXT_PUBLIC_APP_URL="http://localhost" \
+  && export AUTH_SECRET="build-only-secret-that-is-never-used-at-runtime" \
+  && export OWNER_EMAIL="owner@example.com" \
+  && export OWNER_PASSWORD="build-only-owner-password" \
+  && export OWNER_WHATSAPP_NUMBER="6280000000000" \
+  && export STORAGE_DRIVER="local" LOCAL_UPLOAD_DIR="/app/uploads" MAX_UPLOAD_SIZE_MB="10" \
+  && export EMAIL_DRIVER="console" EMAIL_FROM="RRS Studio <noreply@example.com>" \
+  && npx prisma generate \
+  && npm run build
 
 FROM deps AS migration
 COPY prisma ./prisma

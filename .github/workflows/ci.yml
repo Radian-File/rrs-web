@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Application validation
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder?schema=public
+      NEXT_PUBLIC_APP_URL: https://rrs-studio.store
+      AUTH_SECRET: github-actions-placeholder-secret-with-sufficient-length
+      OWNER_EMAIL: owner@example.com
+      OWNER_PASSWORD: github-actions-placeholder-password
+      OWNER_WHATSAPP_NUMBER: "6280000000000"
+      STORAGE_DRIVER: local
+      LOCAL_UPLOAD_DIR: ./uploads
+      MAX_UPLOAD_SIZE_MB: "10"
+      MIDTRANS_IS_PRODUCTION: "false"
+      EMAIL_DRIVER: console
+      EMAIL_FROM: RRS Studio <noreply@example.com>
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Production build
+        run: npm run build
