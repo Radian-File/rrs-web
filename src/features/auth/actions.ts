@@ -7,7 +7,6 @@ import { signIn } from "@/auth";
 import { prisma } from "@/lib/db/prisma";
 import { loginSchema, registerSchema } from "@/features/auth/schemas";
 import { assertRequestRateLimit } from "@/lib/security/rate-limit";
-import { getQuotationAuthContextFromCallbackUrl } from "@/features/quotations/public-query";
 
 export type AuthActionState = {
   message?: string;
@@ -60,11 +59,8 @@ export async function registerAction(
     return { errors: parsed.error.flatten().fieldErrors };
   }
 
-  const quotationContext = await getQuotationAuthContextFromCallbackUrl(parsed.data.redirectTo);
-  const email = quotationContext?.clientEmail ?? parsed.data.email;
-  const redirectTo = safeRedirect(parsed.data.redirectTo, "/client");
   const existing = await prisma.user.findUnique({
-    where: { email },
+    where: { email: parsed.data.email },
     select: { id: true, role: true, passwordHash: true },
   });
   if (existing?.passwordHash || existing?.role === "OWNER") {
@@ -86,7 +82,7 @@ export async function registerAction(
     await prisma.user.create({
       data: {
         name: parsed.data.name,
-        email,
+        email: parsed.data.email,
         whatsappNumber: parsed.data.whatsappNumber,
         companyName: parsed.data.companyName || null,
         passwordHash,
@@ -96,10 +92,10 @@ export async function registerAction(
   }
 
   await signIn("credentials", {
-    email,
+    email: parsed.data.email,
     password: parsed.data.password,
-    redirectTo,
+    redirectTo: "/client",
   });
 
-  redirect(redirectTo);
+  redirect("/client");
 }

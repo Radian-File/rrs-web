@@ -30,9 +30,8 @@ App Router page/layout
 
 - Document numbers are allocated inside database transactions.
 - Financial totals are recalculated on the server with decimal arithmetic.
-- Sent quotation versions are immutable and require a recipient email.
+- Sent quotation versions are immutable.
 - Only one current quotation version and one accepted version exist per group.
-- Public quotation viewing is token-scoped; acceptance requires an authenticated CLIENT whose email matches the quotation recipient email.
 - Quotation acceptance provisions all dependent records atomically.
 - Project transitions are explicit and guarded.
 - Invoice and payment allocation cannot exceed project totals.
