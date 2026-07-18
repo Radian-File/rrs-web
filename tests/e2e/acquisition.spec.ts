@@ -199,4 +199,6 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await reviewForm.locator('textarea[name="comment"]').fill("The project was delivered clearly and professionally.");
   await reviewForm.getByRole("button", { name: "Submit Verified Review" }).click();
   await expect(page.getByRole("heading", { name: "Thank you for the project review." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Back to Home" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Back to Client Portal" })).toBeVisible();
 });

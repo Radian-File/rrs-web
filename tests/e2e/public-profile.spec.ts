@@ -8,8 +8,9 @@ test("portfolio and About page link to the professional profile with formal iden
   await expect(portfolioLink).toHaveAttribute("rel", "noreferrer");
 
   await page.goto("/about");
-  await expect(page.getByText("RRS is an independent digital service practice", { exact: false })).toBeVisible();
-  await expect(page.getByRole("link", { name: "View full portfolio" })).toHaveAttribute("href", "https://rrs-porto.vercel.app");
+  const aboutMain = page.locator("main:visible").first();
+  await expect(aboutMain.getByText("RRS is an independent digital service practice", { exact: false })).toBeVisible();
+  await expect(aboutMain.getByRole("link", { name: "View full portfolio" })).toHaveAttribute("href", "https://rrs-porto.vercel.app");
 });
 
 test("contact page exposes the configured direct WhatsApp destination", async ({ page }) => {
