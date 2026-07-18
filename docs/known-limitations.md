@@ -12,3 +12,4 @@
 - Final brand assets, portfolio case studies, legal text, service copy, owner contact details, and production domain remain user-provided content.
 - Public reviews remain empty until real completed projects submit verified feedback.
 - Automated email queue processing is owner-triggered locally; a scheduled worker is a Phase 16 concern.
+- Public review submission and recent payment/project controls return recoverable inline validation states. Remaining lower-risk Owner/client server-action forms should be migrated to the same pattern incrementally rather than in one high-risk rewrite.

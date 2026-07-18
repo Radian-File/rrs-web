@@ -46,7 +46,7 @@ test("service detail keeps quotation as the primary conversion", async ({ page }
 });
 
 test("owner can draft and send a quotation that the client accepts atomically", async ({ page }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   const email = `quotation-${Date.now()}-${test.info().project.name}@example.com`;
 
   await page.goto("/login");
@@ -162,6 +162,22 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await expect(nextStep).toHaveValue("IN_PROGRESS");
   await expect(nextStep.locator("option")).toHaveCount(3);
   await expect(nextStep.locator('option[value="CLIENT_REVIEW"]')).toHaveCount(0);
+  const projectDetailMain = page.locator("main:visible").first();
+  await projectDetailMain.getByPlaceholder("Milestone title").fill("Final delivery");
+  await projectDetailMain.getByRole("button", { name: "Add Milestone" }).click();
+  const milestoneStatus = projectDetailMain.getByLabel("Milestone Final delivery status");
+  await expect(milestoneStatus).toBeVisible();
+  await milestoneStatus.selectOption("COMPLETED");
+  const milestoneForm = milestoneStatus.locator("xpath=ancestor::form");
+  await milestoneForm.getByRole("button", { name: "Save" }).click();
+  await nextStep.selectOption("IN_PROGRESS");
+  await projectDetailMain.getByRole("button", { name: "Update status" }).click();
+  await expect(projectDetailMain.getByText("Current: IN PROGRESS")).toBeVisible();
+  const reviewStep = projectDetailMain.getByLabel("Next available step").first();
+  await expect(reviewStep).toHaveValue("CLIENT_REVIEW");
+  await reviewStep.selectOption("CLIENT_REVIEW");
+  await projectDetailMain.getByRole("button", { name: "Update status" }).click();
+  await expect(projectDetailMain.getByText("Current: CLIENT REVIEW")).toBeVisible();
 
   await page.context().clearCookies();
   await page.context().addCookies([{ name: "rrs-locale", value: "en", domain: "127.0.0.1", path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" }]);
@@ -173,5 +189,14 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await page.goto(invoiceUrl!);
   await expect(page.getByText("PAID", { exact: true }).first()).toBeVisible();
   await page.goto(clientProjectUrl);
-  await expect(page.locator("main:visible").getByText("PLANNING", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Approve Final Delivery" }).click();
+  await expect(page.getByText("Verified project review")).toBeVisible();
+  const reviewForm = page.locator('form:has(textarea[name="comment"])').first();
+  await reviewForm.evaluate((form) => { (form as HTMLFormElement).noValidate = true; });
+  await reviewForm.locator('textarea[name="comment"]').fill("Nice");
+  await reviewForm.getByRole("button", { name: "Submit Verified Review" }).click();
+  await expect(page.getByText("Write at least 20 characters.")).toBeVisible();
+  await reviewForm.locator('textarea[name="comment"]').fill("The project was delivered clearly and professionally.");
+  await reviewForm.getByRole("button", { name: "Submit Verified Review" }).click();
+  await expect(page.getByRole("heading", { name: "Thank you for the project review." })).toBeVisible();
 });
