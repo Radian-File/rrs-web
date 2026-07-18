@@ -22,8 +22,10 @@ Internet
 
 - `docker-compose.production.yml` — production topology.
 - `.env.production.example` — required runtime values; copy to untracked `.env.production`.
-- `deploy/nginx/rrs.http.conf` — IP-first HTTP reverse proxy.
-- `deploy/nginx/rrs.https.conf.example` — domain/TLS template.
+- `deploy/nginx/rrs.http.conf` — IP-first HTTP reverse proxy for initial staging only.
+- `deploy/nginx/rrs.https.conf` — tracked production HTTPS reverse-proxy source of truth for `rrs-studio.store`.
+- `deploy/nginx/rrs.https.conf.example` — reusable domain/TLS template.
+- `deploy-production.sh` — safe in-place update script used by GitHub CD after CI succeeds.
 - `deploy/tencent/bootstrap-ubuntu-24.04.md` — server hardening and deployment procedure.
 
 ## Important limitations
