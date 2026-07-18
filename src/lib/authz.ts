@@ -1,8 +1,9 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db/prisma";
 
-export async function requireUser() {
+const getCurrentUser = cache(async () => {
   const session = await auth();
   if (!session?.user?.id || !session.user.role) redirect("/login");
 
@@ -13,6 +14,10 @@ export async function requireUser() {
 
   if (!user || user.role !== session.user.role) redirect("/auth/session-expired");
   return user;
+});
+
+export async function requireUser() {
+  return getCurrentUser();
 }
 
 export async function requireOwner() {

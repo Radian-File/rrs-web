@@ -44,9 +44,3 @@ const id: Dictionary = {
 
 const dictionaries: Record<Locale, Dictionary> = { id, en };
 export function getDictionary(locale: Locale) { return dictionaries[locale]; }
-
-const statusId: Record<string, string> = {
-  DRAFT: "Draf", SUBMITTED: "Terkirim", REVIEWING: "Ditinjau", DISCUSSING: "Diskusi", WAITING_FOR_CLIENT: "Menunggu client", READY_FOR_QUOTATION: "Siap dibuatkan quotation", QUOTATION_SENT: "Quotation terkirim", SENT: "Terkirim", VIEWED: "Dilihat", REVISION_REQUESTED: "Revisi diminta", ACCEPTED: "Diterima", REJECTED: "Ditolak", EXPIRED: "Kedaluwarsa", CANCELLED: "Dibatalkan", ARCHIVED: "Diarsipkan", AWAITING_AGREEMENT: "Menunggu agreement", AWAITING_DOWN_PAYMENT: "Menunggu pembayaran awal", PLANNING: "Perencanaan", IN_PROGRESS: "Dikerjakan", CLIENT_REVIEW: "Ditinjau client", REVISION: "Revisi", ON_HOLD: "Ditunda", COMPLETED: "Selesai", ISSUED: "Diterbitkan", PENDING: "Menunggu", PARTIALLY_PAID: "Dibayar sebagian", PAID: "Lunas", OVERDUE: "Terlambat", VOID: "Dibatalkan", REFUNDED: "Dikembalikan", UNDER_VERIFICATION: "Sedang diverifikasi", VERIFIED: "Terverifikasi", FAILED: "Gagal", PROCESSING: "Diproses", PUBLISHED: "Dipublikasikan", HIDDEN: "Disembunyikan" };
-export function statusLabel(locale: Locale, status: string) {
-  return locale === "id" ? statusId[status] ?? status.replaceAll("_", " ") : status.replaceAll("_", " ");
-}
