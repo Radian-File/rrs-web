@@ -5,7 +5,6 @@ APP_DIR="/opt/rrs-studio"
 COMPOSE_FILE="docker-compose.production.yml"
 ENV_FILE=".env.production"
 DOMAIN="rrs-studio.store"
-CERT_DIR="/etc/letsencrypt/live/${DOMAIN}"
 HEALTH_URL="https://${DOMAIN}/api/health"
 
 cd "$APP_DIR"
@@ -25,8 +24,6 @@ require_file() {
 
 require_file "$ENV_FILE"
 require_file "deploy/nginx/rrs.https.conf"
-require_file "${CERT_DIR}/fullchain.pem"
-require_file "${CERT_DIR}/privkey.pem"
 
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "Refusing deployment: working tree is not clean." >&2
@@ -43,6 +40,21 @@ git pull --ff-only origin main
 "${COMPOSE[@]}" up -d db uploads-init
 "${COMPOSE[@]}" run --rm migrate
 "${COMPOSE[@]}" up -d --remove-orphans
+
+# TLS files are intentionally only read through Nginx's read-only certificate mount.
+# This validates the HTTPS config and both certificate files without granting the deploy user access.
+for attempt in $(seq 1 60); do
+  nginx_id=$("${COMPOSE[@]}" ps -q nginx)
+  if [[ -n "$nginx_id" ]] && [[ "$(docker inspect --format '{{.State.Running}}' "$nginx_id")" == "true" ]]; then
+    break
+  fi
+  sleep 2
+  if [[ "$attempt" == "60" ]]; then
+    echo "Nginx container did not become active." >&2
+    exit 1
+  fi
+done
+"${COMPOSE[@]}" exec -T nginx nginx -t
 
 for attempt in $(seq 1 60); do
   app_id=$("${COMPOSE[@]}" ps -q app)
