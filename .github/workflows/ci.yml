@@ -17,6 +17,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder?schema=public
       NEXT_PUBLIC_APP_URL: https://rrs-studio.store
+      AUTH_URL: https://rrs-studio.store
       AUTH_SECRET: github-actions-placeholder-secret-with-sufficient-length
       OWNER_EMAIL: owner@example.com
       OWNER_PASSWORD: github-actions-placeholder-password

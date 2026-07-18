@@ -6,6 +6,7 @@ const emptyToUndefined = (value: unknown) =>
 const serverEnvSchema = z.object({
   DATABASE_URL: z.string().url(),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+  AUTH_URL: z.string().url().optional(),
   AUTH_SECRET: z.string().min(32),
   OWNER_EMAIL: z.string().email(),
   OWNER_PASSWORD: z.string().min(12),
