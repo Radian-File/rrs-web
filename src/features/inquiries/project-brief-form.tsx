@@ -64,16 +64,16 @@ export function ProjectBriefForm({ services, selectedService, client }: { servic
       <label className="sm:col-span-2"><span className="mb-2 block text-sm font-semibold">Service of interest</span><select name="serviceSlug" defaultValue={selectedService ?? ""} className={selectClass}><option value="">Custom / not sure yet</option>{services.map((service)=><option key={service.slug} value={service.slug}>{service.title}</option>)}</select></label>
     </section>
     <section hidden={step!==2} className="grid gap-5 sm:grid-cols-2">
-      <Field label="Project title" name="projectTitle" className="sm:col-span-2" error={error("projectTitle")} />
-      <Field label="Project type" name="projectType" placeholder="Website, dashboard, redesign…" error={error("projectType")} />
-      <Field label="Target users (optional)" name="targetUsers" required={false} error={error("targetUsers")} />
-      <Area label="Project description" name="projectDescription" className="sm:col-span-2" placeholder="Explain the current context and what should be built." error={error("projectDescription")} />
-      <Area label="Project goals" name="projectGoals" className="sm:col-span-2" placeholder="What should improve or become possible after this project?" error={error("projectGoals")} />
-      <Area label="Required features" name="requiredFeatures" className="sm:col-span-2" placeholder="One feature per line" error={error("requiredFeatures")} />
+      <Field label="Judul project" name="projectTitle" className="sm:col-span-2" error={error("projectTitle")} />
+      <Field label="Jenis project" name="projectType" placeholder="Website, dashboard, redesign…" error={error("projectType")} />
+      <Field label="Target user (opsional)" name="targetUsers" required={false} error={error("targetUsers")} />
+      <Field label="Rentang budget (opsional)" name="budgetRange" required={false} placeholder="Rp5.000.000–Rp10.000.000" error={error("budgetRange")} />
+      <Area label="Deskripsi project" name="projectDescription" className="sm:col-span-2" placeholder="Jelaskan konteks saat ini dan project yang ingin dibangun." error={error("projectDescription")} />
+      <Area label="Tujuan project" name="projectGoals" className="sm:col-span-2" placeholder="Apa yang ingin ditingkatkan atau dicapai melalui project ini?" error={error("projectGoals")} />
+      <Area label="Fitur yang dibutuhkan" name="requiredFeatures" className="sm:col-span-2" placeholder="Satu fitur per baris" error={error("requiredFeatures")} />
     </section>
     <section hidden={step!==3} className="grid gap-5 sm:grid-cols-2">
-      <Field label="Budget range (optional)" name="budgetRange" required={false} placeholder="Rp5.000.000–Rp10.000.000" error={error("budgetRange")} />
-      <Field label="Expected deadline (optional)" name="expectedDeadline" type="date" required={false} error={error("expectedDeadline")} />
+      <Field label="Target deadline (opsional)" name="expectedDeadline" type="date" required={false} error={error("expectedDeadline")} />
       <Area label="Reference links (optional)" name="referenceLinks" required={false} className="sm:col-span-2" placeholder="One link per line" error={error("referenceLinks")} />
       <label><span className="mb-2 block text-sm font-semibold">Design status</span><select name="hasDesign" className={selectClass}><option value="no">No design yet</option><option value="partial">Partial / reference only</option><option value="yes">Design is ready</option></select></label>
       <label><span className="mb-2 block text-sm font-semibold">Project mode</span><select name="projectMode" className={selectClass}><option value="new">New project</option><option value="redesign">Redesign</option></select></label>
