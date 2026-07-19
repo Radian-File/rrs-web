@@ -9,14 +9,16 @@ const schema = z.object({ name: z.string().trim().min(2, "Nama minimal 2 karakte
 export type ContactActionState = { message?: string; errors?: Record<string, string[]> };
 
 export async function submitContactAction(_state: ContactActionState, formData: FormData): Promise<ContactActionState> {
+  let contactId: string;
   try {
     await assertRequestRateLimit("contact", 5, 15 * 60 * 1000, String(formData.get("email") ?? "anonymous"));
     const parsed = schema.safeParse(Object.fromEntries(formData));
     if (!parsed.success) return { errors: parsed.error.flatten().fieldErrors };
-    await prisma.contactMessage.create({ data: { ...parsed.data, whatsappNumber: parsed.data.whatsappNumber || null } });
+    const contact = await prisma.contactMessage.create({ data: { ...parsed.data, whatsappNumber: parsed.data.whatsappNumber || null }, select: { id: true } });
+    contactId = contact.id;
   } catch (error) {
     if (error instanceof RateLimitError) return { message: error.message };
     return { message: "Pesan belum dapat dikirim. Silakan coba lagi." };
   }
-  redirect("/contact?sent=1");
+  redirect(`/contact?sent=${encodeURIComponent(contactId!)}`);
 }
