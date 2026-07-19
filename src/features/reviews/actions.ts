@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { ReviewStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/db/prisma";
+import { getServerAppUrl } from "@/lib/env";
 import { generatePublicToken, hashPublicToken } from "@/lib/security/tokens";
 import { requireOwner } from "@/lib/authz";
 import { genericActionError, isRedirectError, type RecoverableActionState, zodActionError } from "@/lib/forms/action-state";
@@ -60,7 +61,7 @@ export async function reissueReviewInvitationAction(_: ReviewInvitationActionSta
       await tx.auditLog.create({ data: { userId: owner.id, action: "REVIEW_INVITATION_REISSUED", entityType: "Project", entityId: project.id } });
     });
     revalidatePath(`/owner/projects/${parsed.data.projectId}`);
-    return { status: "idle", message: "A new review link is ready to copy.", reviewUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/review/${token}` };
+    return { status: "idle", message: "A new review link is ready to copy.", reviewUrl: `${getServerAppUrl()}/review/${token}` };
   } catch (error) {
     if (isRedirectError(error)) throw error;
     if (error instanceof ReviewInvitationUnavailableError) return genericActionError("A review link can only be issued for a completed project without a submitted review.");

@@ -29,6 +29,11 @@ export function getServerEnv(
   return serverEnvSchema.parse(source);
 }
 
+export function getServerAppUrl() {
+  const env = getServerEnv();
+  return env.AUTH_URL ?? env.NEXT_PUBLIC_APP_URL;
+}
+
 export const publicEnv = {
   appUrl: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
 } as const;
