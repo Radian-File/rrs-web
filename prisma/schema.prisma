@@ -299,6 +299,7 @@ model PortfolioProject {
   description   String          @db.Text
   category      String
   technologies  String[]
+  searchAliases String[] @default([])
   coverImageUrl String?
   galleryUrls   String[]
   liveUrl       String?

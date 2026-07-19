@@ -2,6 +2,7 @@ import { z } from "zod";
 
 const optionalText = z.string().trim().transform((value) => value || undefined).optional();
 const linesToList = z.string().trim().min(2, "Tambahkan setidaknya satu item.").max(3000).transform((value) => value.split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean));
+const aliasesToList = z.string().trim().transform((value) => [...new Map(value.split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean).slice(0, 20).map((item) => [item.toLowerCase(), item])).values()]);
 
 export const serviceSchema = z.object({
   title: z.string().trim().min(2, "Judul minimal 2 karakter.").max(160),
@@ -14,6 +15,7 @@ export const serviceSchema = z.object({
   revisionGuidance: optionalText,
   deliverables: linesToList,
   technologies: linesToList,
+  searchAliases: aliasesToList,
   coverImageUrl: z.preprocess((value) => value === "" ? undefined : value, z.string().url("Gunakan URL gambar yang valid.").optional()),
   isFeatured: z.preprocess((value) => value === "on", z.boolean()),
   isPublished: z.preprocess((value) => value === "on", z.boolean()),

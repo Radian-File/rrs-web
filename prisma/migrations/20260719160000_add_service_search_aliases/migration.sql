@@ -1,0 +1,1 @@
+ALTER TABLE "Service" ADD COLUMN "searchAliases" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];

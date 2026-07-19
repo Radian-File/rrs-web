@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRetainedFormValues } from "@/components/ui/use-retained-form-values";
 
-export type EditableService = { id: string; title: string; slug: string; summary: string; description: string; category: string; serviceTypeId: string | null; startingPrice: string | null; deliveryEstimate: string | null; revisionGuidance: string | null; deliverables: string[]; technologies: string[]; coverImageUrl: string | null; isFeatured: boolean; isPublished: boolean };
+export type EditableService = { id: string; title: string; slug: string; summary: string; description: string; category: string; serviceTypeId: string | null; startingPrice: string | null; deliveryEstimate: string | null; revisionGuidance: string | null; deliverables: string[]; technologies: string[]; searchAliases: string[]; coverImageUrl: string | null; isFeatured: boolean; isPublished: boolean };
 
 export function ServiceEditor({ service, types }: { service?: EditableService; types: { id: string; name: string }[] }) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -28,6 +28,7 @@ export function ServiceEditor({ service, types }: { service?: EditableService; t
     </section>
     <Area label="Ringkasan layanan" name="summary" defaultValue={service?.summary} className="min-h-24" error={error("summary")} />
     <Area label="Deskripsi lengkap" name="description" defaultValue={service?.description} error={error("description")} />
+    <label><span className="mb-2 block text-sm font-semibold">Kata kunci pencarian (opsional)</span><span className="-mt-1 mb-2 block text-xs text-secondary">Satu alias per baris. Contoh: comp web, company website, website perusahaan.</span><Textarea name="searchAliases" defaultValue={(service as (EditableService & { searchAliases?: string[] }) | undefined)?.searchAliases?.join("\n")} className="min-h-24"/><FieldError id="searchAliases-error" error={error("searchAliases")}/></label>
     <div className="grid gap-6 md:grid-cols-2">
       <Area label="Deliverables" hint="Satu item per baris." name="deliverables" defaultValue={service?.deliverables.join("\n")} error={error("deliverables")} />
       <Area label="Teknologi / keahlian" hint="Satu item per baris." name="technologies" defaultValue={service?.technologies.join("\n")} error={error("technologies")} />
