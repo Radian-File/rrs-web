@@ -275,6 +275,7 @@ model Service {
   revisionGuidance String?
   deliverables     String[]
   technologies     String[]
+  searchAliases    String[] @default([])
   coverImageUrl    String?
   isFeatured       Boolean  @default(false)
   isPublished      Boolean  @default(false)
@@ -299,7 +300,6 @@ model PortfolioProject {
   description   String          @db.Text
   category      String
   technologies  String[]
-  searchAliases String[] @default([])
   coverImageUrl String?
   galleryUrls   String[]
   liveUrl       String?
