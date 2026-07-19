@@ -67,7 +67,7 @@ export function ProjectBriefForm({ services, selectedService, client }: { servic
       <Field label="Judul project" name="projectTitle" className="sm:col-span-2" error={error("projectTitle")} />
       <Field label="Jenis project" name="projectType" placeholder="Website, dashboard, redesign…" error={error("projectType")} />
       <Field label="Target user (opsional)" name="targetUsers" required={false} error={error("targetUsers")} />
-      <Field label="Rentang budget (opsional)" name="budgetRange" required={false} placeholder="Rp5.000.000–Rp10.000.000" error={error("budgetRange")} />
+      <Field label="Rentang budget" name="budgetRange" required={false} placeholder="Rp5.000.000–Rp10.000.000" error={error("budgetRange")} />
       <Area label="Deskripsi project" name="projectDescription" className="sm:col-span-2" placeholder="Jelaskan konteks saat ini dan project yang ingin dibangun." error={error("projectDescription")} />
       <Area label="Tujuan project" name="projectGoals" className="sm:col-span-2" placeholder="Apa yang ingin ditingkatkan atau dicapai melalui project ini?" error={error("projectGoals")} />
       <Area label="Fitur yang dibutuhkan" name="requiredFeatures" className="sm:col-span-2" placeholder="Satu fitur per baris" error={error("requiredFeatures")} />
