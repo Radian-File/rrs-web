@@ -34,7 +34,8 @@ git fetch origin main
 git pull --ff-only origin main
 
 "${COMPOSE[@]}" config --quiet
-"${COMPOSE[@]}" build app
+# Build both runtime targets so Prisma migrations always use the same source revision as the app.
+"${COMPOSE[@]}" build app migrate
 
 # Start only prerequisites; no compose down, volume removal, database reset, or db recreation.
 "${COMPOSE[@]}" up -d db uploads-init
