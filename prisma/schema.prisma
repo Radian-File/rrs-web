@@ -437,6 +437,7 @@ model Quotation {
   items            QuotationItem[]
   paymentTerms     QuotationPaymentTerm[]
   revisionRequests QuotationRevisionRequest[]
+  discussions      QuotationDiscussion[]
   activities       QuotationActivity[]
   project          Project?
   agreement        Agreement?
@@ -487,6 +488,19 @@ model QuotationRevisionRequest {
   quotationId String
   requestedBy String
   reason      String   @db.Text
+  createdAt   DateTime @default(now())
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  @@index([quotationId, createdAt])
+}
+
+model QuotationDiscussion {
+  id          String   @id @default(cuid())
+  quotationId String
+  name        String
+  email       String
+  message     String   @db.Text
   createdAt   DateTime @default(now())
 
   quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { submitProjectBrief } from "@/features/inquiries/actions";
 import { projectBriefSchema } from "@/features/inquiries/schemas";
@@ -14,13 +14,35 @@ const selectClass = "h-12 w-full rounded-[12px] border border-border bg-surface 
 const stepOneSchema = projectBriefSchema.pick({ clientName: true, clientPhone: true, clientEmail: true, companyName: true, serviceSlug: true });
 const stepTwoSchema = projectBriefSchema.pick({ projectTitle: true, projectType: true, targetUsers: true, projectDescription: true, projectGoals: true, requiredFeatures: true });
 
-export function ProjectBriefForm({ services, selectedService }: { services: { slug: string; title: string }[]; selectedService?: string }) {
+export function ProjectBriefForm({ services, selectedService, client }: { services: { slug: string; title: string }[]; selectedService?: string; client: { name: string; email: string; phone: string; companyName: string } }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const draftKey = `rrs:brief:${selectedService ?? "custom"}`;
   const [step, setStep] = useState(1);
   const [clientErrors, setClientErrors] = useState<Record<string, string[]>>({});
   const [state, action, pending] = useActionState(submitProjectBrief, {});
   const { capture } = useRetainedFormValues(formRef, Boolean(state.errors || state.message), ["attachment"]);
   const error = (name: string) => clientErrors[name]?.[0] ?? state.errors?.[name]?.[0];
+  useEffect(() => {
+    const raw = window.sessionStorage.getItem(draftKey);
+    if (!raw || !formRef.current) return;
+    try {
+      const draft = JSON.parse(raw) as { expiresAt: number; values: Record<string, string> };
+      if (draft.expiresAt < Date.now()) { window.sessionStorage.removeItem(draftKey); return; }
+      for (const [name, value] of Object.entries(draft.values)) {
+        const element = formRef.current.elements.namedItem(name);
+        if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) element.value = value;
+      }
+    } catch { window.sessionStorage.removeItem(draftKey); }
+  }, [draftKey]);
+  const saveDraft = () => {
+    if (!formRef.current) return;
+    const values: Record<string, string> = {};
+    for (const element of Array.from(formRef.current.elements)) {
+      if (!(element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) || !element.name || element.type === "file" || ["clientName", "clientEmail", "clientPhone", "companyName"].includes(element.name)) continue;
+      values[element.name] = element.value;
+    }
+    window.sessionStorage.setItem(draftKey, JSON.stringify({ expiresAt: Date.now() + 30 * 60 * 1000, values }));
+  };
   const continueToNextStep = () => {
     if (!formRef.current) return;
     const result = (step === 1 ? stepOneSchema : stepTwoSchema).safeParse(Object.fromEntries(new FormData(formRef.current)));
@@ -32,13 +54,13 @@ export function ProjectBriefForm({ services, selectedService }: { services: { sl
     setStep((value) => Math.min(3, value + 1));
   };
 
-  return <form ref={formRef} action={action} onSubmit={capture} onInput={(event) => { const name = (event.target as HTMLInputElement).name; if (name in clientErrors) setClientErrors((errors) => { const next = { ...errors }; delete next[name]; return next; }); }}>
+  return <form ref={formRef} action={action} onSubmit={() => { saveDraft(); capture(); }} onInput={(event) => { saveDraft(); const name = (event.target as HTMLInputElement).name; if (name in clientErrors) setClientErrors((errors) => { const next = { ...errors }; delete next[name]; return next; }); }}>
     <div className="mb-8 flex items-center gap-3">{[1,2,3].map((item)=><div key={item} className="flex flex-1 items-center gap-3"><span className={`grid size-8 shrink-0 place-items-center rounded-full text-xs font-bold ${step>=item?"bg-primary text-white":"bg-surface-container text-secondary"}`}>{item}</span>{item<3&&<span className={`h-px flex-1 ${step>item?"bg-primary":"bg-border"}`}/>}</div>)}</div>
     <section hidden={step!==1} className="grid gap-5 sm:grid-cols-2">
-      <Field label="Full name" name="clientName" error={error("clientName")} />
-      <Field label="WhatsApp number" name="clientPhone" error={error("clientPhone")} />
-      <Field label="Email" name="clientEmail" type="email" error={error("clientEmail")} hint="Gunakan email aktif yang dapat Anda akses. Email ini menerima quotation dan akan menghubungkan project, invoice, serta file ke Client Portal saat Anda membuat akun nanti." />
-      <Field label="Company (optional)" name="companyName" required={false} error={error("companyName")} />
+      <Field label="Full name" name="clientName" defaultValue={client.name} readOnly error={error("clientName")} />
+      <Field label="WhatsApp number" name="clientPhone" defaultValue={client.phone} readOnly error={error("clientPhone")} />
+      <Field label="Email" name="clientEmail" type="email" defaultValue={client.email} readOnly error={error("clientEmail")} hint="Identitas brief diambil dari akun Client yang sedang login." />
+      <Field label="Company (optional)" name="companyName" defaultValue={client.companyName} readOnly required={false} error={error("companyName")} />
       <label className="sm:col-span-2"><span className="mb-2 block text-sm font-semibold">Service of interest</span><select name="serviceSlug" defaultValue={selectedService ?? ""} className={selectClass}><option value="">Custom / not sure yet</option>{services.map((service)=><option key={service.slug} value={service.slug}>{service.title}</option>)}</select></label>
     </section>
     <section hidden={step!==2} className="grid gap-5 sm:grid-cols-2">
@@ -65,5 +87,5 @@ export function ProjectBriefForm({ services, selectedService }: { services: { sl
   </form>;
 }
 
-function Field({label,name,type="text",required=true,error,className,placeholder,hint}:{label:string;name:string;type?:string;required?:boolean;error?:string;className?:string;placeholder?:string;hint?:string}){const errorId=`${name}-error`;const hintId=`${name}-hint`;return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Input name={name} type={type} required={required} placeholder={placeholder} aria-invalid={Boolean(error)} aria-describedby={[hint?hintId:"",error?errorId:""].filter(Boolean).join(" ")||undefined} className={fieldErrorClass(error)}/>{hint&&<span id={hintId} className="mt-2 block text-xs leading-5 text-secondary">{hint}</span>}<FieldError id={errorId} error={error}/></label>}
+function Field({label,name,type="text",required=true,error,className,placeholder,hint,defaultValue,readOnly=false}:{label:string;name:string;type?:string;required?:boolean;error?:string;className?:string;placeholder?:string;hint?:string;defaultValue?:string;readOnly?:boolean}){const errorId=`${name}-error`;const hintId=`${name}-hint`;return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Input name={name} type={type} required={required} placeholder={placeholder} defaultValue={defaultValue} readOnly={readOnly} aria-invalid={Boolean(error)} aria-describedby={[hint?hintId:"",error?errorId:""].filter(Boolean).join(" ")||undefined} className={fieldErrorClass(error)}/>{hint&&<span id={hintId} className="mt-2 block text-xs leading-5 text-secondary">{hint}</span>}<FieldError id={errorId} error={error}/></label>}
 function Area({label,name,required=true,error,className,placeholder}:{label:string;name:string;required?:boolean;error?:string;className?:string;placeholder?:string}){const errorId=`${name}-error`;return <label className={className}><span className="mb-2 block text-sm font-semibold">{label}</span><Textarea name={name} required={required} placeholder={placeholder} aria-invalid={Boolean(error)} aria-describedby={error?errorId:undefined} className={fieldErrorClass(error)}/><FieldError id={errorId} error={error}/></label>}

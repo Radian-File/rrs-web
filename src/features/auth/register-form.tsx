@@ -9,7 +9,7 @@ import { useRetainedFormValues } from "@/components/ui/use-retained-form-values"
 
 type RegisterLabels = { fullName: string; whatsapp: string; email: string; company: string; password: string; confirmPassword: string; create: string; creating: string };
 
-export function RegisterForm({ labels }: { labels: RegisterLabels }) {
+export function RegisterForm({ labels, redirectTo }: { labels: RegisterLabels; redirectTo?: string }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, action, pending] = useActionState(registerAction, {});
   const { capture } = useRetainedFormValues(formRef, Boolean(state.errors || state.message), ["password", "confirmPassword"]);
@@ -17,6 +17,7 @@ export function RegisterForm({ labels }: { labels: RegisterLabels }) {
   const passwordKey = `${state.message ?? ""}:${error("password") ?? ""}:${error("confirmPassword") ?? ""}`;
 
   return <form ref={formRef} action={action} onSubmit={capture} className="grid gap-5 sm:grid-cols-2">
+    <input type="hidden" name="redirectTo" value={redirectTo ?? ""} />
     <Field label={labels.fullName} name="name" error={error("name")} />
     <Field label={labels.whatsapp} name="whatsappNumber" error={error("whatsappNumber")} />
     <Field label={labels.email} name="email" type="email" error={error("email")} className="sm:col-span-2" />

@@ -6,6 +6,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button } from "@/components/ui/button";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getLocale } from "@/i18n/server";
+import { loginUrl } from "@/lib/auth-redirect";
 
 export async function SiteHeader() {
   const locale = await getLocale();
@@ -30,7 +31,7 @@ export async function SiteHeader() {
         <div className="flex items-center gap-2">
           <div className="hidden md:block"><Suspense><LanguageSwitcher locale={locale} /></Suspense></div>
           <Button asChild variant="ghost" className="hidden sm:inline-flex"><Link href="/login">{dictionary.nav.signIn}</Link></Button>
-          <Button asChild size="sm"><Link href="/start-project">{dictionary.nav.startProject}</Link></Button>
+          <Button asChild size="sm"><Link href={loginUrl("/start-project")}>{dictionary.nav.startProject}</Link></Button>
           <details className="group relative lg:hidden">
             <summary className="grid size-10 cursor-pointer list-none place-items-center rounded-[10px] transition-colors hover:bg-surface-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary [&::-webkit-details-marker]:hidden" aria-label="Open navigation menu"><Menu className="size-5" /></summary>
             <nav className="absolute right-0 top-12 w-60 rounded-[14px] border border-border bg-surface p-2 shadow-xl" aria-label="Mobile navigation">

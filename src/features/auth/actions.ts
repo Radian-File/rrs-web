@@ -7,15 +7,12 @@ import { signIn } from "@/auth";
 import { prisma } from "@/lib/db/prisma";
 import { loginSchema, registerSchema } from "@/features/auth/schemas";
 import { assertRequestRateLimit } from "@/lib/security/rate-limit";
+import { safeInternalRedirect } from "@/lib/auth-redirect";
 
 export type AuthActionState = {
   message?: string;
   errors?: Record<string, string[]>;
 };
-
-function safeRedirect(value: string | undefined, fallback: string) {
-  return value?.startsWith("/") && !value.startsWith("//") ? value : fallback;
-}
 
 export async function loginAction(
   _state: AuthActionState,
@@ -37,7 +34,7 @@ export async function loginAction(
     await signIn("credentials", {
       email: parsed.data.email,
       password: parsed.data.password,
-      redirectTo: safeRedirect(parsed.data.redirectTo, roleHome),
+      redirectTo: safeInternalRedirect(parsed.data.redirectTo, roleHome),
     });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -91,11 +88,12 @@ export async function registerAction(
     });
   }
 
+  const redirectTo = safeInternalRedirect(parsed.data.redirectTo, "/client");
   await signIn("credentials", {
     email: parsed.data.email,
     password: parsed.data.password,
-    redirectTo: "/client",
+    redirectTo,
   });
 
-  redirect("/client");
+  redirect(redirectTo);
 }

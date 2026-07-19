@@ -14,6 +14,7 @@ export const registerSchema = z
     companyName: z.string().trim().max(120).optional(),
     password: z.string().min(8, "Use at least 8 characters."),
     confirmPassword: z.string(),
+    redirectTo: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match.",

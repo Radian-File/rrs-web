@@ -6,6 +6,7 @@ import { allocateDocumentNumber } from "@/features/documents/sequence";
 import { projectBriefSchema } from "@/features/inquiries/schemas";
 import { removePrivateFile, storePrivateFile, type StoredFile } from "@/lib/storage/local";
 import { assertRequestRateLimit } from "@/lib/security/rate-limit";
+import { requireClient } from "@/lib/authz";
 
 export type BriefActionState = { message?: string; errors?: Record<string, string[]> };
 
@@ -16,8 +17,9 @@ export async function submitProjectBrief(
   _state: BriefActionState,
   formData: FormData,
 ): Promise<BriefActionState> {
-  await assertRequestRateLimit("project-brief", 5, 15 * 60 * 1000, String(formData.get("clientEmail") ?? "anonymous"));
-  const parsed = projectBriefSchema.safeParse(Object.fromEntries(formData));
+  const client = await requireClient("/start-project");
+  await assertRequestRateLimit("project-brief", 5, 15 * 60 * 1000, client.email);
+  const parsed = projectBriefSchema.safeParse({ ...Object.fromEntries(formData), clientName: client.name, clientEmail: client.email, clientPhone: client.whatsappNumber ?? "", companyName: client.companyName ?? "" });
   if (!parsed.success) return { errors: parsed.error.flatten().fieldErrors, message: "Please review the highlighted fields." };
 
   const attachment = formData.get("attachment");
@@ -31,11 +33,12 @@ export async function submitProjectBrief(
       return tx.inquiry.create({
         data: {
           inquiryNumber,
+          clientId: client.id,
           selectedServiceId: service?.id,
-          clientName: parsed.data.clientName,
-          clientPhone: parsed.data.clientPhone,
-          clientEmail: parsed.data.clientEmail,
-          companyName: parsed.data.companyName,
+          clientName: client.name,
+          clientPhone: client.whatsappNumber ?? parsed.data.clientPhone,
+          clientEmail: client.email,
+          companyName: client.companyName ?? parsed.data.companyName,
           projectTitle: parsed.data.projectTitle,
           projectType: parsed.data.projectType,
           projectDescription: parsed.data.projectDescription,
