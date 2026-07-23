@@ -1,20 +1,125 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { Menu, UserRound, ChevronDown } from "lucide-react";
+import { ChevronDown, UserRound } from "lucide-react";
 import { auth } from "@/auth";
 import { Brand } from "@/components/brand";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { PublicHeaderFrame } from "@/components/layout/public-header-frame";
+import { PublicMobileMenu } from "@/components/layout/public-mobile-menu";
 import { Button } from "@/components/ui/button";
 import { SignOutButton } from "@/features/auth/sign-out-button";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getLocale } from "@/i18n/server";
 import { loginUrl } from "@/lib/auth-redirect";
 
+type Role = "OWNER" | "CLIENT";
+type NavLink = { label: string; href: string };
+
 export async function SiteHeader() {
   const [locale, session] = await Promise.all([getLocale(), auth()]);
-  const dictionary = getDictionary(locale); const role = session?.user?.role;
-  const links = [[dictionary.nav.services, "/services"], [dictionary.nav.portfolio, "/portfolio"], [dictionary.nav.process, "/cara-kerja"], [dictionary.nav.reviews, "/reviews"], [dictionary.nav.about, "/about"]] as const;
-  return <header className="sticky top-0 z-50 border-b border-border/70 bg-background/95 backdrop-blur-sm"><div className="mx-auto flex h-[68px] max-w-[1360px] items-center justify-between px-5 md:px-8 lg:px-12 xl:px-16"><Brand/><nav className="hidden items-center gap-8 lg:flex" aria-label="Primary navigation">{links.map(([label,href])=><Link key={href} href={href} className="text-[13px] font-semibold text-secondary transition-colors hover:text-foreground">{label}</Link>)}</nav><div className="flex items-center gap-2"><div className="hidden md:block"><Suspense><LanguageSwitcher locale={locale}/></Suspense></div>{role?<ProfileMenu role={role} locale={locale}/>:<><Button asChild variant="ghost" className="hidden sm:inline-flex"><Link href="/login">{dictionary.nav.signIn}</Link></Button><Button asChild size="sm"><Link href={loginUrl("/start-project")}>{dictionary.nav.startProject}</Link></Button></>}<details className="group relative lg:hidden"><summary className="grid size-10 cursor-pointer list-none place-items-center rounded-[10px] hover:bg-surface-container [&::-webkit-details-marker]:hidden" aria-label="Open navigation menu"><Menu className="size-5"/></summary><nav className="absolute right-0 top-12 w-64 rounded-[14px] border border-border bg-surface p-2 shadow-xl" aria-label="Mobile navigation"><div className="mb-2 p-2 md:hidden"><Suspense><LanguageSwitcher locale={locale}/></Suspense></div>{links.map(([label,href])=><Link key={href} href={href} className="block rounded-[8px] px-3 py-2.5 text-sm font-medium text-secondary hover:bg-accent-soft hover:text-primary">{label}</Link>)}{role?<MobileAccountLinks role={role}/>:<Link href="/login" className="mt-1 block border-t border-border px-3 pt-3 text-sm font-semibold text-primary">{dictionary.nav.signIn}</Link>}</nav></details></div></div></header>;
+  const dictionary = getDictionary(locale);
+  const role = session?.user?.role as Role | undefined;
+  const links: NavLink[] = [
+    { label: dictionary.nav.services, href: "/services" },
+    { label: dictionary.nav.portfolio, href: "/portfolio" },
+    { label: dictionary.nav.process, href: "/cara-kerja" },
+    { label: dictionary.nav.reviews, href: "/reviews" },
+    { label: dictionary.nav.about, href: "/about" },
+  ];
+  const accountLinks = getAccountLinks(role, dictionary.portal);
+  const startHref = loginUrl("/start-project");
+  const isId = locale === "id";
+
+  return (
+    <PublicHeaderFrame>
+      <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between gap-5 px-5 transition-[height] duration-300 md:px-8 lg:px-12 xl:px-16">
+        <Brand />
+        <nav className="hidden items-center gap-7 lg:flex" aria-label={isId ? "Navigasi utama" : "Primary navigation"}>
+          {links.map((item, index) => (
+            <Link key={item.href} href={item.href} className="group inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[.08em] text-secondary transition-colors hover:text-foreground">
+              <span className="font-mono text-[9px] text-muted transition-colors group-hover:text-accent-lime">0{index + 1}</span>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-2">
+          <div className="hidden md:block">
+            <Suspense><LanguageSwitcher locale={locale} /></Suspense>
+          </div>
+          {role ? (
+            <ProfileMenu
+              role={role}
+              links={accountLinks}
+              profileLabel={dictionary.portal.profile}
+              signOutLabel={dictionary.common.signOut}
+            />
+          ) : (
+            <div className="hidden items-center gap-2 sm:flex">
+              <Button asChild variant="ghost" size="sm"><Link href="/login">{dictionary.nav.signIn}</Link></Button>
+              <Button asChild size="sm"><Link href={startHref}>{dictionary.nav.startProject}</Link></Button>
+            </div>
+          )}
+          <PublicMobileMenu
+            locale={locale}
+            links={links}
+            accountLinks={accountLinks}
+            role={role}
+            loginHref="/login"
+            startHref={startHref}
+            labels={{
+              open: isId ? "Buka navigasi" : "Open navigation",
+              close: isId ? "Tutup navigasi" : "Close navigation",
+              navigation: isId ? "Navigasi" : "Navigation",
+              account: isId ? "Akun" : "Account",
+              signIn: dictionary.nav.signIn,
+              startProject: dictionary.nav.startProject,
+              signOut: dictionary.common.signOut,
+            }}
+          />
+        </div>
+      </div>
+    </PublicHeaderFrame>
+  );
 }
-function ProfileMenu({role,locale}:{role:"OWNER"|"CLIENT";locale:string}){return <details className="relative hidden sm:block"><summary className="flex h-10 cursor-pointer list-none items-center gap-2 rounded-[10px] px-3 text-sm font-semibold hover:bg-surface-container [&::-webkit-details-marker]:hidden"><UserRound className="size-4"/>{locale==="id"?"Profil":"Profile"}<ChevronDown className="size-4"/></summary><div className="absolute right-0 top-12 w-56 rounded-[14px] border border-border bg-surface p-2 shadow-xl"><MobileAccountLinks role={role}/></div></details>}
-function MobileAccountLinks({role}:{role:"OWNER"|"CLIENT"}){const links=role==="CLIENT"?[["Dashboard Client","/client"],["Quotation Saya","/client/quotations"],["Project Saya","/client/projects"],["Edit Profil","/client/profile"]]:[["Owner Workspace","/owner"],["Dashboard Analitik","/owner/analytics"],["Pengaturan","/owner/settings"]];return <div className="mt-1 border-t border-border pt-2">{links.map(([label,href])=><Link key={href} href={href} className="block rounded-[8px] px-3 py-2.5 text-sm font-medium text-secondary hover:bg-accent-soft hover:text-primary">{label}</Link>)}<div className="px-1 pt-1"><SignOutButton label="Keluar"/></div></div>}
+
+function ProfileMenu({ role, links, profileLabel, signOutLabel }: { role: Role; links: NavLink[]; profileLabel: string; signOutLabel: string }) {
+  return (
+    <details className="group relative hidden sm:block">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 border border-border bg-surface px-3 text-sm font-semibold text-foreground transition-colors hover:border-border-strong hover:bg-surface-hover [&::-webkit-details-marker]:hidden">
+        <UserRound className="size-4 text-accent-lime" aria-hidden="true" />
+        <span>{role === "OWNER" ? "Owner" : profileLabel}</span>
+        <ChevronDown className="size-4 text-muted transition-transform group-open:rotate-180" aria-hidden="true" />
+      </summary>
+      <div className="absolute right-0 top-12 w-64 border border-border bg-surface-elevated p-2 shadow-[0_24px_60px_rgba(0,0,0,.42)]">
+        <nav aria-label={profileLabel}>
+          {links.map((item) => (
+            <Link key={item.href} href={item.href} className="block px-3 py-2.5 text-sm font-medium text-secondary transition-colors hover:bg-surface-hover hover:text-foreground">
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="mt-2 border-t border-border px-1 pt-2"><SignOutButton label={signOutLabel} /></div>
+      </div>
+    </details>
+  );
+}
+
+function getAccountLinks(role: Role | undefined, portal: ReturnType<typeof getDictionary>["portal"]): NavLink[] {
+  if (role === "CLIENT") {
+    return [
+      { label: portal.overview, href: "/client" },
+      { label: portal.quotations, href: "/client/quotations" },
+      { label: portal.projects, href: "/client/projects" },
+      { label: portal.profile, href: "/client/profile" },
+    ];
+  }
+  if (role === "OWNER") {
+    return [
+      { label: portal.ownerWorkspace, href: "/owner" },
+      { label: portal.analytics, href: "/owner/analytics" },
+      { label: portal.settings, href: "/owner/settings" },
+    ];
+  }
+  return [];
+}

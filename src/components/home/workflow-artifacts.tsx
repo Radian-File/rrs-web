@@ -73,7 +73,8 @@ export function WorkflowArtifacts({ isId }: WorkflowArtifactsProps) {
       </figcaption>
 
       <article
-        className="absolute right-0 top-0 z-10 w-[78%] border border-primary/40 bg-primary-strong p-4 text-primary-strong-foreground shadow-[0_24px_80px_rgba(0,0,0,0.24)] sm:w-[68%] sm:p-6"
+        data-hero-artifact
+        className="absolute right-0 top-0 z-10 w-[78%] border border-primary/40 bg-primary-strong p-4 text-primary-strong-foreground shadow-[0_24px_80px_rgba(0,0,0,0.24)] [transform-style:preserve-3d] sm:w-[68%] sm:p-6"
         aria-labelledby="demo-operations-title"
       >
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-primary-strong-foreground/15 pb-4">
@@ -93,7 +94,8 @@ export function WorkflowArtifacts({ isId }: WorkflowArtifactsProps) {
       </article>
 
       <article
-        className="absolute left-0 top-[90px] z-20 w-[92%] border border-border-strong bg-surface-elevated p-4 text-foreground shadow-[0_28px_90px_rgba(0,0,0,0.3)] sm:top-[86px] sm:w-[79%] sm:p-7"
+        data-hero-artifact
+        className="absolute left-0 top-[90px] z-20 w-[92%] border border-border-strong bg-surface-elevated p-4 text-foreground shadow-[0_28px_90px_rgba(0,0,0,0.3)] [transform-style:preserve-3d] sm:top-[86px] sm:w-[79%] sm:p-7"
         aria-labelledby="demo-quotation-title"
       >
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4 sm:pb-5">
@@ -140,7 +142,8 @@ export function WorkflowArtifacts({ isId }: WorkflowArtifactsProps) {
       </article>
 
       <article
-        className="absolute bottom-10 right-0 z-30 w-[78%] border border-border bg-surface p-4 text-foreground shadow-[0_30px_90px_rgba(0,0,0,0.32)] sm:bottom-12 sm:w-[60%] sm:p-6"
+        data-hero-artifact
+        className="absolute bottom-10 right-0 z-30 w-[78%] border border-border bg-surface p-4 text-foreground shadow-[0_30px_90px_rgba(0,0,0,0.32)] [transform-style:preserve-3d] sm:bottom-12 sm:w-[60%] sm:p-6"
         aria-labelledby="demo-progress-title"
       >
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
