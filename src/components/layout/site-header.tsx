@@ -33,11 +33,10 @@ export async function SiteHeader() {
   return (
     <PublicHeaderFrame>
       <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between gap-5 px-5 transition-[height] duration-300 md:px-8 lg:px-12 xl:px-16">
-        <Brand />
-        <nav className="hidden items-center gap-7 lg:flex" aria-label={isId ? "Navigasi utama" : "Primary navigation"}>
-          {links.map((item, index) => (
-            <Link key={item.href} href={item.href} className="group inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[.08em] text-secondary transition-colors hover:text-foreground">
-              <span className="font-mono text-[9px] text-muted transition-colors group-hover:text-accent-lime">0{index + 1}</span>
+        <Brand compact />
+        <nav className="hidden items-center gap-9 lg:flex" aria-label={isId ? "Navigasi utama" : "Primary navigation"}>
+          {links.map((item) => (
+            <Link key={item.href} href={item.href} className="text-[13px] font-bold text-white/72 transition-colors hover:text-white">
               {item.label}
             </Link>
           ))}
@@ -56,8 +55,8 @@ export async function SiteHeader() {
             />
           ) : (
             <div className="hidden items-center gap-2 sm:flex">
-              <Button asChild variant="ghost" size="sm"><Link href="/login">{dictionary.nav.signIn}</Link></Button>
-              <Button asChild size="sm"><Link href={startHref}>{dictionary.nav.startProject}</Link></Button>
+              <Button asChild variant="ghost" size="sm" className="rounded-full text-white/75 hover:bg-white/[.06] hover:text-white"><Link href="/login">{dictionary.nav.signIn}</Link></Button>
+              <Button asChild size="sm" className="rounded-full bg-accent-lime px-5 text-background hover:bg-[#d7f58f]"><Link href={startHref}>{dictionary.nav.startProject}</Link></Button>
             </div>
           )}
           <PublicMobileMenu
@@ -86,7 +85,7 @@ export async function SiteHeader() {
 function ProfileMenu({ role, links, profileLabel, signOutLabel }: { role: Role; links: NavLink[]; profileLabel: string; signOutLabel: string }) {
   return (
     <details className="group relative hidden sm:block">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 border border-border bg-surface px-3 text-sm font-semibold text-foreground transition-colors hover:border-border-strong hover:bg-surface-hover [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-4 text-sm font-semibold text-foreground transition-colors hover:border-white/20 hover:bg-white/[.08] [&::-webkit-details-marker]:hidden">
         <UserRound className="size-4 text-accent-lime" aria-hidden="true" />
         <span>{role === "OWNER" ? "Owner" : profileLabel}</span>
         <ChevronDown className="size-4 text-muted transition-transform group-open:rotate-180" aria-hidden="true" />

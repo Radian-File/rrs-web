@@ -1,208 +1,92 @@
-import { Check, FileCheck2 } from "lucide-react";
+import { Check, FileCheck2, FolderKanban, ReceiptText } from "lucide-react";
 
-type WorkflowArtifactsProps = {
-  isId: boolean;
-};
-
-export function WorkflowArtifacts({ isId }: WorkflowArtifactsProps) {
+export function WorkflowArtifacts({ isId }: { isId: boolean }) {
   const copy = isId
     ? {
-        figureLabel: "Kolase antarmuka workflow RRS untuk demonstrasi",
-        caption: "Seluruh antarmuka dan status di bawah hanya untuk demonstrasi.",
         demo: "Demonstrasi",
-        quotation: "RRS / Quotation",
-        quotationTitle: "QT-DEMO-024",
-        quotationStatus: "Draft ditinjau",
-        preparedFor: "Disiapkan untuk",
-        demoWorkspace: "Workspace demonstrasi",
-        project: "Project",
-        projectName: "Sistem website editorial",
-        scope: "Ringkasan scope",
-        scopeItems: ["Arah produk & konten", "Sistem antarmuka", "Development & QA"],
-        finalEstimate: "Estimasi final",
-        afterDiscussion: "Disusun setelah diskusi scope",
-        progress: "RRS / Progress project",
-        progressTitle: "Build & quality assurance",
-        progressStatus: "Tahap aktif · 03 dari 05",
-        progressSteps: ["Discovery selesai", "Arah disetujui", "Development berjalan"],
-        operations: "RRS / Operasional",
-        operationsTitle: "Ringkasan workflow",
-        focus: "Fokus saat ini",
-        focusValue: "Build & QA",
-        next: "Berikutnya",
-        nextValue: "Tinjauan client",
-        record: "Dokumentasi",
-        recordValue: "Aktif",
+        caption: "Antarmuka demonstrasi RRS · tanpa data Client nyata",
+        workspace: "Project workspace",
+        project: "Website & internal workflow",
+        attention: "Perlu ditinjau",
+        quotation: "Quotation v2",
+        agreement: "Agreement siap",
+        invoice: "Invoice terbit",
+        progress: "Progress project",
+        activeStage: "Development aktif",
+        nextReview: "Berikutnya · Client review",
+        scope: "Scope disepakati",
+        milestones: "Milestone",
+        messages: "Pembaruan",
+        files: "File",
+        quoteLabel: "RRS / Quotation",
+        quoteTitle: "Scope sebelum commitment",
+        included: ["Deliverables", "Timeline", "Payment terms"],
+        statusLabel: "RRS / Project",
+        statusTitle: "Satu portal hingga delivery",
       }
     : {
-        figureLabel: "Demonstration collage of the RRS workflow interface",
-        caption: "All interfaces and statuses below are for demonstration only.",
         demo: "Demonstration",
-        quotation: "RRS / Quotation",
-        quotationTitle: "QT-DEMO-024",
-        quotationStatus: "Draft in review",
-        preparedFor: "Prepared for",
-        demoWorkspace: "Demonstration workspace",
-        project: "Project",
-        projectName: "Editorial website system",
-        scope: "Scope summary",
-        scopeItems: ["Product & content direction", "Interface system", "Development & QA"],
-        finalEstimate: "Final estimate",
-        afterDiscussion: "Prepared after the scope discussion",
-        progress: "RRS / Project progress",
-        progressTitle: "Build & quality assurance",
-        progressStatus: "Active stage · 03 of 05",
-        progressSteps: ["Discovery complete", "Direction approved", "Development in progress"],
-        operations: "RRS / Operations",
-        operationsTitle: "Workflow overview",
-        focus: "Current focus",
-        focusValue: "Build & QA",
-        next: "Up next",
-        nextValue: "Client review",
-        record: "Documentation",
-        recordValue: "Active",
+        caption: "RRS demonstration interface · no real Client data",
+        workspace: "Project workspace",
+        project: "Website & internal workflow",
+        attention: "Needs review",
+        quotation: "Quotation v2",
+        agreement: "Agreement ready",
+        invoice: "Invoice issued",
+        progress: "Project progress",
+        activeStage: "Development active",
+        nextReview: "Up next · Client review",
+        scope: "Scope agreed",
+        milestones: "Milestones",
+        messages: "Updates",
+        files: "Files",
+        quoteLabel: "RRS / Quotation",
+        quoteTitle: "Scope before commitment",
+        included: ["Deliverables", "Timeline", "Payment terms"],
+        statusLabel: "RRS / Project",
+        statusTitle: "One portal through delivery",
       };
 
   return (
-    <figure
-      className="relative mx-auto min-h-[700px] w-full max-w-[680px] sm:min-h-[660px] lg:min-h-[650px]"
-      aria-label={copy.figureLabel}
-    >
-      <figcaption className="absolute bottom-0 left-0 z-40 max-w-[15rem] text-[10px] font-semibold uppercase leading-5 tracking-[0.14em] text-muted sm:text-xs">
-        {copy.caption}
-      </figcaption>
+    <figure className="relative mx-auto min-h-[560px] w-full max-w-[1040px] sm:min-h-[650px] lg:min-h-[690px]" aria-label={copy.caption}>
+      <figcaption className="absolute bottom-5 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/10 bg-black/45 px-4 py-2 text-[8px] font-bold uppercase tracking-[.14em] text-white/45 backdrop-blur-md sm:text-[9px]">{copy.caption}</figcaption>
 
-      <article
-        data-hero-artifact
-        className="absolute right-0 top-0 z-10 w-[78%] border border-primary/40 bg-primary-strong p-4 text-primary-strong-foreground shadow-[0_24px_80px_rgba(0,0,0,0.24)] [transform-style:preserve-3d] sm:w-[68%] sm:p-6"
-        aria-labelledby="demo-operations-title"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-primary-strong-foreground/15 pb-4">
-          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-primary-strong-foreground sm:text-[10px]">
-            {copy.operations}
-          </p>
-          <DemoLabel label={copy.demo} tone="dark" />
-        </div>
-        <h2 id="demo-operations-title" className="mt-4 font-display text-lg font-extrabold tracking-[-0.03em] sm:text-xl">
-          {copy.operationsTitle}
-        </h2>
-        <dl className="mt-5 grid grid-cols-3 gap-px bg-primary-strong-foreground/15 text-xs">
-          <OperationCell label={copy.focus} value={copy.focusValue} />
-          <OperationCell label={copy.next} value={copy.nextValue} />
-          <OperationCell label={copy.record} value={copy.recordValue} />
-        </dl>
+      <article data-hero-artifact className="absolute left-[3%] top-[122px] z-10 hidden w-[34%] -rotate-[6deg] overflow-hidden rounded-[20px] border border-white/12 bg-[#3a2b30] p-4 text-white shadow-[0_32px_90px_rgba(0,0,0,.42)] [transform-style:preserve-3d] sm:block lg:left-[1%] lg:top-[158px] lg:p-5" aria-label={copy.quoteTitle}>
+        <div className="flex items-center justify-between border-b border-white/12 pb-3"><p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/48">{copy.quoteLabel}</p><DemoLabel>{copy.demo}</DemoLabel></div>
+        <h2 className="mt-5 font-display text-lg font-black uppercase leading-[.95] tracking-[-.04em] lg:text-2xl">{copy.quoteTitle}</h2>
+        <ol className="mt-5 divide-y divide-white/10 border-y border-white/10">{copy.included.map((item, index) => <li key={item} className="flex items-center gap-2 py-2 text-[9px] font-semibold text-white/72 lg:text-[11px]"><span className="font-mono text-[8px] text-accent-lime">0{index + 1}</span>{item}</li>)}</ol>
+        <div className="mt-5 flex items-center justify-between"><span className="text-[8px] uppercase tracking-[.12em] text-white/38">QT-DEMO / V2</span><FileCheck2 className="size-5 text-accent-lime" aria-hidden="true" /></div>
       </article>
 
-      <article
-        data-hero-artifact
-        className="absolute left-0 top-[90px] z-20 w-[92%] border border-border-strong bg-surface-elevated p-4 text-foreground shadow-[0_28px_90px_rgba(0,0,0,0.3)] [transform-style:preserve-3d] sm:top-[86px] sm:w-[79%] sm:p-7"
-        aria-labelledby="demo-quotation-title"
-      >
-        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4 sm:pb-5">
-          <div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-secondary sm:text-[10px]">
-              {copy.quotation}
-            </p>
-            <h2 id="demo-quotation-title" className="mt-2 font-display text-xl font-extrabold tracking-[-0.04em] sm:text-2xl">
-              {copy.quotationTitle}
-            </h2>
-          </div>
-          <div className="flex flex-col items-end gap-2">
-            <DemoLabel label={copy.demo} />
-            <span className="bg-warning-soft px-2 py-1 text-[9px] font-bold uppercase tracking-[0.08em] text-warning sm:text-[10px]">
-              {copy.quotationStatus}
-            </span>
-          </div>
-        </div>
+      <article data-hero-artifact className="absolute left-[4%] top-[56px] z-20 w-[92%] overflow-hidden rounded-[22px] border border-white/15 bg-[#202320] text-white shadow-[0_40px_120px_rgba(0,0,0,.55)] [transform-style:preserve-3d] sm:left-[13%] sm:top-[86px] sm:w-[74%] lg:left-[14%] lg:top-[92px] lg:w-[72%]" aria-labelledby="demo-workspace-title">
+        <div className="flex h-9 items-center gap-2 border-b border-white/10 bg-[#343735] px-4 sm:h-11"><span className="size-2 rounded-full bg-[#f37b65]" /><span className="size-2 rounded-full bg-[#e7c35c]" /><span className="size-2 rounded-full bg-[#69b77c]" /><div className="mx-auto hidden h-5 w-1/3 rounded-full border border-white/[.06] bg-black/15 sm:block" /><DemoLabel>{copy.demo}</DemoLabel></div>
+        <div className="grid min-h-[390px] grid-cols-[44px_1fr] sm:min-h-[470px] sm:grid-cols-[58px_1fr] lg:min-h-[520px]">
+          <aside className="border-r border-white/10 bg-[#191b1a] py-4" aria-label="Demonstration navigation"><div className="mx-auto grid size-8 place-items-center rounded-full bg-accent-lime font-display text-sm font-black text-background">R</div><div className="mt-6 grid gap-3">{[FolderKanban, FileCheck2, ReceiptText].map((Icon, index) => <span key={index} className={`mx-auto grid size-7 place-items-center rounded-full ${index === 0 ? "bg-white text-background" : "bg-white/[.07] text-white/38"}`}><Icon className="size-3.5" aria-hidden="true" /></span>)}</div></aside>
+          <div className="min-w-0 p-4 sm:p-6 lg:p-8">
+            <div className="flex items-start justify-between gap-3"><div><p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/38 sm:text-[9px]">RRS / {copy.workspace}</p><h2 id="demo-workspace-title" className="mt-2 font-display text-lg font-black tracking-[-.035em] sm:text-2xl lg:text-3xl">{copy.project}</h2></div><span className="rounded-full border border-accent-lime/25 bg-accent-lime/10 px-2.5 py-1 text-[8px] font-bold uppercase tracking-[.1em] text-accent-lime sm:text-[9px]">{copy.activeStage}</span></div>
 
-        <dl className="grid grid-cols-2 gap-4 border-b border-border py-4 text-xs sm:gap-5 sm:py-5">
-          <Meta label={copy.preparedFor} value={copy.demoWorkspace} />
-          <Meta label={copy.project} value={copy.projectName} />
-        </dl>
+            <div className="mt-5 grid gap-3 sm:grid-cols-[1.1fr_.9fr] lg:mt-7">
+              <div className="rounded-[14px] border border-white/10 bg-[#282b29] p-4 sm:p-5"><div className="flex items-center justify-between"><p className="text-[9px] uppercase tracking-[.12em] text-white/42">{copy.progress}</p><p className="font-display text-xl font-black text-accent-lime sm:text-2xl">68%</p></div><div className="mt-5 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full w-[68%] rounded-full bg-accent-lime" /></div><p className="mt-3 text-[9px] text-white/48 sm:text-[11px]">{copy.nextReview}</p></div>
+              <div className="rounded-[14px] border border-[#546e51]/55 bg-[#30452f] p-4 sm:p-5"><p className="text-[9px] uppercase tracking-[.12em] text-white/45">{copy.attention}</p><p className="mt-4 font-display text-lg font-black tracking-[-.03em] sm:text-xl">{copy.agreement}</p><p className="mt-2 text-[9px] text-white/48 sm:text-[11px]">{copy.scope}</p></div>
+            </div>
 
-        <div className="py-4 sm:py-5">
-          <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-secondary sm:text-[10px]">{copy.scope}</p>
-          <ol className="mt-3 divide-y divide-border border-y border-border">
-            {copy.scopeItems.map((item, index) => (
-              <li key={item} className="flex items-center gap-3 py-2.5 text-[11px] font-semibold sm:text-xs">
-                <span className="font-mono text-[9px] text-primary">0{index + 1}</span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
+            <div className="mt-3 rounded-[14px] border border-white/10 bg-[#292c2a] p-4 sm:mt-4 sm:p-5"><div className="grid grid-cols-3 gap-3">{[[copy.milestones, "05"], [copy.messages, "12"], [copy.files, "08"]].map(([label, value]) => <div key={label} className="border-r border-white/10 last:border-r-0"><p className="font-display text-lg font-black sm:text-2xl">{value}</p><p className="mt-1 text-[8px] uppercase tracking-[.1em] text-white/38 sm:text-[9px]">{label}</p></div>)}</div></div>
 
-        <div className="flex items-end justify-between gap-4 border-t border-border pt-4 sm:pt-5">
-          <div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-secondary sm:text-[10px]">{copy.finalEstimate}</p>
-            <p className="mt-1 max-w-[13rem] text-[11px] font-semibold leading-5 sm:text-xs">{copy.afterDiscussion}</p>
+            <div className="mt-3 grid gap-3 sm:mt-4 sm:grid-cols-2"><div className="rounded-[12px] border border-white/10 bg-[#242725] p-3"><p className="text-[8px] uppercase tracking-[.1em] text-white/35">{copy.quotation}</p><div className="mt-3 flex items-center gap-2 text-[10px] font-semibold text-white/72"><Check className="size-3.5 text-accent-lime" aria-hidden="true" />{copy.scope}</div></div><div className="rounded-[12px] border border-white/10 bg-[#242725] p-3"><p className="text-[8px] uppercase tracking-[.1em] text-white/35">{copy.invoice}</p><div className="mt-3 h-1 rounded-full bg-white/10"><div className="h-full w-1/2 rounded-full bg-[#d7ab5b]" /></div></div></div>
           </div>
-          <FileCheck2 className="size-6 shrink-0 text-primary" aria-hidden="true" />
         </div>
       </article>
 
-      <article
-        data-hero-artifact
-        className="absolute bottom-10 right-0 z-30 w-[78%] border border-border bg-surface p-4 text-foreground shadow-[0_30px_90px_rgba(0,0,0,0.32)] [transform-style:preserve-3d] sm:bottom-12 sm:w-[60%] sm:p-6"
-        aria-labelledby="demo-progress-title"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
-          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-secondary sm:text-[10px]">{copy.progress}</p>
-          <DemoLabel label={copy.demo} />
-        </div>
-        <h2 id="demo-progress-title" className="mt-4 font-display text-base font-extrabold tracking-[-0.025em] sm:text-lg">
-          {copy.progressTitle}
-        </h2>
-        <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-primary">{copy.progressStatus}</p>
-        <ol className="mt-4 space-y-2.5">
-          {copy.progressSteps.map((step, index) => (
-            <li key={step} className="flex items-center gap-2.5 text-[11px] font-medium sm:text-xs">
-              <span
-                className={
-                  index < 2
-                    ? "grid size-4 shrink-0 place-items-center bg-primary-strong text-primary-strong-foreground"
-                    : "grid size-4 shrink-0 place-items-center border border-primary bg-accent-soft text-primary"
-                }
-              >
-                {index < 2 ? <Check className="size-2.5" aria-hidden="true" /> : <span className="size-1.5 bg-primary" />}
-              </span>
-              {step}
-            </li>
-          ))}
-        </ol>
+      <article data-hero-artifact className="absolute right-[1%] top-[188px] z-30 hidden w-[31%] rotate-[7deg] overflow-hidden rounded-[20px] border border-white/12 bg-[#313b43] p-4 text-white shadow-[0_32px_90px_rgba(0,0,0,.45)] [transform-style:preserve-3d] sm:block lg:right-[.5%] lg:top-[212px] lg:p-5" aria-label={copy.statusTitle}>
+        <div className="flex items-center justify-between"><p className="text-[8px] font-bold uppercase tracking-[.16em] text-white/46">{copy.statusLabel}</p><DemoLabel>{copy.demo}</DemoLabel></div>
+        <h2 className="mt-5 font-display text-lg font-black uppercase leading-[.95] tracking-[-.04em] lg:text-2xl">{copy.statusTitle}</h2>
+        <div className="mt-5 rounded-[12px] bg-black/16 p-3"><div className="flex items-center justify-between text-[9px]"><span className="text-white/48">{copy.progress}</span><span className="font-bold text-accent-lime">68%</span></div><div className="mt-3 h-1 rounded-full bg-white/10"><div className="h-full w-[68%] rounded-full bg-accent-lime" /></div></div>
+        <p className="mt-4 text-[9px] leading-5 text-white/52 lg:text-[11px]">{copy.nextReview}</p>
       </article>
     </figure>
   );
 }
 
-function DemoLabel({ label, tone = "light" }: { label: string; tone?: "light" | "dark" }) {
-  return (
-    <span
-      className={
-        tone === "dark"
-          ? "border border-primary-strong-foreground/25 px-2 py-1 text-[8px] font-bold uppercase tracking-[0.12em] text-primary-strong-foreground sm:text-[9px]"
-          : "border border-primary/25 bg-accent-soft px-2 py-1 text-[8px] font-bold uppercase tracking-[0.12em] text-primary sm:text-[9px]"
-      }
-    >
-      {label}
-    </span>
-  );
-}
-
-function Meta({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-[9px] font-bold uppercase tracking-[0.12em] text-secondary sm:text-[10px]">{label}</dt>
-      <dd className="mt-1.5 text-[11px] font-semibold leading-5 sm:text-xs">{value}</dd>
-    </div>
-  );
-}
-
-function OperationCell({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-primary-hover p-3">
-      <dt className="text-[8px] font-bold uppercase tracking-[0.12em] text-primary-strong-foreground sm:text-[9px]">{label}</dt>
-      <dd className="mt-1.5 font-semibold leading-4 text-primary-strong-foreground">{value}</dd>
-    </div>
-  );
+function DemoLabel({ children }: { children: React.ReactNode }) {
+  return <span className="rounded-full border border-white/15 px-2 py-1 text-[7px] font-bold uppercase tracking-[.12em] text-white/45 sm:text-[8px]">{children}</span>;
 }

@@ -272,6 +272,20 @@ input:-webkit-autofill:focus {
   text-wrap: balance;
 }
 
+.rrs-grain::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  opacity: 0.14;
+  background-image:
+    repeating-radial-gradient(circle at 17% 31%, rgb(255 255 255 / 8%) 0 0.5px, transparent 0.8px 3px),
+    repeating-radial-gradient(circle at 73% 68%, rgb(0 0 0 / 28%) 0 0.6px, transparent 0.9px 4px);
+  background-size: 7px 7px, 9px 9px;
+  mix-blend-mode: soft-light;
+}
+
 .document-surface {
   color-scheme: light;
   --surface: #ffffff;

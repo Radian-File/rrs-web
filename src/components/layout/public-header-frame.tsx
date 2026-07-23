@@ -30,8 +30,8 @@ export function PublicHeaderFrame({ children }: { children: React.ReactNode }) {
       className={cn(
         "sticky top-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-300",
         scrolled
-          ? "border-border bg-background/94 shadow-[0_12px_36px_rgba(0,0,0,.2)] backdrop-blur-xl"
-          : "border-transparent bg-background/80 backdrop-blur-md",
+          ? "border-white/10 bg-[#111312]/94 shadow-[0_12px_36px_rgba(0,0,0,.26)] backdrop-blur-xl"
+          : "border-transparent bg-[#101211]/92 backdrop-blur-md",
       )}
     >
       {children}
