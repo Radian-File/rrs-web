@@ -1,13 +1,24 @@
-import Link from "next/link";
-import { ArrowRight, Check, FileCheck2, Search } from "lucide-react";
 import { auth } from "@/auth";
 import { StudioHero } from "@/components/home/studio-hero";
+import {
+  CapabilityMarquee,
+  CuratedServices,
+  FinalCta,
+  HomeFaq,
+  OwnerTeaser,
+  ProblemsSolved,
+  ProcessScene,
+  ReviewProof,
+  SelectedWork,
+  StudioStatement,
+  WorkflowProof,
+  type HomeProject,
+  type HomeReview,
+  type HomeService,
+} from "@/components/home/home-sections";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { PageEntrance } from "@/components/page-entrance";
 import { SiteHeader } from "@/components/layout/site-header";
 import { HomeMotionController } from "@/components/motion/home-motion-controller";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getLocale } from "@/i18n/server";
 import { loginUrl } from "@/lib/auth-redirect";
@@ -17,40 +28,71 @@ import { formatIdr } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [locale, session, services] = await Promise.all([
+  const [locale, session, serviceRows, projectRows, reviewRows] = await Promise.all([
     getLocale(),
     auth(),
-    prisma.service.findMany({ where: { isPublished: true }, orderBy: [{ isFeatured: "desc" }, { updatedAt: "desc" }], take: 3 }),
+    prisma.service.findMany({
+      where: { isPublished: true },
+      orderBy: [{ isFeatured: "desc" }, { updatedAt: "desc" }],
+      take: 4,
+      select: { id: true, title: true, slug: true, summary: true, category: true, startingPrice: true, deliveryEstimate: true, technologies: true },
+    }),
+    prisma.portfolioProject.findMany({
+      where: { isPublished: true },
+      orderBy: [{ isFeatured: "desc" }, { completedAt: "desc" }],
+      take: 3,
+      select: { id: true, title: true, summary: true, category: true, technologies: true, coverImageUrl: true, liveUrl: true, repositoryUrl: true },
+    }),
+    prisma.review.findMany({
+      where: { status: "PUBLISHED", isPublished: true, project: { status: "COMPLETED" } },
+      orderBy: { publishedAt: "desc" },
+      take: 3,
+      select: { id: true, comment: true, overallRating: true, client: { select: { name: true } }, project: { select: { title: true } } },
+    }),
   ]);
-  const dictionary = getDictionary(locale); const isId = locale === "id"; const role = session?.user?.role;
-  const projectHref = role === "OWNER" ? "/owner" : role === "CLIENT" ? "/start-project" : loginUrl("/start-project");
-  const projectLabel = role === "OWNER" ? dictionary.portal.ownerWorkspace : role === "CLIENT" ? (isId ? "Ajukan quotation" : "Request a quotation") : (isId ? "Login untuk mengajukan quotation" : "Sign in to request a quotation");
-  const benefits = isId ? [
-    ["01", "Scope sebelum development", "Requirement, batas pekerjaan, dan prioritas disepakati sebelum coding dimulai."],
-    ["02", "Quotation yang dapat ditinjau", "Harga, timeline, payment term, revisi, dan pengecualian ditulis secara formal."],
-    ["03", "Satu portal untuk progress", "Milestone, file, approval, invoice, dan pembaruan project berada dalam satu tempat."],
-    ["04", "Delivery yang terdokumentasi", "Hasil akhir, revisi, dan persetujuan client tersimpan dengan jelas."],
-  ] : [
-    ["01", "Scope before development", "Requirements, boundaries, and priorities are agreed before implementation begins."],
-    ["02", "A quotation you can review", "Price, timeline, payment terms, revisions, and exclusions are documented formally."],
-    ["03", "One portal for progress", "Milestones, files, approvals, invoices, and project updates stay in one place."],
-    ["04", "Documented delivery", "Final work, revisions, and client approval remain clear and traceable."],
-  ];
-  const steps = isId ? [["01","Kirim brief","Ceritakan tujuan, kebutuhan, budget, dan timeline awal."],["02","Diskusi di WhatsApp","Kita menyaring asumsi dan menentukan prioritas yang realistis."],["03","Tinjau quotation","Scope, harga, timeline, revisi, dan pembayaran ditulis sebelum project dimulai."],["04","Pantau project","Progress, file, approval, dan invoice dikelola melalui portal client."],["05","Setujui hasil","Delivery ditinjau, disetujui, lalu ditutup dengan review terverifikasi."]] : [["01","Share the brief","Describe the goal, requirements, budget, and initial timeline."],["02","Discuss on WhatsApp","We remove assumptions and establish realistic priorities."],["03","Review the quotation","Scope, price, timeline, revisions, and payments are documented before work begins."],["04","Track the project","Progress, files, approvals, and invoices are managed in the client portal."],["05","Approve delivery","Review the final work, approve delivery, and close with a verified review."]];
-  return <><SiteHeader/><PageEntrance><main>
-    <HomeMotionController />
-    <StudioHero isId={isId} primaryHref={projectHref} primaryLabel={projectLabel} />
 
-    <section data-reveal data-statement-motion className="mx-auto max-w-[1360px] px-5 py-24 md:px-8 lg:px-12 lg:py-32 xl:px-16"><div className="grid gap-12 lg:grid-cols-[.7fr_1.3fr]"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-primary">{isId?"Bekerja dengan lebih jelas":"A clearer way to work"}</p><h2 className="text-balance mt-5 font-display text-4xl font-extrabold tracking-[-.045em] md:text-5xl"><span className="block overflow-hidden"><span data-motion-line className="block">{isId?"Kejelasan bukan tambahan.":"Clarity is not an extra."}</span></span><span className="block overflow-hidden"><span data-motion-line className="block text-accent-lime">{isId?"Itu fondasi project.":"It is the project foundation."}</span></span></h2></div><ol data-reveal-group className="border-t border-border">{benefits.map(([number,title,description])=><li key={number} data-reveal-item className="grid gap-3 border-b border-border py-7 sm:grid-cols-[64px_1fr_1.1fr]"><span className="text-xs font-bold text-primary">{number}</span><h3 className="font-display text-xl font-extrabold">{title}</h3><p className="text-sm leading-7 text-secondary">{description}</p></li>)}</ol></div></section>
+  const dictionary = getDictionary(locale);
+  const isId = locale === "id";
+  const role = session?.user?.role;
+  const primaryHref = role === "OWNER" ? "/owner" : role === "CLIENT" ? "/start-project" : loginUrl("/start-project");
+  const primaryLabel = role === "OWNER"
+    ? dictionary.portal.ownerWorkspace
+    : role === "CLIENT"
+      ? (isId ? "Ajukan quotation" : "Request a quotation")
+      : (isId ? "Login untuk mengajukan quotation" : "Sign in to request a quotation");
 
-    <section data-reveal className="border-y border-border bg-surface"><div className="mx-auto max-w-[1360px] px-5 py-24 md:px-8 lg:px-12 lg:py-32 xl:px-16"><div className="flex flex-col justify-between gap-6 md:flex-row md:items-end"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-primary">{isId?"Layanan terpilih":"Selected services"}</p><h2 className="mt-5 max-w-3xl font-display text-4xl font-extrabold tracking-[-.045em] md:text-5xl">{isId?"Keahlian yang disusun mengikuti project.":"Expertise shaped around the project."}</h2></div><Button asChild variant="outline"><Link href="/services">{dictionary.home.secondary}<ArrowRight className="size-4"/></Link></Button></div>{services.length>0?<div data-reveal-group className="mt-14 grid gap-px bg-border lg:grid-cols-2">{services.map((service,index)=><article key={service.id} data-reveal-item data-motion-card className={index===0?"group bg-background p-7 lg:row-span-2 lg:p-10":"group bg-background p-7 lg:p-8"}><div data-card-media className={index===0?"min-h-64 border border-border bg-[#0c4032] p-7 text-white":"min-h-36 border border-border bg-surface-container p-6"}><ServiceVisual index={index} title={service.title}/></div><p className="mt-7 text-xs font-bold uppercase tracking-[.14em] text-primary">{service.category}</p><h3 className={index===0?"mt-3 font-display text-3xl font-extrabold":"mt-3 font-display text-2xl font-extrabold"}>{service.title}</h3><p className="mt-4 max-w-xl text-sm leading-7 text-secondary">{service.summary}</p><div className="mt-8 flex flex-wrap items-end justify-between gap-5 border-t border-border pt-5"><div><p className="text-xs text-secondary">{isId?"Estimasi awal":"Starting estimate"}</p><p className="mt-1 font-display text-xl font-extrabold">{service.startingPrice?`${formatIdr(service.startingPrice.toString())}+`:(isId?"Sesuai scope":"Custom scope")}</p></div><Link href={`/services/${service.slug}`} className="inline-flex items-center gap-2 text-sm font-bold text-primary">{isId?"Lihat detail":"View details"}<ArrowRight className="size-4"/></Link></div></article>)}</div>:<p className="mt-12 border-t border-border py-10 text-secondary">{isId?"Layanan publik sedang disiapkan.":"Published services are being prepared."}</p>}<p className="mt-6 text-xs text-secondary">{isId?"Harga final ditentukan berdasarkan scope quotation.":"Final pricing is determined by the documented quotation scope."}</p></div></section>
+  const services: HomeService[] = serviceRows.map((service) => ({
+    ...service,
+    estimate: service.startingPrice ? `${formatIdr(service.startingPrice.toString())}+` : (isId ? "Sesuai scope" : "Custom scope"),
+  }));
+  const projects: HomeProject[] = projectRows;
+  const reviews: HomeReview[] = reviewRows.map((review) => ({
+    id: review.id,
+    comment: review.comment,
+    overallRating: review.overallRating,
+    clientName: review.client.name,
+    projectTitle: review.project.title,
+  }));
 
-    <section id="process" data-reveal data-process-motion className="mx-auto max-w-[1360px] px-5 py-24 md:px-8 lg:px-12 lg:py-32 xl:px-16"><div className="grid gap-12 lg:grid-cols-[.65fr_1.35fr]"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-primary">{dictionary.home.processEyebrow}</p><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-.045em] md:text-5xl">{isId?"Dari konteks awal hingga delivery.":"From initial context to delivery."}</h2><p className="mt-5 max-w-md text-sm leading-7 text-secondary">{dictionary.home.processDescription}</p><Button asChild variant="outline" className="mt-7"><Link href="/cara-kerja">{isId?"Pelajari alurnya":"Explore the workflow"}<ArrowRight className="size-4"/></Link></Button></div><ol data-reveal-group className="relative border-t border-border"><span data-process-progress className="absolute bottom-0 left-[27px] top-0 hidden w-px bg-accent-lime sm:block" aria-hidden="true"/>{steps.map(([n,title,description])=><li key={n} data-reveal-item data-process-step className="relative grid gap-3 border-b border-border py-6 sm:grid-cols-[56px_180px_1fr]"><span className="text-xs font-bold text-primary">{n}</span><h3 className="font-display text-lg font-extrabold">{title}</h3><p className="text-sm leading-7 text-secondary">{description}</p></li>)}</ol></div></section>
-
-    <section data-reveal data-scroll-scene className="bg-[#092f26] text-white"><div className="mx-auto grid max-w-[1360px] gap-14 px-5 py-24 md:px-8 lg:grid-cols-[.8fr_1.2fr] lg:px-12 lg:py-32 xl:px-16"><div data-scene-copy><p className="text-xs font-bold uppercase tracking-[.18em] text-[#9ad6b8]">{isId?"Quotation sebagai fondasi":"Quotation as the foundation"}</p><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-.045em] md:text-5xl">{isId?"Ketahui apa yang dibangun sebelum pekerjaan dimulai.":"Know what will be built before the work begins."}</h2><p className="mt-6 max-w-lg text-base leading-8 text-white/65">{dictionary.home.quoteDescription}</p><p className="mt-7 flex items-start gap-3 text-sm text-white/80"><FileCheck2 className="mt-0.5 size-5 shrink-0 text-[#9ad6b8]"/>{dictionary.home.noPayment}</p></div><div data-scene-visual className="grid gap-px bg-white/15 sm:grid-cols-2">{[isId?"Scope termasuk dan tidak termasuk":"Included and excluded scope",isId?"Timeline dan batas revisi":"Timeline and revision limit",isId?"Jadwal pembayaran":"Payment schedule",isId?"Versioning dan persetujuan client":"Versioning and client approval"].map(item=><div key={item} className="flex items-start gap-3 bg-[#0c4032] p-6"><Check className="mt-0.5 size-4 shrink-0 text-[#9ad6b8]"/><p className="text-sm font-semibold leading-6">{item}</p></div>)}</div></div></section>
-
-    <section data-reveal data-perspective-cta className="mx-auto max-w-[1360px] px-5 py-24 [perspective:1200px] md:px-8 lg:px-12 lg:py-32 xl:px-16"><div data-perspective-panel className="grid gap-10 border border-border bg-surface px-6 py-14 [transform-style:preserve-3d] sm:px-8 lg:grid-cols-[1.25fr_.75fr] lg:items-end lg:px-12"><div data-perspective-content><p className="text-xs font-bold uppercase tracking-[.18em] text-primary">{isId?"Mulai dari konteks":"Start with context"}</p><h2 className="mt-5 max-w-4xl font-display text-4xl font-extrabold tracking-[-.045em] md:text-6xl">{isId?"Punya project yang masih belum jelas scope-nya?":"Still working out the scope of your project?"}</h2><p className="mt-6 max-w-2xl text-base leading-8 text-secondary">{isId?"Kirim brief awal. Kita bahas kebutuhan, prioritas, dan estimasi sebelum quotation dibuat.":"Share an initial brief. We will discuss requirements, priorities, and estimates before preparing a quotation."}</p></div><div className="flex flex-col gap-3 sm:flex-row lg:flex-col"><Button asChild size="lg"><Link href={projectHref}>{projectLabel}<ArrowRight className="size-4"/></Link></Button><Button asChild size="lg" variant="outline"><Link href="/cara-kerja">{dictionary.nav.process}</Link></Button></div></div><form action="/services" className="relative mt-10 max-w-2xl"><Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-secondary"/><Input name="q" aria-label="Search services" placeholder={dictionary.home.searchPlaceholder} className="h-14 pl-12 pr-28"/><Button type="submit" size="sm" className="absolute right-2 top-2 h-10">{dictionary.common.search}</Button></form></section>
-  </main></PageEntrance><SiteFooter/></>;
+  return (
+    <>
+      <SiteHeader />
+      <main>
+        <HomeMotionController />
+        <StudioHero isId={isId} primaryHref={primaryHref} primaryLabel={primaryLabel} />
+        <StudioStatement isId={isId} />
+        <SelectedWork isId={isId} projects={projects} />
+        <ProblemsSolved isId={isId} />
+        <CapabilityMarquee isId={isId} />
+        <CuratedServices isId={isId} services={services} />
+        <ProcessScene isId={isId} />
+        <WorkflowProof isId={isId} />
+        <ReviewProof isId={isId} reviews={reviews} />
+        <OwnerTeaser isId={isId} />
+        <HomeFaq isId={isId} />
+        <FinalCta isId={isId} primaryHref={primaryHref} primaryLabel={primaryLabel} />
+      </main>
+      <SiteFooter />
+    </>
+  );
 }
-
-function ServiceVisual({index,title}:{index:number;title:string}){if(index===0)return <><p className="text-xs font-semibold text-white/60">RRS / Product workspace</p><div className="mt-8 grid grid-cols-[.8fr_1.2fr] gap-3"><div className="space-y-3"><div className="h-2 w-16 bg-white/30"/><div className="h-2 w-24 bg-white/15"/><div className="h-20 border border-white/20"/></div><div className="border border-white/20 p-4"><div className="h-2 w-20 bg-[#9ad6b8]"/><div className="mt-5 grid grid-cols-3 gap-2">{[1,2,3].map(i=><div key={i} className="h-12 bg-white/10"/>)}</div></div></div><p className="mt-6 font-display text-xl font-extrabold">{title}</p></>;return <><p className="text-xs font-semibold text-secondary">RRS / {index===1?"Interface system":"Business website"}</p><div className="mt-6 grid grid-cols-4 gap-2">{[1,2,3,4].map(i=><div key={i} className={`h-14 border border-border ${i===1?"bg-primary":"bg-surface"}`}/>)}</div></>}

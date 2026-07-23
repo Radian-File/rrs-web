@@ -11,13 +11,13 @@ test("defaults to Indonesian and persists an English language change", async ({
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: "Bangun project digital dengan scope yang jelas.",
+      name: "Karya digital yang baik dimulai dari kejelasan.",
     }),
   ).toBeVisible();
 
   let englishButton = page.getByRole("button", { name: "en", exact: true });
   if (!(await englishButton.isVisible().catch(() => false))) {
-    await page.getByLabel("Open navigation menu").click();
+    await page.getByLabel("Buka navigasi").click();
     englishButton = page.getByRole("button", { name: "en", exact: true });
   }
   await englishButton.evaluate((element) => {
@@ -30,7 +30,7 @@ test("defaults to Indonesian and persists an English language change", async ({
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: "Build digital products with a clear scope.",
+      name: "Great digital work starts with clarity.",
     }),
   ).toBeVisible();
 
