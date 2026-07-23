@@ -14,14 +14,17 @@ const selectClass = "h-12 w-full rounded-[12px] border border-border bg-surface 
 const stepOneSchema = projectBriefSchema.pick({ clientName: true, clientPhone: true, clientEmail: true, companyName: true, serviceSlug: true });
 const stepTwoSchema = projectBriefSchema.pick({ projectTitle: true, projectType: true, targetUsers: true, projectDescription: true, projectGoals: true, requiredFeatures: true });
 
-export function ProjectBriefForm({ services, selectedService, client }: { services: { slug: string; title: string }[]; selectedService?: string; client: { name: string; email: string; phone: string; companyName: string } }) {
+export function ProjectBriefForm({ services, selectedService, client, isId }: { services: { slug: string; title: string }[]; selectedService?: string; client: { id: string; name: string; email: string; phone: string; companyName: string }; isId: boolean }) {
   const formRef = useRef<HTMLFormElement>(null);
-  const draftKey = `rrs:brief:${selectedService ?? "custom"}`;
+  const draftKey = `rrs:brief:${client.id}:${selectedService ?? "custom"}`;
   const [step, setStep] = useState(1);
   const [clientErrors, setClientErrors] = useState<Record<string, string[]>>({});
   const [state, action, pending] = useActionState(submitProjectBrief, {});
   const { capture } = useRetainedFormValues(formRef, Boolean(state.errors || state.message), ["attachment"]);
   const error = (name: string) => clientErrors[name]?.[0] ?? state.errors?.[name]?.[0];
+  const copy = isId
+    ? { identityHint: "Identitas brief diambil dari akun Client yang sedang login.", back: "Kembali", continue: "Lanjutkan", submitting: "Mengirim…", submit: "Kirim Technical Brief" }
+    : { identityHint: "The brief identity comes from the signed-in Client account.", back: "Back", continue: "Continue", submitting: "Submitting…", submit: "Submit Technical Brief" };
   useEffect(() => {
     const raw = window.sessionStorage.getItem(draftKey);
     if (!raw || !formRef.current) return;
@@ -59,7 +62,7 @@ export function ProjectBriefForm({ services, selectedService, client }: { servic
     <section hidden={step!==1} className="grid gap-5 sm:grid-cols-2">
       <Field label="Full name" name="clientName" defaultValue={client.name} readOnly error={error("clientName")} />
       <Field label="WhatsApp number" name="clientPhone" defaultValue={client.phone} readOnly error={error("clientPhone")} />
-      <Field label="Email" name="clientEmail" type="email" defaultValue={client.email} readOnly error={error("clientEmail")} hint="Identitas brief diambil dari akun Client yang sedang login." />
+      <Field label="Email" name="clientEmail" type="email" defaultValue={client.email} readOnly error={error("clientEmail")} hint={copy.identityHint} />
       <Field label="Company (optional)" name="companyName" defaultValue={client.companyName} readOnly required={false} error={error("companyName")} />
       <label className="sm:col-span-2"><span className="mb-2 block text-sm font-semibold">Service of interest</span><select name="serviceSlug" defaultValue={selectedService ?? ""} className={selectClass}><option value="">Custom / not sure yet</option>{services.map((service)=><option key={service.slug} value={service.slug}>{service.title}</option>)}</select></label>
     </section>
@@ -83,7 +86,7 @@ export function ProjectBriefForm({ services, selectedService, client }: { servic
       <label><span className="mb-2 block text-sm font-semibold">Supporting file (optional)</span><Input name="attachment" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="pt-3" /><span className="mt-2 block text-xs text-secondary">JPG, PNG, WebP, or PDF. Maximum 10 MB.</span></label>
     </section>
     {state.message&&<p role="alert" className="mt-6 rounded-[10px] bg-[#fbe8e8] px-4 py-3 text-sm text-error">{state.message}</p>}
-    <div className="mt-8 flex justify-between gap-3"><Button type="button" variant="ghost" disabled={step===1||pending} onClick={()=>{ setClientErrors({}); setStep((value)=>Math.max(1,value-1)); }}><ArrowLeft className="size-4"/>Back</Button>{step<3?<Button type="button" onClick={continueToNextStep}>Continue<ArrowRight className="size-4"/></Button>:<Button type="submit" disabled={pending}>{pending?"Submitting…":"Submit Project Brief"}</Button>}</div>
+    <div className="mt-8 flex justify-between gap-3"><Button type="button" variant="ghost" disabled={step===1||pending} onClick={()=>{ setClientErrors({}); setStep((value)=>Math.max(1,value-1)); }}><ArrowLeft className="size-4"/>{copy.back}</Button>{step<3?<Button type="button" onClick={continueToNextStep}>{copy.continue}<ArrowRight className="size-4"/></Button>:<Button type="submit" disabled={pending}>{pending?copy.submitting:copy.submit}</Button>}</div>
   </form>;
 }
 

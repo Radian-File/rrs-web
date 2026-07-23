@@ -2,31 +2,11 @@ import { expect, test } from "@playwright/test";
 
 test.describe.configure({ mode: "serial" });
 
-test("visitor can submit a structured brief and continue to WhatsApp", async ({ page }) => {
+test("guest technical brief requires a Client account", async ({ page }) => {
   await page.goto("/start-project?service=website-development");
-  await page.getByLabel("Full name").fill("E2E Client");
-  await page.getByLabel("WhatsApp number").fill("628123456789");
-  await page.getByLabel("Email").fill(`e2e-${Date.now()}@example.com`);
-  await page.getByRole("button", { name: "Continue" }).click();
-
-  await page.getByLabel("Project title").fill("Inventory management platform");
-  await page.getByLabel("Project type").fill("Web application");
-  await page.getByLabel("Project description").fill("A responsive inventory platform for tracking products, stock movements, and operational reporting across the business.");
-  await page.getByLabel("Project goals").fill("Reduce manual stock errors and make inventory status visible to the operations team.");
-  await page.getByLabel("Required features").fill("Authentication\nInventory dashboard\nStock movement history");
-  await page.getByRole("button", { name: "Continue" }).click();
-
-  await page.getByLabel("Budget range (optional)").fill("Rp8.000.000–Rp12.000.000");
-  await page.evaluate(() => {
-    const button = [...document.querySelectorAll("button")].find(
-      (element) => element.textContent?.trim() === "Submit Project Brief",
-    );
-    window.setTimeout(() => (button as HTMLButtonElement | undefined)?.click(), 100);
-  });
-
-  await expect(page).toHaveURL(/brief-submitted/, { timeout: 30_000 });
-  await expect(page.getByText("Brief received")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Lanjut ke WhatsApp" })).toBeVisible();
+  await expect(page).toHaveURL(/\/login/);
+  expect(decodeURIComponent(page.url())).toContain("/start-project?service=website-development");
+  await expect(page.getByRole("heading", { name: "Sign in to your portal." })).toBeVisible();
 });
 
 test("seeded owner can authenticate and open the owner workspace", async ({ page }) => {
@@ -41,7 +21,7 @@ test("seeded owner can authenticate and open the owner workspace", async ({ page
 test("service detail keeps quotation as the primary conversion", async ({ page }) => {
   await page.goto("/services/website-development");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Website Development");
-  await expect(page.getByRole("link", { name: "Request Quotation" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Sign in to request a quotation" })).toBeVisible();
   await expect(page.getByText("Final pricing follows the agreed scope")).toBeVisible();
 });
 
