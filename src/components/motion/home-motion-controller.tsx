@@ -151,6 +151,9 @@ export function HomeMotionController() {
 
       dispose = () => context.revert();
       requestAnimationFrame(() => ScrollTrigger.refresh());
+      void document.fonts?.ready.then(() => {
+        if (!cancelled) ScrollTrigger.refresh();
+      });
     }
 
     void initialize();

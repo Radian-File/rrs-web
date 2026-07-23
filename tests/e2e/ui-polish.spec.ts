@@ -1,28 +1,33 @@
 import { expect, test } from "@playwright/test";
 
-test("keyboard users can skip repeated navigation", async ({ page }) => {
+test("keyboard users can skip repeated navigation", async ({ page, context }) => {
+  await context.clearCookies();
   await page.goto("/");
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
+  await expect(page.getByRole("link", { name: "Lewati ke konten" })).toBeFocused();
 });
 
-test("shared motion marks page entrance, reveal groups, and interactive cards", async ({ page }) => {
+test("homepage initializes the coordinated motion system and static content remains present", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("html")).toHaveClass(/motion-ready/);
-  await expect(page.locator("[data-page-enter]")).toHaveAttribute("data-page-enter", "visible");
+  await expect(page.locator("[data-hero-motion]")).toBeVisible();
+  await expect(page.locator("[data-hero-artifact]")).toHaveCount(3);
   const revealGroup = page.locator("[data-reveal-group]").first();
   await revealGroup.scrollIntoViewIfNeeded();
   await expect(revealGroup).toHaveClass(/is-visible/);
-  await expect(page.locator("[data-motion-card]").first()).toBeVisible();
+  await expect(page.locator("[data-process-motion]")).toBeVisible();
+  await expect(page.locator("[data-perspective-cta]")).toBeVisible();
 });
 
-test("reduced motion prevents reveal initialization while content stays visible", async ({ page }) => {
+test("reduced motion keeps all essential homepage content visible", async ({ page, context }) => {
+  await context.clearCookies();
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await page.waitForTimeout(300);
   await expect(page.locator("html")).not.toHaveClass(/motion-ready/);
-  await expect(page.locator("[data-page-enter]")).toHaveAttribute("data-page-enter", "idle");
-  await expect(page.locator("[data-page-enter]")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Karya digital yang baik dimulai dari kejelasan." })).toBeVisible();
+  await expect(page.locator("[data-hero-artifact]")).toHaveCount(3);
+  await expect(page.getByRole("heading", { name: "Feedback setelah pekerjaan benar-benar selesai." })).toBeVisible();
 });
 
 test("portal navigation exposes active state and breadcrumbs", async ({ page }) => {
@@ -35,9 +40,7 @@ test("portal navigation exposes active state and breadcrumbs", async ({ page }) 
   await page.getByLabel("Password", { exact: true }).fill("password");
   await page.getByLabel("Confirm password").fill("password");
   await page.evaluate(() => {
-    const button = [...document.querySelectorAll("button")].find(
-      (element) => element.textContent?.trim() === "Create an account",
-    );
+    const button = [...document.querySelectorAll("button")].find((element) => element.textContent?.trim() === "Create an account");
     window.setTimeout(() => (button as HTMLButtonElement | undefined)?.click(), 100);
   });
   await expect(page).toHaveURL(/\/client$/, { timeout: 30_000 });
