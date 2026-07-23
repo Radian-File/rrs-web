@@ -32,7 +32,7 @@ export function HomeMotionController() {
             if (!hero) return;
 
             const animated = main.querySelectorAll<HTMLElement>(
-              "[data-hero-eyebrow], [data-hero-line], [data-motion-line], [data-hero-body], [data-hero-actions], [data-hero-detail], [data-hero-artifact], [data-scene-copy], [data-scene-visual], [data-process-step], [data-perspective-panel], [data-perspective-content]",
+              "[data-hero-eyebrow], [data-hero-line], [data-motion-line], [data-hero-body], [data-hero-actions], [data-hero-detail], [data-hero-artifact], [data-scene-copy], [data-scene-visual], [data-feature-object], [data-process-step], [data-perspective-panel], [data-perspective-content]",
             );
 
             if (reduce) {
@@ -126,6 +126,22 @@ export function HomeMotionController() {
                 gsap.from(copy, { autoAlpha: 0, y: 28, stagger: 0.1, duration: 0.7, ease: "power3.out", scrollTrigger: { trigger: scene, start: "top 72%", once: true } });
               }
             });
+
+            const featureStrip = main.querySelector<HTMLElement>("[data-feature-strip]");
+            if (featureStrip) {
+              const featureObjects = gsap.utils.toArray<HTMLElement>("[data-feature-object]", featureStrip);
+              if (desktop) {
+                featureObjects.forEach((object, index) => {
+                  gsap.fromTo(
+                    object,
+                    { x: (index - (featureObjects.length - 1) / 2) * 38, y: index % 2 ? 84 : 42, rotate: (index % 2 ? 1 : -1) * (4 + index * 0.6), autoAlpha: 0.35 },
+                    { x: 0, y: index % 2 ? 32 : 0, rotate: 0, autoAlpha: 1, ease: "none", scrollTrigger: { trigger: featureStrip, start: "top 88%", end: "center 56%", scrub: 0.8 } },
+                  );
+                });
+              } else {
+                gsap.from(featureObjects, { autoAlpha: 0, y: 24, stagger: 0.07, duration: 0.55, ease: "power2.out", scrollTrigger: { trigger: featureStrip, start: "top 78%", once: true } });
+              }
+            }
 
             const process = main.querySelector<HTMLElement>("[data-process-motion]");
             if (process) {

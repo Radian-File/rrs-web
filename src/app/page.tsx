@@ -2,21 +2,15 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { StudioHero } from "@/components/home/studio-hero";
 import {
-  CapabilityMarquee,
-  CuratedServices,
   FinalCta,
   HomeFaq,
-  OwnerTeaser,
-  ProblemsSolved,
   ProcessScene,
   ReviewProof,
-  SelectedWork,
-  StudioStatement,
-  WorkflowProof,
   type HomeProject,
   type HomeReview,
   type HomeService,
 } from "@/components/home/home-sections";
+import { ReferenceFeatureObjects, ReferenceSelectedWork, ReferenceServices } from "@/components/home/reference-sections";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { HomeMotionController } from "@/components/motion/home-motion-controller";
@@ -82,15 +76,11 @@ export default async function Home() {
       <main>
         <HomeMotionController />
         <StudioHero isId={isId} primaryHref={primaryHref} primaryLabel={primaryLabel} />
-        <StudioStatement isId={isId} />
-        <SelectedWork isId={isId} projects={projects} />
-        <ProblemsSolved isId={isId} />
-        <CapabilityMarquee isId={isId} />
-        <CuratedServices isId={isId} services={services} />
+        <ReferenceServices isId={isId} services={services} />
+        <ReferenceSelectedWork isId={isId} projects={projects} />
+        <ReferenceFeatureObjects isId={isId} />
         <ProcessScene isId={isId} />
-        <WorkflowProof isId={isId} />
         <ReviewProof isId={isId} reviews={reviews} />
-        <OwnerTeaser isId={isId} />
         <HomeFaq isId={isId} />
         <FinalCta isId={isId} primaryHref={primaryHref} primaryLabel={primaryLabel} />
       </main>
