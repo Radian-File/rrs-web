@@ -4,21 +4,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-[8px] text-sm font-semibold transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-[10px] border text-sm font-semibold leading-none shadow-sm transition-[background-color,border-color,color,box-shadow,transform] duration-200 motion-safe:active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:shadow-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        primary: "bg-primary text-white hover:-translate-y-px hover:bg-primary-hover",
-        secondary: "bg-accent-soft text-primary hover:bg-[#dce8e1]",
-        outline: "border border-border bg-surface text-foreground hover:border-primary/40 hover:bg-accent-soft",
-        ghost: "text-foreground hover:bg-surface-container",
-        danger: "bg-error text-white hover:bg-[#9f3737]",
+        primary:
+          "border-primary-hover bg-primary-strong text-primary-strong-foreground shadow-[0_8px_24px_rgba(0,0,0,0.22)] motion-safe:hover:-translate-y-px hover:border-primary hover:bg-primary-hover",
+        secondary:
+          "border-primary/25 bg-accent-soft text-primary hover:border-primary/45 hover:bg-surface-hover hover:text-foreground",
+        outline:
+          "border-border-strong bg-surface text-foreground hover:border-primary/60 hover:bg-surface-elevated",
+        ghost:
+          "border-transparent bg-transparent text-foreground shadow-none hover:border-border hover:bg-surface-container",
+        danger:
+          "border-error-hover bg-error-strong text-error-strong-foreground hover:border-error hover:bg-error-hover",
       },
       size: {
-        sm: "h-9 px-3.5",
-        md: "h-11 px-5",
-        lg: "h-12 px-6 text-[15px]",
-        icon: "size-10",
+        sm: "min-h-11 px-4 py-2.5",
+        md: "min-h-12 px-5 py-3",
+        lg: "min-h-[52px] px-6 py-3.5 text-[15px]",
+        icon: "size-11 shrink-0 p-0",
       },
     },
     defaultVariants: { variant: "primary", size: "md" },

@@ -65,59 +65,219 @@ export default async function OwnerAnalyticsPage({ searchParams }: { searchParam
     },
   ].filter((group) => group.items.length > 0);
 
-  return <>
-    <div className="flex flex-col justify-between gap-6 border-b border-border pb-8 lg:flex-row lg:items-end">
-      <div>
-        <p className="text-sm font-bold uppercase tracking-[.14em] text-primary">{copy.eyebrow}</p>
-        <h1 className="mt-3 font-display text-3xl font-extrabold tracking-[-.035em] md:text-4xl">{copy.title}</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-secondary">{copy.description}</p>
-      </div>
-      <p className="text-sm font-semibold text-secondary"><span className="text-foreground">{copy.currentPeriod}:</span> {formatDateRange(analytics.range.start, analytics.range.end, locale)}</p>
+  return (
+    <div className="overflow-hidden rounded-[20px] border border-[#19483d] bg-[#071f1a] text-white shadow-[0_24px_70px_rgba(7,31,26,.16)]">
+      <header className="border-b border-white/10 px-5 py-7 md:px-7 md:py-9 lg:px-9">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,.65fr)] lg:items-end">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[.18em] text-[#bde77e]">{copy.eyebrow}</p>
+            <h1 id="analytics-title" className="mt-4 max-w-3xl font-display text-4xl font-extrabold tracking-[-.05em] text-white md:text-5xl">
+              {copy.title}
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/65">{copy.description}</p>
+          </div>
+
+          <div className="border-l border-[#bde77e]/45 pl-5 lg:justify-self-end lg:text-right">
+            <p className="text-[11px] font-bold uppercase tracking-[.16em] text-white/45">{copy.currentPeriod}</p>
+            <p className="mt-2 font-display text-lg font-bold text-white">{formatDateRange(analytics.range.start, analytics.range.end, locale)}</p>
+            <nav className="mt-5 flex flex-wrap gap-2 lg:justify-end" aria-label={copy.currentPeriod}>
+              {analyticsPeriods.map((period) => {
+                const isCurrent = analytics.period === period;
+                return (
+                  <Button
+                    key={period}
+                    asChild
+                    size="sm"
+                    variant={isCurrent ? "primary" : "outline"}
+                    className={isCurrent
+                      ? "bg-[#bde77e] text-[#09261f] hover:bg-[#c9ef91]"
+                      : "border-white/15 bg-transparent text-white/70 hover:border-[#bde77e]/50 hover:bg-white/[.06] hover:text-white"}
+                  >
+                    <Link href={`/owner/analytics?period=${period}`} aria-current={isCurrent ? "page" : undefined}>{periodLabels[period]}</Link>
+                  </Button>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      {isEmpty ? (
+        <section className="p-4 md:p-7 lg:p-9" aria-labelledby="analytics-empty-title">
+          <Card className="border-dashed border-white/20 bg-[#0b2b24] text-white">
+            <CardContent className="py-14 text-center md:py-16">
+              <span className="mx-auto grid size-12 place-items-center rounded-full border border-[#bde77e]/30 bg-[#bde77e]/10">
+                <ClipboardList className="size-5 text-[#bde77e]" aria-hidden="true" />
+              </span>
+              <h2 id="analytics-empty-title" className="mt-5 font-display text-2xl font-extrabold text-white">{copy.noDataTitle}</h2>
+              <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-white/60">{copy.noDataDescription}</p>
+              <div className="mt-7 flex flex-wrap justify-center gap-3">
+                <Button asChild className="bg-[#bde77e] text-[#09261f] hover:bg-[#c9ef91]"><Link href="/owner/inquiries">{dictionary.portal.inquiries}</Link></Button>
+                <Button asChild variant="outline" className="border-white/20 bg-transparent text-white hover:border-[#bde77e]/50 hover:bg-white/[.06]"><Link href="/owner/quotations/create">{dictionary.portal.quotations}</Link></Button>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+      ) : (
+        <div className="p-4 md:p-7 lg:p-9">
+          <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-12" aria-label={copy.eyebrow}>
+            <Metric className="xl:col-span-3" icon={ClipboardList} label={copy.inquiries} value={analytics.current.inquiries} comparison={comparisonLabel(analytics.current.inquiries, comparison?.inquiries ?? null, copy.previousPeriod)} />
+            <Metric className="xl:col-span-3" icon={FileText} label={copy.quotationsSent} value={analytics.current.sentQuotations} comparison={comparisonLabel(analytics.current.sentQuotations, comparison?.sentQuotations ?? null, copy.previousPeriod)} />
+            <Metric className="md:col-span-2 xl:col-span-6" featured icon={FileText} label={copy.acceptedValue} value={formatIdr(analytics.current.acceptedQuotationValue)} comparison={comparison ? `${copy.previousPeriod}: ${formatIdr(comparison.acceptedQuotationValue)}` : null} />
+            <Metric className="xl:col-span-5" icon={BanknoteArrowDown} label={copy.cashReceived} value={formatIdr(analytics.current.cashReceived)} comparison={comparison ? `${copy.previousPeriod}: ${formatIdr(comparison.cashReceived)}` : null} />
+            <Metric className="xl:col-span-4" icon={ReceiptText} label={copy.outstanding} value={formatIdr(analytics.metrics.outstanding)} note={copy.activeNow} />
+            <Metric className="md:col-span-2 xl:col-span-3" icon={UsersRound} label={copy.activeClients} value={analytics.metrics.activeClients} note={copy.activeNow} />
+          </section>
+
+          <section className="mt-4 grid gap-4 xl:grid-cols-[1.35fr_.65fr]">
+            <Card className="border-white/10 bg-[#0a2922] text-white">
+              <CardContent className="p-5 md:p-6">
+                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#bde77e]">{copy.operationalPipeline}</p>
+                    <h2 className="mt-2 font-display text-2xl font-extrabold text-white">Inquiry → Project</h2>
+                  </div>
+                  <Badge variant="neutral" className="w-fit bg-white/[.07] text-white/60">{copy.funnelNote}</Badge>
+                </div>
+
+                <ol className="mt-7 grid gap-px overflow-hidden rounded-[10px] border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+                  <FunnelStep label={copy.inquiries} value={analytics.funnel.inquiries} rate={null} />
+                  <FunnelStep label={copy.quotationsSent} value={analytics.funnel.quotations} rate={analytics.funnel.quotationRate === null ? copy.noConversion : `${analytics.funnel.quotationRate}%`} />
+                  <FunnelStep label={copy.acceptedQuotations} value={analytics.funnel.accepted} rate={analytics.funnel.acceptanceRate === null ? copy.noConversion : `${analytics.funnel.acceptanceRate}%`} />
+                  <FunnelStep label={dictionary.portal.projects} value={analytics.funnel.projects} rate={analytics.funnel.projectRate === null ? copy.noConversion : `${analytics.funnel.projectRate}%`} />
+                </ol>
+
+                <dl className="mt-6 grid gap-3 border-t border-white/10 pt-5 text-sm sm:grid-cols-3">
+                  <Rate label={copy.quotationRate} value={analytics.funnel.quotationRate} noData={copy.noConversion} />
+                  <Rate label={copy.acceptanceRate} value={analytics.funnel.acceptanceRate} noData={copy.noConversion} />
+                  <Rate label={copy.projectRate} value={analytics.funnel.projectRate} noData={copy.noConversion} />
+                </dl>
+              </CardContent>
+            </Card>
+
+            <Card className="border-white/10 bg-[#0a2922] text-white">
+              <CardContent className="p-5 md:p-6">
+                <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#bde77e]">{copy.financialHealth}</p>
+                <h2 className="mt-2 font-display text-2xl font-extrabold text-white">{copy.activeNow}</h2>
+                <dl className="mt-7 divide-y divide-white/10 text-sm">
+                  <FinanceRow label={copy.overdue} value={`${analytics.metrics.overdue.count} · ${formatIdr(analytics.metrics.overdue.amount)}`} danger />
+                  <FinanceRow label={copy.dueSoon} value={`${analytics.metrics.dueSoon.count} · ${formatIdr(analytics.metrics.dueSoon.amount)}`} />
+                  <FinanceRow label={copy.outstanding} value={formatIdr(analytics.metrics.outstanding)} />
+                </dl>
+              </CardContent>
+            </Card>
+          </section>
+
+          <section className="mt-4 grid gap-4 xl:grid-cols-[.65fr_1.35fr]">
+            <Card className="border-white/10 bg-[#0a2922] text-white">
+              <CardContent className="p-5 md:p-6">
+                <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#bde77e]">{copy.projectWorkload}</p>
+                <h2 className="mt-2 font-display text-2xl font-extrabold text-white">{copy.activeNow}</h2>
+                <dl className="mt-7 divide-y divide-white/10 text-sm">
+                  <FinanceRow label={copy.awaiting} value={analytics.workload.awaiting} />
+                  <FinanceRow label={copy.delivery} value={analytics.workload.delivery} />
+                  <FinanceRow label={copy.review} value={analytics.workload.review} />
+                  <FinanceRow label={copy.onHold} value={analytics.workload.onHold} />
+                  <FinanceRow label={copy.completed} value={analytics.workload.completed} />
+                </dl>
+              </CardContent>
+            </Card>
+
+            <Card className="border-white/10 bg-[#0a2922] text-white">
+              <CardContent className="p-5 md:p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#bde77e]">{copy.attention}</p>
+                    <h2 className="mt-2 font-display text-2xl font-extrabold text-white">{copy.attention}</h2>
+                  </div>
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full border border-[#bde77e]/25 bg-[#bde77e]/10">
+                    <CircleAlert className="size-4 text-[#bde77e]" aria-hidden="true" />
+                  </span>
+                </div>
+
+                {attentionGroups.length === 0 ? (
+                  <p className="mt-7 rounded-[10px] border border-[#bde77e]/15 bg-[#bde77e]/[.07] p-4 text-sm leading-6 text-white/65">{copy.noAttention}</p>
+                ) : (
+                  <div className="mt-5 divide-y divide-white/10">
+                    {attentionGroups.map((group) => (
+                      <section key={group.title} className="py-5 first:pt-0 last:pb-0" aria-label={group.title}>
+                        <p className="mb-2 text-[11px] font-bold uppercase tracking-[.14em] text-white/45">{group.title} · {group.items.length}</p>
+                        <div className="grid gap-1">
+                          {group.items.map((item) => (
+                            <Link
+                              key={`${item.href}-${item.title}`}
+                              href={item.href}
+                              className="group grid gap-2 rounded-[9px] border border-transparent px-3 py-3 text-sm hover:border-white/10 hover:bg-white/[.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#bde77e] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+                            >
+                              <span className="min-w-0">
+                                <span className="font-semibold text-white">{item.title}</span>
+                                <span className="ml-2 text-white/55">{item.detail}</span>
+                              </span>
+                              <span className="flex shrink-0 items-center gap-1.5 text-xs text-white/45">
+                                {item.date ? formatDate(item.date, locale) : "—"}
+                                <ArrowUpRight className="size-3 text-[#bde77e]" aria-hidden="true" />
+                              </span>
+                            </Link>
+                          ))}
+                        </div>
+                      </section>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </section>
+        </div>
+      )}
+
+      <p className="border-t border-white/10 px-5 py-4 text-xs leading-5 text-white/45 md:px-7 lg:px-9">{copy.includedArchives}</p>
     </div>
-
-    <nav className="mt-6 flex flex-wrap gap-2" aria-label={copy.currentPeriod}>
-      {analyticsPeriods.map((period) => <Button key={period} asChild size="sm" variant={analytics.period === period ? "primary" : "outline"}>
-        <Link href={`/owner/analytics?period=${period}`}>{periodLabels[period]}</Link>
-      </Button>)}
-    </nav>
-
-    {isEmpty ? <Card className="mt-8 border-dashed"><CardContent className="py-12 text-center"><ClipboardList className="mx-auto size-8 text-primary" /><h2 className="mt-5 font-display text-2xl font-extrabold">{copy.noDataTitle}</h2><p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-secondary">{copy.noDataDescription}</p><div className="mt-6 flex justify-center gap-3"><Button asChild><Link href="/owner/inquiries">{dictionary.portal.inquiries}</Link></Button><Button asChild variant="outline"><Link href="/owner/quotations/create">{dictionary.portal.quotations}</Link></Button></div></CardContent></Card> : <>
-      <section className="mt-8 grid gap-px overflow-hidden rounded-[18px] border border-border bg-border sm:grid-cols-2 xl:grid-cols-3" aria-label={copy.eyebrow}>
-        <Metric icon={ClipboardList} label={copy.inquiries} value={analytics.current.inquiries} comparison={comparisonLabel(analytics.current.inquiries, comparison?.inquiries ?? null, copy.previousPeriod)} />
-        <Metric icon={FileText} label={copy.quotationsSent} value={analytics.current.sentQuotations} comparison={comparisonLabel(analytics.current.sentQuotations, comparison?.sentQuotations ?? null, copy.previousPeriod)} />
-        <Metric icon={FileText} label={copy.acceptedValue} value={formatIdr(analytics.current.acceptedQuotationValue)} comparison={comparison ? `${copy.previousPeriod}: ${formatIdr(comparison.acceptedQuotationValue)}` : null} />
-        <Metric icon={BanknoteArrowDown} label={copy.cashReceived} value={formatIdr(analytics.current.cashReceived)} comparison={comparison ? `${copy.previousPeriod}: ${formatIdr(comparison.cashReceived)}` : null} />
-        <Metric icon={ReceiptText} label={copy.outstanding} value={formatIdr(analytics.metrics.outstanding)} note={copy.activeNow} />
-        <Metric icon={UsersRound} label={copy.activeClients} value={analytics.metrics.activeClients} note={copy.activeNow} />
-      </section>
-
-      <section className="mt-10 grid gap-5 xl:grid-cols-[1.35fr_.85fr]">
-        <Card><CardContent><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[.14em] text-primary">{copy.operationalPipeline}</p><h2 className="mt-2 font-display text-2xl font-extrabold">Inquiry → Project</h2></div><Badge variant="neutral">{copy.funnelNote}</Badge></div><div className="mt-8 grid gap-5 sm:grid-cols-4"><FunnelStep label={copy.inquiries} value={analytics.funnel.inquiries} rate={null} /><FunnelStep label={copy.quotationsSent} value={analytics.funnel.quotations} rate={analytics.funnel.quotationRate === null ? copy.noConversion : `${analytics.funnel.quotationRate}%`} /><FunnelStep label={copy.acceptedQuotations} value={analytics.funnel.accepted} rate={analytics.funnel.acceptanceRate === null ? copy.noConversion : `${analytics.funnel.acceptanceRate}%`} /><FunnelStep label={dictionary.portal.projects} value={analytics.funnel.projects} rate={analytics.funnel.projectRate === null ? copy.noConversion : `${analytics.funnel.projectRate}%`} /></div><div className="mt-7 grid gap-3 border-t border-border pt-5 text-sm sm:grid-cols-3"><Rate label={copy.quotationRate} value={analytics.funnel.quotationRate} noData={copy.noConversion} /><Rate label={copy.acceptanceRate} value={analytics.funnel.acceptanceRate} noData={copy.noConversion} /><Rate label={copy.projectRate} value={analytics.funnel.projectRate} noData={copy.noConversion} /></div></CardContent></Card>
-        <Card><CardContent><p className="text-xs font-bold uppercase tracking-[.14em] text-primary">{copy.financialHealth}</p><h2 className="mt-2 font-display text-2xl font-extrabold">{copy.activeNow}</h2><dl className="mt-7 divide-y divide-border text-sm"><FinanceRow label={copy.overdue} value={`${analytics.metrics.overdue.count} · ${formatIdr(analytics.metrics.overdue.amount)}`} danger /><FinanceRow label={copy.dueSoon} value={`${analytics.metrics.dueSoon.count} · ${formatIdr(analytics.metrics.dueSoon.amount)}`} /><FinanceRow label={copy.outstanding} value={formatIdr(analytics.metrics.outstanding)} /></dl></CardContent></Card>
-      </section>
-
-      <section className="mt-10 grid gap-5 xl:grid-cols-[.85fr_1.35fr]">
-        <Card><CardContent><p className="text-xs font-bold uppercase tracking-[.14em] text-primary">{copy.projectWorkload}</p><h2 className="mt-2 font-display text-2xl font-extrabold">{copy.activeNow}</h2><dl className="mt-7 divide-y divide-border text-sm"><FinanceRow label={copy.awaiting} value={analytics.workload.awaiting} /><FinanceRow label={copy.delivery} value={analytics.workload.delivery} /><FinanceRow label={copy.review} value={analytics.workload.review} /><FinanceRow label={copy.onHold} value={analytics.workload.onHold} /><FinanceRow label={copy.completed} value={analytics.workload.completed} /></dl></CardContent></Card>
-        <Card><CardContent><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[.14em] text-primary">{copy.attention}</p><h2 className="mt-2 font-display text-2xl font-extrabold">{copy.attention}</h2></div><CircleAlert className="size-5 text-primary" /></div>{attentionGroups.length === 0 ? <p className="mt-8 rounded-[12px] bg-accent-soft p-4 text-sm text-secondary">{copy.noAttention}</p> : <div className="mt-6 divide-y divide-border">{attentionGroups.map((group) => <div key={group.title} className="py-4 first:pt-0"><p className="mb-3 text-xs font-bold uppercase tracking-[.12em] text-secondary">{group.title} · {group.items.length}</p><div className="grid gap-2">{group.items.map((item) => <Link key={`${item.href}-${item.title}`} href={item.href} className="group flex items-center justify-between gap-4 rounded-[10px] px-2 py-2 text-sm hover:bg-accent-soft"><span><span className="font-semibold text-foreground">{item.title}</span><span className="ml-2 text-secondary">{item.detail}</span></span><span className="flex shrink-0 items-center gap-1 text-xs text-secondary">{item.date ? formatDate(item.date, locale) : "—"}<ArrowUpRight className="size-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></span></Link>)}</div></div>)}</div>}</CardContent></Card>
-      </section>
-    </>}
-
-    <p className="mt-8 text-xs leading-5 text-secondary">{copy.includedArchives}</p>
-  </>;
+  );
 }
 
-function Metric({ icon: Icon, label, value, comparison, note }: { icon: typeof ClipboardList; label: string; value: string | number; comparison?: string | null; note?: string }) {
-  return <div className="bg-surface p-5"><Icon className="size-5 text-primary" /><p className="mt-8 font-display text-3xl font-extrabold tracking-[-.035em]">{value}</p><p className="mt-2 text-sm font-semibold">{label}</p>{(comparison || note) && <p className="mt-1 text-xs text-secondary">{comparison ?? note}</p>}</div>;
+function Metric({ icon: Icon, label, value, comparison, note, className = "", featured = false }: { icon: typeof ClipboardList; label: string; value: string | number; comparison?: string | null; note?: string; className?: string; featured?: boolean }) {
+  return (
+    <article className={`flex min-h-48 flex-col justify-between rounded-[14px] border p-5 ${featured ? "border-[#bde77e]/30 bg-[#10382e]" : "border-white/10 bg-[#0a2922]"} ${className}`}>
+      <div className="flex items-start justify-between gap-4">
+        <span className={`grid size-9 place-items-center rounded-full ${featured ? "bg-[#bde77e] text-[#09261f]" : "border border-white/10 bg-white/[.05] text-[#bde77e]"}`}>
+          <Icon className="size-4" aria-hidden="true" />
+        </span>
+        {(comparison || note) && <p className="max-w-[70%] text-right text-xs leading-5 text-white/45">{comparison ?? note}</p>}
+      </div>
+      <div className="mt-8">
+        <p className="break-words font-display text-[clamp(1.75rem,3vw,2.6rem)] font-extrabold leading-none tracking-[-.045em] text-white tabular-nums">{value}</p>
+        <p className="mt-3 text-sm font-semibold text-white/75">{label}</p>
+      </div>
+    </article>
+  );
 }
 
 function FunnelStep({ label, value, rate }: { label: string; value: number; rate: string | null }) {
-  return <div className="border-l-2 border-primary pl-3"><p className="font-display text-3xl font-extrabold">{value}</p><p className="mt-1 text-sm font-semibold leading-5">{label}</p>{rate && <p className="mt-2 text-xs text-secondary">{rate}</p>}</div>;
+  return (
+    <li className="flex min-h-36 flex-col justify-between bg-[#0d3028] p-4">
+      <p className="font-display text-3xl font-extrabold text-white tabular-nums">{value}</p>
+      <div className="mt-5 border-l-2 border-[#bde77e] pl-3">
+        <p className="text-sm font-semibold leading-5 text-white/80">{label}</p>
+        {rate && <p className="mt-1 text-xs text-white/45">{rate}</p>}
+      </div>
+    </li>
+  );
 }
 
 function Rate({ label, value, noData }: { label: string; value: number | null; noData: string }) {
-  return <p><span className="text-secondary">{label}</span><span className="ml-2 font-semibold">{value === null ? noData : `${value}%`}</span></p>;
+  return (
+    <div>
+      <dt className="text-xs text-white/45">{label}</dt>
+      <dd className="mt-1 font-semibold text-white tabular-nums">{value === null ? noData : `${value}%`}</dd>
+    </div>
+  );
 }
 
 function FinanceRow({ label, value, danger = false }: { label: string; value: string | number; danger?: boolean }) {
-  return <div className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0"><dt className="text-secondary">{label}</dt><dd className={danger ? "font-semibold text-error" : "font-semibold"}>{value}</dd></div>;
+  return (
+    <div className="flex items-start justify-between gap-4 py-3.5 first:pt-0 last:pb-0">
+      <dt className="text-white/50">{label}</dt>
+      <dd className={danger ? "text-right font-semibold text-[#ff9f94] tabular-nums" : "text-right font-semibold text-white tabular-nums"}>{value}</dd>
+    </div>
+  );
 }
