@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 async function signInAsOwner(page: import("@playwright/test").Page) {
+  await page.context().clearCookies();
+  await page.context().addCookies([{ name: "rrs-locale", value: "en", domain: "127.0.0.1", path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" }]);
   await page.goto("/login");
   await page.getByLabel("Email").fill(process.env.OWNER_EMAIL ?? "owner@example.com");
   await page.getByLabel("Password").fill(process.env.OWNER_PASSWORD ?? "ChangeMe123!");
@@ -9,23 +11,29 @@ async function signInAsOwner(page: import("@playwright/test").Page) {
 }
 
 test("owner archives and restores an inquiry without changing its status", async ({ page }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(120_000);
   const title = `Archive inquiry ${Date.now()}-${test.info().project.name}`;
-  await page.goto("/start-project?service=website-development");
+  const email = `archive-inquiry-${Date.now()}-${test.info().project.name}@example.com`;
+  await page.goto("/register");
   await page.getByLabel("Full name").fill("Archive Inquiry Client");
   await page.getByLabel("WhatsApp number").fill("628123456789");
-  await page.getByLabel("Email").fill(`archive-inquiry-${Date.now()}@example.com`);
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password", { exact: true }).fill("password");
+  await page.getByLabel("Confirm password").fill("password");
+  await page.getByRole("button", { name: "Create an account" }).click();
+  await expect(page).toHaveURL(/\/client$/, { timeout: 30_000 });
+
+  await page.goto("/start-project?service=website-development");
+  await expect(page.getByLabel("Email")).toHaveValue(email);
   await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByLabel("Project title").fill(title);
-  await page.getByLabel("Project type").fill("Web application");
-  await page.getByLabel("Project description").fill("A complete project brief used to verify that archiving only removes an inquiry from the active owner list.");
-  await page.getByLabel("Project goals").fill("Keep the project data and workflow status available after moving it to the archive list.");
-  await page.getByLabel("Required features").fill("Archive workflow\nOwner dashboard");
+  await page.getByLabel("Judul project").fill(title);
+  await page.getByLabel("Jenis project").fill("Web application");
+  await page.getByLabel("Deskripsi project").fill("A complete project brief used to verify that archiving only removes an inquiry from the active owner list.");
+  await page.getByLabel("Tujuan project").fill("Keep the project data and workflow status available after moving it to the archive list.");
+  await page.getByLabel("Fitur yang dibutuhkan").fill("Archive workflow\nOwner dashboard");
   await page.getByRole("button", { name: "Continue" }).click();
-  await page.evaluate(() => {
-    const button = [...document.querySelectorAll("button")].find((element) => element.textContent?.trim() === "Submit Project Brief");
-    window.setTimeout(() => (button as HTMLButtonElement | undefined)?.click(), 100);
-  });
+  const submitBrief = page.getByRole("button", { name: "Submit Technical Brief" });
+  if (await submitBrief.isVisible().catch(() => false)) await submitBrief.click();
   await expect(page).toHaveURL(/brief-submitted/, { timeout: 30_000 });
 
   await signInAsOwner(page);

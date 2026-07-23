@@ -12,10 +12,10 @@ test("homepage initializes the coordinated motion system and static content rema
   await expect(page.locator("html")).toHaveClass(/motion-ready/);
   await expect(page.locator("[data-hero-motion]")).toBeVisible();
   await expect(page.locator("[data-hero-artifact]")).toHaveCount(3);
-  const revealGroup = page.locator("[data-reveal-group]").first();
-  await revealGroup.scrollIntoViewIfNeeded();
-  await expect(revealGroup).toHaveClass(/is-visible/);
-  await expect(page.locator("[data-process-motion]")).toBeVisible();
+  await expect(page.locator("[data-scroll-scene]").first()).toBeVisible();
+  await expect(page.locator("[data-feature-strip]")).toBeVisible();
+  await expect(page.locator("[data-review-fan]")).toBeVisible();
+  await expect(page.locator("[data-closing-stage]")).toBeVisible();
   await expect(page.locator("[data-perspective-cta]")).toBeVisible();
 });
 
@@ -25,9 +25,10 @@ test("reduced motion keeps all essential homepage content visible", async ({ pag
   await page.goto("/");
   await page.waitForTimeout(300);
   await expect(page.locator("html")).not.toHaveClass(/motion-ready/);
-  await expect(page.getByRole("heading", { level: 1, name: "Karya digital yang baik dimulai dari kejelasan." })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "PROJECT DIGITAL, DIBANGUN DENGAN ARAH." })).toBeVisible();
   await expect(page.locator("[data-hero-artifact]")).toHaveCount(3);
-  await expect(page.getByRole("heading", { name: "Feedback setelah pekerjaan benar-benar selesai." })).toBeVisible();
+  await expect(page.locator("[data-feature-object]")).toHaveCount(6);
+  await expect(page.getByRole("heading", { name: /APA YANG CLIENT SUKAI TENTANG RRS|BUKTI DELIVERY, BUKAN PUJIAN PALSU/ })).toBeVisible();
 });
 
 test("portal navigation exposes active state and breadcrumbs", async ({ page }) => {

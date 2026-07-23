@@ -48,7 +48,7 @@ export function WorkflowArtifacts({ isId }: { isId: boolean }) {
       };
 
   return (
-    <figure className="relative mx-auto min-h-[560px] w-full max-w-[1040px] sm:min-h-[650px] lg:min-h-[690px]" aria-label={copy.caption}>
+    <figure className="relative mx-auto min-h-[720px] w-full max-w-[1040px] sm:min-h-[650px] lg:min-h-[690px]" aria-label={copy.caption}>
       <figcaption className="absolute bottom-5 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/10 bg-black/45 px-4 py-2 text-[8px] font-bold uppercase tracking-[.14em] text-white/45 backdrop-blur-md sm:text-[9px]">{copy.caption}</figcaption>
 
       <article data-hero-artifact className="absolute left-[3%] top-[122px] z-10 hidden w-[34%] -rotate-[6deg] overflow-hidden rounded-[20px] border border-white/12 bg-[#3a2b30] p-4 text-white shadow-[0_32px_90px_rgba(0,0,0,.42)] [transform-style:preserve-3d] sm:block lg:left-[1%] lg:top-[158px] lg:p-5" aria-label={copy.quoteTitle}>

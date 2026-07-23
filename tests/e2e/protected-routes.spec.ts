@@ -51,9 +51,11 @@ test("client sessions cannot access owner routes and logout removes access", asy
   await page.goto("/owner/analytics");
   await expect(page).toHaveURL(/\/client$/);
 
-  await page.getByRole("button", { name: "Sign out" }).evaluate((element) => {
-    window.setTimeout(() => (element as HTMLButtonElement).click(), 100);
-  });
+  const signOut = page.getByRole("button", { name: "Sign out" });
+  if (!(await signOut.isVisible().catch(() => false))) {
+    await page.getByRole("button", { name: "More" }).click();
+  }
+  await signOut.click();
   await expect(page).toHaveURL(/\/login$/, { timeout: 30_000 });
 
   await page.goto("/client/projects");

@@ -21,7 +21,7 @@ test("seeded owner can authenticate and open the owner workspace", async ({ page
 test("service detail keeps quotation as the primary conversion", async ({ page }) => {
   await page.goto("/services/website-development");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Website Development");
-  await expect(page.getByRole("link", { name: "Sign in to request a quotation" })).toBeVisible();
+  await expect(page.locator("main:visible").getByRole("link", { name: "Sign in to request a quotation" })).toBeVisible();
   await expect(page.getByText("Final pricing follows the agreed scope")).toBeVisible();
 });
 

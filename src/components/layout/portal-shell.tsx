@@ -80,7 +80,7 @@ export async function PortalShell({ kind, title, userLabel, unreadCount = 0, ite
           {items.slice(0, 4).map(({ label, href, icon: Icon }) => (
             <PortalActiveLink key={href} href={href} label={label} mobile><Icon className="size-5" aria-hidden="true" /></PortalActiveLink>
           ))}
-          <PortalMobileMoreMenu items={items.slice(4).map(({ label, href }) => ({ label, href }))} label={locale === "id" ? "Lainnya" : "More"} />
+          <PortalMobileMoreMenu items={items.slice(4).map(({ label, href }) => ({ label, href }))} label={locale === "id" ? "Lainnya" : "More"} footer={<SignOutButton label={dictionary.common.signOut} showLabel />} />
         </nav>
       </div>
     </div>

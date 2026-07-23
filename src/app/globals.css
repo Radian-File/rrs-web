@@ -272,6 +272,13 @@ input:-webkit-autofill:focus {
   text-wrap: balance;
 }
 
+@media (min-width: 1024px) {
+  [data-review-card] {
+    z-index: var(--fan-z, 20);
+    transform: translate(calc(-50% + var(--fan-x, 0px)), var(--fan-y, 0px)) rotate(var(--fan-r, 0deg));
+  }
+}
+
 .rrs-grain::after {
   position: absolute;
   z-index: 1;

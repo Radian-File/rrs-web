@@ -24,20 +24,19 @@ export function ReferenceReviewFan({ isId, reviews }: { isId: boolean; reviews: 
     ? (isId ? ["APA YANG CLIENT SUKAI", "TENTANG RRS"] : ["WHAT CLIENTS VALUE", "ABOUT RRS"])
     : (isId ? ["BUKTI DELIVERY,", "BUKAN PUJIAN PALSU"] : ["DELIVERY PROOF,", "NOT INVENTED PRAISE"]);
   const tones = ["bg-[#34444f]", "bg-[#514047]", "bg-[#344c32]", "bg-[#806400]", "bg-[#3f343a]"];
-  const transforms = ["lg:-translate-x-52 lg:translate-y-14 lg:-rotate-[9deg]", "lg:-translate-x-24 lg:translate-y-2 lg:-rotate-[3deg]", "lg:z-30 lg:-translate-y-12", "lg:translate-x-28 lg:translate-y-10 lg:rotate-[7deg]", "lg:translate-x-52 lg:translate-y-20 lg:rotate-[11deg]"];
 
   return (
     <section data-review-fan className="rrs-grain relative min-h-[880px] overflow-hidden border-y border-white/[.06] bg-[#1c1e1d] text-white">
       <div className="relative z-10 mx-auto max-w-[1440px] px-5 pb-24 pt-24 text-center md:px-8 lg:px-12 lg:pt-28 xl:px-16">
         <p className="text-[10px] font-black uppercase tracking-[.2em] text-accent-lime">{hasReviews ? (isId ? "ULASAN TERVERIFIKASI" : "VERIFIED REVIEWS") : (isId ? "STANDAR TERBUKA" : "OPEN STANDARDS")}</p>
-        <h2 className="mx-auto mt-5 max-w-6xl font-display text-[clamp(3rem,6.6vw,6.8rem)] font-black uppercase leading-[.84] tracking-[-.07em]">{headline.map((line) => <span key={line} className="block">{line}</span>)}</h2>
+        <h2 aria-label={headline.join(" ")} className="mx-auto mt-5 max-w-6xl font-display text-[clamp(3rem,6.6vw,6.8rem)] font-black uppercase leading-[.84] tracking-[-.07em]">{headline.map((line) => <span key={line} className="block">{line}</span>)}</h2>
         <div className="mx-auto mt-16 grid max-w-xl gap-4 text-left sm:grid-cols-2 lg:relative lg:mt-20 lg:block lg:h-[430px] lg:max-w-none">
-          {cards.map((card, index) => <article key={card.id} data-review-card className={`relative rounded-[20px] border border-white/10 p-5 shadow-[0_30px_80px_rgba(0,0,0,.34)] sm:p-6 lg:absolute lg:left-1/2 lg:top-16 lg:w-[310px] lg:-translate-x-1/2 ${tones[index % tones.length]} ${transforms[index % transforms.length]}`}>
+          {cards.map((card, index) => { const center=(cards.length-1)/2; const distance=index-center; return <article key={card.id} data-review-card style={{"--fan-x":`${distance*158}px`,"--fan-y":`${Math.abs(distance)*34}px`,"--fan-r":`${distance*6}deg`,"--fan-z":String(30-Math.abs(distance)*2)} as React.CSSProperties} className={`relative rounded-[20px] border border-white/10 p-5 shadow-[0_30px_80px_rgba(0,0,0,.34)] sm:p-6 lg:absolute lg:left-1/2 lg:top-16 lg:w-[310px] ${tones[index % tones.length]}`}>
             <div className="flex items-start justify-between gap-3"><div><p className="text-[8px] font-black uppercase tracking-[.15em] text-white/42">{card.kicker}</p><h3 className="mt-2 font-display text-xl font-black leading-[.95] tracking-[-.035em]">{card.title}</h3></div>{hasReviews ? <BadgeCheck className="size-5 shrink-0 text-accent-lime" aria-hidden="true" /> : <Check className="size-5 shrink-0 text-accent-lime" aria-hidden="true" />}</div>
             <Quote className="mt-7 size-6 text-white/18" aria-hidden="true" />
             <p className="mt-3 text-sm leading-6 text-white/78">{card.body}</p>
             <div className="mt-6 border-t border-white/10 pt-4"><p className="text-[9px] font-bold uppercase tracking-[.12em] text-white/38">{card.detail}</p>{card.rating > 0 && <div className="mt-3 flex gap-1" aria-label={`${card.rating} out of 5 stars`}>{Array.from({ length: 5 }, (_, star) => <Star key={star} className={`size-3 ${star < card.rating ? "fill-accent-lime text-accent-lime" : "text-white/15"}`} aria-hidden="true" />)}</div>}</div>
-          </article>)}
+          </article>;})}
         </div>
         <Link href="/reviews" className="relative z-40 mt-8 inline-flex items-center gap-2 text-sm font-black text-accent-lime hover:text-white">{isId ? "Lihat halaman ulasan" : "Open the reviews page"}<ArrowUpRight className="size-4" aria-hidden="true" /></Link>
       </div>
@@ -71,11 +70,12 @@ export function ReferenceFaq({ isId }: { isId: boolean }) {
 }
 
 export function ReferenceClosingStage({ isId, primaryHref, primaryLabel }: { isId: boolean; primaryHref: string; primaryLabel: string }) {
+  const headline = isId ? ["SATU WORKFLOW DARI BRIEF", "HINGGA DELIVERY"] : ["ONE WORKFLOW FROM BRIEF", "THROUGH DELIVERY"];
   return (
     <section data-closing-stage className="rrs-grain relative overflow-hidden bg-[#1a1c1b] px-5 py-24 text-white md:px-8 lg:px-12 lg:py-32">
       <div className="relative z-10 mx-auto max-w-[1160px] overflow-hidden rounded-[34px] border border-white/10 bg-[radial-gradient(circle_at_50%_10%,rgba(200,237,115,.14),transparent_36%),linear-gradient(180deg,#302d1d,#25241d)] px-5 pb-0 pt-14 text-center shadow-[0_42px_120px_rgba(0,0,0,.4)] sm:px-9 lg:pt-16">
         <p className="text-[10px] font-black uppercase tracking-[.2em] text-accent-lime">{isId ? "MULAI DENGAN SCOPE" : "START WITH SCOPE"}</p>
-        <h2 className="mx-auto mt-5 max-w-5xl font-display text-[clamp(3rem,6vw,6rem)] font-black uppercase leading-[.84] tracking-[-.07em]">{isId ? "SATU WORKFLOW DARI BRIEF HINGGA DELIVERY" : "ONE WORKFLOW FROM BRIEF TO DELIVERY"}</h2>
+        <h2 aria-label={headline.join(" ")} className="mx-auto mt-5 max-w-5xl font-display text-[clamp(2.8rem,5vw,5.2rem)] font-black uppercase leading-[.84] tracking-[-.07em]">{headline.map((line) => <span key={line} className="block lg:whitespace-nowrap">{line}</span>)}</h2>
         <Button asChild size="lg" className="mt-7 rounded-full bg-accent-lime px-7 text-background hover:bg-[#d7f58f]"><Link href={primaryHref}>{primaryLabel}<ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
 
         <div data-closing-browser className="mx-auto mt-12 max-w-[900px] translate-y-10 overflow-hidden rounded-t-[22px] border border-white/15 bg-[#202320] text-left shadow-[0_36px_100px_rgba(0,0,0,.45)]">

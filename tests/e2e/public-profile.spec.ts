@@ -15,7 +15,7 @@ test("portfolio and About page link to the professional profile with formal iden
 
 test("contact page exposes the configured direct WhatsApp destination", async ({ page }) => {
   await page.goto("/contact");
-  const whatsappLink = page.getByRole("link", { name: "Chat WhatsApp" });
+  const whatsappLink = page.locator("main:visible").getByRole("link", { name: "Discuss through WhatsApp" });
   await expect(whatsappLink).toHaveAttribute("href", /^https:\/\/wa\.me\/\d+/);
-  await expect(page.getByText(/^\+62 /)).toBeVisible();
+  await expect(page.locator("main:visible").getByText(/^\+62 /)).toBeVisible();
 });

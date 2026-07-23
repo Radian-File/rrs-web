@@ -10,10 +10,10 @@ export function ReferenceServices({ isId, services }: { isId: boolean; services:
   return (
     <section data-statement-motion className="rrs-grain relative overflow-hidden border-b border-white/[.06] bg-[#1a1c1b] text-white" aria-labelledby="reference-services-title">
       <div className="relative z-10 mx-auto max-w-[1440px] px-5 py-24 md:px-8 lg:px-12 lg:py-32 xl:px-16">
-        <div className="mx-auto flex max-w-6xl flex-col items-center text-center">
+        <div className="mx-auto flex max-w-[1320px] flex-col items-center text-center">
           <p className="text-[10px] font-black uppercase tracking-[.2em] text-accent-lime">{isId ? "LAYANAN RRS" : "RRS SERVICES"}</p>
-          <h2 id="reference-services-title" className="mt-5 font-display text-[clamp(3rem,6.5vw,6.6rem)] font-black uppercase leading-[.84] tracking-[-.07em]">
-            {headline.map((line) => <span key={line} className="block overflow-hidden pb-[.08em]"><span data-motion-line className="block">{line}</span></span>)}
+          <h2 id="reference-services-title" aria-label={headline.join(" ")} className="mt-5 font-display text-[clamp(3rem,5.8vw,5.8rem)] font-black uppercase leading-[.84] tracking-[-.07em]">
+            {headline.map((line) => <span key={line} className="block overflow-hidden pb-[.08em] lg:whitespace-nowrap"><span data-motion-line className="block">{line}</span></span>)}
           </h2>
           <p className="mt-6 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">{isId ? "Dari kebutuhan awal hingga delivery, setiap keputusan tetap terhubung dalam workflow yang dapat ditinjau." : "From the initial need through delivery, every decision remains connected in one reviewable workflow."}</p>
           <Button asChild size="lg" className="mt-7 rounded-full bg-accent-lime px-7 text-background hover:bg-[#d7f58f]"><Link href="/services">{isId ? "Lihat semua layanan" : "Explore all services"}<ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
@@ -76,6 +76,7 @@ export function ReferenceSelectedWork({ isId, projects }: { isId: boolean; proje
 }
 
 export function ReferenceFeatureObjects({ isId }: { isId: boolean }) {
+  const headline = isId ? ["DIBUAT UNTUK MENJAGA", "PROJECT TETAP JELAS."] : ["BUILT TO KEEP", "COMPLEX WORK CLEAR."];
   const features = isId
     ? [
         { label: "Technical brief", detail: "Konteks terstruktur", icon: ClipboardList, shape: "wide" },
@@ -98,12 +99,12 @@ export function ReferenceFeatureObjects({ isId }: { isId: boolean }) {
     <section data-feature-strip className="rrs-grain relative min-h-[850px] overflow-hidden border-y border-white/[.06] bg-[#1e201f] text-white">
       <div className="relative z-10 mx-auto max-w-[1440px] px-5 pb-12 pt-24 text-center md:px-8 lg:px-12 lg:pt-32 xl:px-16">
         <p className="text-[10px] font-black uppercase tracking-[.2em] text-accent-lime">{isId ? "WORKFLOW UTAMA" : "CORE WORKFLOW"}</p>
-        <h2 className="mx-auto mt-5 max-w-6xl font-display text-[clamp(3rem,6.5vw,6.5rem)] font-black uppercase leading-[.84] tracking-[-.07em]">{isId ? "DIBUAT UNTUK MENJAGA PROJECT TETAP JELAS." : "BUILT TO KEEP COMPLEX WORK CLEAR."}</h2>
+        <h2 aria-label={headline.join(" ")} className="mx-auto mt-5 max-w-[1320px] font-display text-[clamp(3rem,5.9vw,6rem)] font-black uppercase leading-[.84] tracking-[-.07em]">{headline.map((line) => <span key={line} className="block lg:whitespace-nowrap">{line}</span>)}</h2>
         <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-white/52">{isId ? "Bukan kumpulan fitur dekoratif—setiap bagian mengikuti workflow RRS yang sudah berjalan." : "Not a collection of decorative features—every object represents the workflow RRS already operates."}</p>
         <Button asChild size="lg" className="mt-7 rounded-full bg-accent-lime px-7 text-background hover:bg-[#d7f58f]"><Link href="/cara-kerja">{isId ? "Pelajari workflow" : "Explore the workflow"}<ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
       </div>
 
-      <div className="relative z-10 mx-auto mt-8 grid max-w-6xl grid-cols-2 items-end gap-4 px-5 pb-20 sm:grid-cols-3 md:px-8 lg:mt-12 lg:flex lg:min-w-max lg:max-w-none lg:justify-center lg:gap-7 lg:px-6" aria-label={isId ? "Kapabilitas workflow RRS" : "RRS workflow capabilities"}>
+      <div className="relative z-10 mx-auto mt-8 grid max-w-6xl grid-cols-2 items-end gap-4 px-5 pb-20 sm:grid-cols-3 md:px-8 lg:left-1/2 lg:mx-0 lg:mt-12 lg:flex lg:w-max lg:max-w-none lg:-translate-x-1/2 lg:justify-center lg:gap-7 lg:px-6" aria-label={isId ? "Kapabilitas workflow RRS" : "RRS workflow capabilities"}>
         {features.map((feature, index) => {
           const Icon = feature.icon;
           const tone = ["bg-[#3a2f34]", "bg-[#303532]", "bg-[#f1eee5] text-[#1a1c1b]", "bg-[#303a43]", "bg-accent-lime text-background", "bg-[#34301f]"][index];

@@ -1,11 +1,12 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import { MoreHorizontal, X } from "lucide-react";
 
-export function PortalMobileMoreMenu({ items, label = "More" }: { items: { label: string; href: string }[]; label?: string }) {
+export function PortalMobileMoreMenu({ items, label = "More", footer }: { items: { label: string; href: string }[]; label?: string; footer?: ReactNode }) {
   const pathname = usePathname();
   const active = items.some((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
 
@@ -40,6 +41,7 @@ export function PortalMobileMoreMenu({ items, label = "More" }: { items: { label
               );
             })}
           </nav>
+          {footer && <div className="mt-4 border-t border-border pt-4 [&_button]:w-full [&_button]:justify-start [&_form]:w-full">{footer}</div>}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

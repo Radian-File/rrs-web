@@ -18,15 +18,15 @@ test("registration keeps contact details but clears passwords after validation f
 
 test("contact validation retains input and renders an inline message error", async ({ page }) => {
   await page.goto("/contact");
-  await page.getByLabel("Nama").fill("Retained Contact");
+  await page.getByLabel("Name", { exact: true }).fill("Retained Contact");
   await page.getByLabel("Email").fill("contact-retained@example.com");
-  await page.getByLabel("Subjek").fill("Halo");
-  await page.getByLabel("Pesan").fill("Terlalu singkat");
-  await page.getByRole("button", { name: "Kirim pesan" }).click();
+  await page.getByLabel("Subject").fill("Hello");
+  await page.getByLabel("Message").fill("Too short");
+  await page.getByRole("button", { name: "Send message" }).click();
 
   await expect(page.getByText("Pesan minimal 20 karakter.", { exact: true })).toBeVisible();
-  await expect(page.getByLabel("Nama")).toHaveValue("Retained Contact");
+  await expect(page.getByLabel("Name", { exact: true })).toHaveValue("Retained Contact");
   await expect(page.getByLabel("Email")).toHaveValue("contact-retained@example.com");
-  await expect(page.getByLabel("Pesan")).toHaveValue("Terlalu singkat");
+  await expect(page.getByLabel("Message")).toHaveValue("Too short");
   await expect(page).toHaveURL(/\/contact$/);
 });
