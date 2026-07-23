@@ -1,15 +1,8 @@
 import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { StudioHero } from "@/components/home/studio-hero";
-import {
-  FinalCta,
-  HomeFaq,
-  ProcessScene,
-  ReviewProof,
-  type HomeProject,
-  type HomeReview,
-  type HomeService,
-} from "@/components/home/home-sections";
+import { type HomeProject, type HomeReview, type HomeService } from "@/components/home/home-sections";
+import { ReferenceClosingStage, ReferenceFaq, ReferenceReviewFan } from "@/components/home/reference-closing-sections";
 import { ReferenceFeatureObjects, ReferenceSelectedWork, ReferenceServices } from "@/components/home/reference-sections";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -79,10 +72,9 @@ export default async function Home() {
         <ReferenceServices isId={isId} services={services} />
         <ReferenceSelectedWork isId={isId} projects={projects} />
         <ReferenceFeatureObjects isId={isId} />
-        <ProcessScene isId={isId} />
-        <ReviewProof isId={isId} reviews={reviews} />
-        <HomeFaq isId={isId} />
-        <FinalCta isId={isId} primaryHref={primaryHref} primaryLabel={primaryLabel} />
+        <ReferenceReviewFan isId={isId} reviews={reviews} />
+        <ReferenceFaq isId={isId} />
+        <ReferenceClosingStage isId={isId} primaryHref={primaryHref} primaryLabel={primaryLabel} />
       </main>
       <SiteFooter />
     </>

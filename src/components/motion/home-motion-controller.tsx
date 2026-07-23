@@ -14,7 +14,7 @@ export function HomeMotionController() {
       if (cancelled) return;
 
       gsap.registerPlugin(ScrollTrigger);
-      const main = marker.current?.closest("main");
+      const main = marker.current?.closest("body");
       if (!(main instanceof HTMLElement)) return;
 
       const context = gsap.context(() => {
@@ -32,7 +32,7 @@ export function HomeMotionController() {
             if (!hero) return;
 
             const animated = main.querySelectorAll<HTMLElement>(
-              "[data-hero-eyebrow], [data-hero-line], [data-motion-line], [data-hero-body], [data-hero-actions], [data-hero-detail], [data-hero-artifact], [data-scene-copy], [data-scene-visual], [data-feature-object], [data-process-step], [data-perspective-panel], [data-perspective-content]",
+              "[data-hero-eyebrow], [data-hero-line], [data-motion-line], [data-hero-body], [data-hero-actions], [data-hero-detail], [data-hero-artifact], [data-scene-copy], [data-scene-visual], [data-feature-object], [data-review-card], [data-closing-browser], [data-process-step], [data-perspective-panel], [data-perspective-content]",
             );
 
             if (reduce) {
@@ -141,6 +141,29 @@ export function HomeMotionController() {
               } else {
                 gsap.from(featureObjects, { autoAlpha: 0, y: 24, stagger: 0.07, duration: 0.55, ease: "power2.out", scrollTrigger: { trigger: featureStrip, start: "top 78%", once: true } });
               }
+            }
+
+            const reviewFan = main.querySelector<HTMLElement>("[data-review-fan]");
+            if (reviewFan) {
+              const reviewCards = gsap.utils.toArray<HTMLElement>("[data-review-card]", reviewFan);
+              gsap.from(reviewCards, {
+                autoAlpha: 0,
+                x: (index) => (index - (reviewCards.length - 1) / 2) * 68,
+                y: (index) => 70 + Math.abs(index - (reviewCards.length - 1) / 2) * 26,
+                rotate: (index) => (index - (reviewCards.length - 1) / 2) * 7,
+                scale: 0.9,
+                duration: desktop ? 1 : 0.65,
+                stagger: 0.09,
+                ease: "power3.out",
+                clearProps: "transform",
+                scrollTrigger: { trigger: reviewFan, start: "top 72%", once: true },
+              });
+            }
+
+            const closingStage = main.querySelector<HTMLElement>("[data-closing-stage]");
+            if (closingStage) {
+              const browser = closingStage.querySelector<HTMLElement>("[data-closing-browser]");
+              if (browser) gsap.from(browser, { autoAlpha: 0, y: desktop ? 110 : 44, scale: 0.95, duration: 0.95, ease: "power3.out", scrollTrigger: { trigger: closingStage, start: "top 70%", once: true } });
             }
 
             const process = main.querySelector<HTMLElement>("[data-process-motion]");
