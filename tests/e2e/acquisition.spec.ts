@@ -64,21 +64,16 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   expect(publicHref).toBeTruthy();
 
   await page.goto(publicHref!);
-  const publicMain = page.locator("main:visible");
+  let publicMain = page.locator("main:visible");
   await expect(publicMain.getByText("VIEWED", { exact: true })).toBeVisible();
-  await publicMain.getByPlaceholder("Full name").fill("Quotation E2E Client");
-  await publicMain.getByPlaceholder("Email").fill(email);
-  await publicMain.getByPlaceholder("WhatsApp number").fill("628123456789");
-  await publicMain.getByRole("checkbox").check();
-  await publicMain.getByRole("button", { name: "Accept Quotation" }).evaluate((element) => {
-    window.setTimeout(() => (element as HTMLButtonElement).click(), 0);
-  });
-  await expect(page).toHaveURL(/action=accepted/, { timeout: 30_000 });
-  await expect(page.locator("main:visible").getByText("Quotation accepted.")).toBeVisible();
+  await expect(publicMain.getByRole("link", { name: "Sign in to continue" })).toBeVisible();
+  await expect(publicMain.getByRole("button", { name: "Accept quotation" })).toHaveCount(0);
 
+  const publicUrl = new URL(publicHref!, page.url());
+  const callbackPath = `${publicUrl.pathname}${publicUrl.search}`;
   await page.context().clearCookies();
   await page.context().addCookies([{ name: "rrs-locale", value: "en", domain: "127.0.0.1", path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" }]);
-  await page.goto("/register");
+  await page.goto(`/register?callbackUrl=${encodeURIComponent(callbackPath)}`);
   await page.getByLabel("Full name").fill("Quotation E2E Client");
   await page.getByLabel("WhatsApp number").fill("628123456789");
   await page.getByLabel("Email").fill(email);
@@ -90,7 +85,16 @@ test("owner can draft and send a quotation that the client accepts atomically", 
     );
     window.setTimeout(() => (button as HTMLButtonElement | undefined)?.click(), 100);
   });
-  await expect(page).toHaveURL(/\/client$/, { timeout: 30_000 });
+  await expect(page).toHaveURL(/\/quotation\//, { timeout: 30_000 });
+
+  await page.goto(publicHref!);
+  publicMain = page.locator("main:visible");
+  await publicMain.getByRole("checkbox").check();
+  await publicMain.getByRole("button", { name: "Accept quotation" }).evaluate((element) => {
+    window.setTimeout(() => (element as HTMLButtonElement).click(), 0);
+  });
+  await expect(page).toHaveURL(/action=accepted/, { timeout: 30_000 });
+  await expect(page.locator("main:visible").getByText("Quotation accepted.")).toBeVisible();
 
   await page.goto("/client/projects");
   await page.locator("main:visible").getByText("Quotation workflow test", { exact: true }).click();

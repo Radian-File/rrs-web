@@ -1,3 +1,21 @@
 import type { MetadataRoute } from "next";
 import { publicEnv } from "@/lib/env";
-export default function sitemap():MetadataRoute.Sitemap{const routes=["","/services","/portfolio","/about","/cara-kerja","/contact","/reviews","/start-project"];return routes.map((route)=>({url:`${publicEnv.appUrl}${route}`,lastModified:new Date(),changeFrequency:route===""?"weekly":"monthly",priority:route===""?1:0.7}))}
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  const routes: Array<{ path: string; priority: number; frequency: "weekly" | "monthly" }> = [
+    { path: "", priority: 1, frequency: "weekly" },
+    { path: "/services", priority: 0.9, frequency: "weekly" },
+    { path: "/portfolio", priority: 0.8, frequency: "monthly" },
+    { path: "/cara-kerja", priority: 0.8, frequency: "monthly" },
+    { path: "/reviews", priority: 0.7, frequency: "monthly" },
+    { path: "/about", priority: 0.7, frequency: "monthly" },
+    { path: "/contact", priority: 0.6, frequency: "monthly" },
+  ];
+  const now = new Date();
+  return routes.map((route) => ({
+    url: `${publicEnv.appUrl}${route.path}`,
+    lastModified: now,
+    changeFrequency: route.frequency,
+    priority: route.priority,
+  }));
+}

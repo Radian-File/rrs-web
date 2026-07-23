@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { StudioHero } from "@/components/home/studio-hero";
 import {
@@ -26,6 +27,7 @@ import { prisma } from "@/lib/db/prisma";
 import { formatIdr } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+export async function generateMetadata():Promise<Metadata>{const isId=(await getLocale())==="id";return{title:{absolute:isId?"RRS Studio — Project Digital dengan Scope yang Jelas":"RRS Studio — Digital Projects with Clear Scope"},description:isId?"Independent digital studio untuk website, aplikasi, dashboard, internal system, API, dan workflow dengan quotation serta delivery yang transparan.":"An independent digital studio for websites, applications, dashboards, internal systems, APIs, and workflows with transparent quotations and delivery."};}
 
 export default async function Home() {
   const [locale, session, serviceRows, projectRows, reviewRows] = await Promise.all([

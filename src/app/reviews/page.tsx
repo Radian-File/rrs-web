@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Star, BadgeCheck, Quote } from "lucide-react";
 import { PageEntrance } from "@/components/page-entrance";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -7,6 +8,7 @@ import { PaginationControls, pageSize, parsePage } from "@/components/ui/paginat
 import { getLocale } from "@/i18n/server";
 import { prisma } from "@/lib/db/prisma";
 export const dynamic = "force-dynamic";
+export async function generateMetadata():Promise<Metadata>{const isId=(await getLocale())==="id";return{title:isId?"Ulasan Terverifikasi":"Verified Reviews",description:isId?"Feedback published dari Client setelah project selesai dan melalui moderasi.":"Published Client feedback from completed projects after moderation."};}
 
 export default async function ReviewsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
   const [{ page: rawPage }, locale] = await Promise.all([searchParams, getLocale()]);

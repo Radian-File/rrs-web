@@ -1,39 +1,39 @@
-# Production Readiness — Phase 15
+# Production Readiness — Redesign II
 
-## Completed locally
+Updated on 24 July 2026.
 
-- Next.js production build
-- Strict TypeScript and ESLint
-- PostgreSQL migration and idempotent seed
-- Unit, integration, and desktop/mobile E2E tests
-- Auth.js credentials sessions with OWNER/CLIENT roles
-- Inquiry → quotation → project → invoice workflow
-- Atomic document numbering and quotation acceptance
-- Project ownership, protected files, immutable agreement snapshots with audited client acceptance, and verified reviews
-- Midtrans Sandbox adapter and signed/idempotent webhook
-- Manual payment verification with audit evidence
-- In-app notification outbox and provider-based email boundary
-- Rate limiting, CSP/security headers, upload signature checks, and dependency audit
+## Validated in the current release cycle
 
-## Required before production release
+- Dark editorial public design and dark operational Client/Owner workspaces.
+- Session-aware Guest, Client, and Owner navigation and actions.
+- GSAP/ScrollTrigger motion with native scrolling and reduced-motion fallback.
+- Next.js production build.
+- Strict TypeScript and ESLint.
+- Database-independent Vitest suite.
+- Published-only service, portfolio, and review queries.
+- Client-owned technical-brief confirmation with search indexing disabled.
+- Database-backed role freshness for private file downloads.
+- Client-scoped technical-brief drafts.
+- Next.js, Auth.js, Sharp, and `fast-uri` security patch updates.
+- Direct-CVM Nginx forwarding-header hardening.
+- Professional Tencent Cloud deployment documentation.
 
-- Replace all local placeholder credentials
-- Rotate owner password and `AUTH_SECRET`
-- Complete Tencent Cloud CVM host hardening, Security Group rules, and UFW/fail2ban verification
-- Provision Docker PostgreSQL strategy and backup/restore rehearsal
-- Back up persistent local upload volume together with PostgreSQL, or migrate to private COS/S3-compatible storage before scale requires it
-- Activate an approved production email provider and delivery worker
-- Configure domain, HTTPS, Nginx, and trusted proxy headers
-- Configure Midtrans production keys only after account approval
-- Register HTTPS webhook and verify GET Status API reconciliation
-- Configure shared rate limiting if more than one app process is used
-- Add monitoring, alerting, log retention, and incident contacts
-- Complete legal Privacy Policy, Terms, cancellation, ownership, refund, and agreement-clause review with counsel appropriate to the operating jurisdiction
-- Back up the production database, run `npx tsx scripts/backfill-agreement-snapshots.ts` in dry-run mode, review output, then run it with `--apply` before exposing legacy agreement documents
-- Configure trusted proxy headers before relying on production agreement acceptance IP metadata
-- Run accessibility and browser QA with final brand content
+## Required before the next production deployment
 
-## Release gate commands
+- Review the complete visual result against real seeded content on desktop and mobile.
+- Start PostgreSQL and run the complete integration and Playwright suites.
+- Validate committed migrations from a clean database and run the idempotent seed.
+- Run a production-like Docker Compose smoke test.
+- Validate `nginx -t` inside the production Nginx container.
+- Verify the public HTTPS health endpoint.
+- Back up PostgreSQL and the uploads volume, then confirm restore instructions.
+- Confirm Tencent Cloud Security Group, host firewall, SSH, log retention, monitoring, and incident-contact settings.
+- Replace or rotate production credentials when required.
+- Keep Midtrans in Sandbox until production approval and reconciliation requirements are complete.
+- Keep the console email adapter until an approved provider is configured.
+- Complete Privacy, Terms, cancellation, ownership, refund, retention, and agreement-clause review before publishing policy or registration consent.
+
+## Release gate
 
 ```bash
 npm ci
@@ -45,7 +45,16 @@ npm run typecheck
 npm run test
 npm run test:e2e
 npm run build
-npm audit --audit-level=moderate
+git diff --check
+npm audit --omit=dev
 ```
 
-No deployment is authorized by this document; deployment requires explicit user approval after the Tencent Cloud staging checklist passes.
+## Deployment policy
+
+A local commit does not authorize a deployment. Pushing to `main` can trigger the protected production workflow after CI; therefore, push only after release review and explicit deployment intent.
+
+Do not deploy with a dirty server working tree. Do not run database reset commands, `prisma migrate dev`, `docker compose down -v`, or volume deletion in production.
+
+## Deferred legal gate
+
+Legal pages are intentionally absent rather than populated with placeholder policy language. Publishing those pages requires confirmed business/legal inputs and appropriate review.

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { auth } from "@/auth";
@@ -10,6 +11,8 @@ import { getLocale } from "@/i18n/server";
 import { loginUrl } from "@/lib/auth-redirect";
 import { getServerEnv } from "@/lib/env";
 import { createWhatsAppUrl, formatWhatsAppNumber } from "@/lib/whatsapp";
+
+export async function generateMetadata():Promise<Metadata>{const isId=(await getLocale())==="id";return{title:isId?"Kontak":"Contact",description:isId?"Diskusikan kebutuhan project digital melalui contact form atau WhatsApp sebelum technical brief dan quotation.":"Discuss a digital project through the contact form or WhatsApp before the technical brief and quotation."};}
 
 export default async function ContactPage({ searchParams }: { searchParams: Promise<{ sent?: string }> }) {
   const [{ sent }, locale, session] = await Promise.all([searchParams, getLocale(), auth()]);

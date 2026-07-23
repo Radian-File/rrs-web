@@ -1,277 +1,303 @@
-# RRS Studio — Web & Product Studio Operations Platform
+# RRS Studio
 
-> A quotation-first client collaboration platform for an independent web and product studio.
+RRS Studio is a quotation-first web and product studio platform. It combines a public studio website with private Client and Owner workspaces for technical briefs, quotations, agreements, projects, invoices, payments, delivery approval, and verified reviews.
 
-**RRS Studio** combines a premium public-facing studio website with secure operational workflows for inquiries, quotations, agreements, projects, payments, delivery, and verified client reviews.
-
-> [!IMPORTANT]
-> **Deployment status:** the application is validated locally and ready for staging preparation. The AWS architecture below is a documented production blueprint for this project and portfolio—not a claim that production AWS resources are currently live.
-
-## Why it exists
-
-A studio project should not begin with an anonymous checkout. RRS uses a structured, consultative workflow that keeps scope, commercial terms, delivery, and client approvals connected in one system.
+The application is designed for an independent studio rather than a marketplace or instant-checkout business.
 
 ```text
-Project brief
-→ WhatsApp consultation
+Initial discussion
+→ Client account
+→ Technical brief
 → Inquiry
 → Versioned quotation
 → Protected agreement
-→ Project & milestones
-→ Invoice / payment verification
+→ Project workspace
+→ Invoice and payment verification
 → Delivery approval
 → Verified review
 ```
 
-This is **not** a multi-vendor marketplace or a fixed-price e-commerce checkout. Public service prices are starting points; final pricing and scope are defined through an Owner-created quotation.
+Public service prices are starting estimates. Final scope, commercial terms, and pricing are documented in an Owner-issued quotation.
 
----
+## Product areas
 
-## Product capabilities
+### Public website
 
-### Public studio experience
+- Dark editorial studio experience with Indonesian and English localization.
+- Published services with Service Type filters and alias-aware search.
+- Published portfolio projects and moderated, verified reviews only.
+- Guest contact form and WhatsApp handoff.
+- Session-aware navigation and quotation-request actions.
+- Public token-based quotation view with Client-only formal decisions.
 
-- Editorial studio website with Indonesian-first localization and persistent English preference.
-- Services, portfolio, case studies, verified reviews, contact, and project brief flows.
-- Managed Service Types with public catalog filtering.
-- WhatsApp continuation from a structured project brief.
-- Public quotation links with secure hashed tokens, expiry, view activity, and revision/rejection handling.
+### Client Portal
 
-### Owner workspace
+- Client-owned quotations and formal quotation decisions.
+- Protected agreements and acceptance records.
+- Projects, milestones, messages, and private files.
+- Invoices and manual payment-proof submission.
+- Delivery approval and verified review handoff.
 
-- Inquiry pipeline, reversible archive, and bulk archive controls.
-- Versioned quotation builder with scope, items, commercial totals, payment terms, and public client view.
-- Project, milestone, message, file, invoice, and manual payment-proof management.
-- Workflow-safe project status transitions; only valid next states are offered in the interface.
-- Protected immutable agreement records with acceptance evidence.
-- Operational analytics for pipeline, financial health, active clients, workload, and attention items.
-- Review moderation for reviews tied to completed projects only.
+### Owner Workspace
 
-### Client portal
+- Inquiry pipeline and reversible archives.
+- Service and Service Type management.
+- Versioned quotation builder and discussion workflow.
+- Project, agreement, milestone, file, invoice, and payment operations.
+- Review moderation.
+- Operational analytics and attention items.
 
-- Client-owned quotations, agreements, projects, files, invoices, payment proof uploads, and project messages.
-- Private agreement review before acceptance; no public agreement links.
-- Client delivery approval, followed by a verified review invitation.
+## Core engineering rules
 
----
-
-## Architecture
-
-```mermaid
-flowchart LR
-    Visitor[Visitor] --> Public[Public studio website]
-    Client[Client] --> Portal[Client portal]
-    Owner[Studio owner] --> Workspace[Owner workspace]
-
-    Public --> Next[Next.js App Router]
-    Portal --> Next
-    Workspace --> Next
-
-    Next --> Actions[Server actions and route handlers]
-    Actions --> Guard[Auth, ownership, Zod validation]
-    Guard --> Domain[Workflow and domain services]
-    Domain --> Prisma[Prisma ORM]
-    Prisma --> DB[(PostgreSQL)]
-
-    Domain --> Storage[Private file storage adapter]
-    Domain --> Payments[Midtrans payment adapter]
-    Domain --> Email[Email provider adapter]
-```
-
-### Engineering boundaries
-
-```text
-App Router page/layout
-→ feature query or server action
-→ authorization + Zod boundary
-→ domain service / transaction
-→ Prisma or provider adapter
-→ PostgreSQL / external provider
-```
-
-Key invariants:
-
-- Financial totals are calculated server-side with decimal arithmetic.
-- Sent quotation versions are immutable.
-- Quotation acceptance atomically creates the client association, agreement, project, payment schedule, and first invoice.
-- Project status transitions are explicitly guarded server-side.
-- Agreement content is an immutable snapshot, visible only to its client and Owner.
-- Manual payment verification updates payment, invoice, project, notification, and audit data atomically.
-- Archived inquiries and quotations remain included in business analytics.
-
----
-
-## Security and privacy
-
-- Auth.js credentials sessions with distinct `OWNER` and `CLIENT` roles.
-- JWT session identity is validated against the current database user before protected workspace access or mutation.
-- Server-side ownership checks on projects, agreements, invoices, messages, and private files.
-- Protected agreements are never public URLs or token capabilities.
+- Server Components are the default; Client Components are limited to interactive boundaries.
+- Authorization and ownership checks stay close to data access.
+- Zod validates action, route, environment, and webhook boundaries.
+- Financial values are calculated server-side with Decimal-compatible operations.
+- Sent quotations are immutable; changes create a new version.
+- Agreements and private files are never exposed through public capability links.
 - Public quotation and review tokens are stored as hashes.
-- Zod validation at action, route, environment, and webhook boundaries.
-- Rate limits for sensitive public actions and uploads.
-- Private file storage, upload validation, CSP/security headers, and audit records.
-- Midtrans webhooks are designed for signature, amount, reference, and idempotency validation.
-
-See [`docs/security-baseline.md`](docs/security-baseline.md) and [`docs/threat-model.md`](docs/threat-model.md) for the detailed baseline.
-
----
-
-## AWS deployment blueprint
-
-The production architecture is intentionally planned before infrastructure provisioning. It gives the application a clear path from local development to a secure, observable AWS deployment.
-
-```mermaid
-flowchart LR
-    Users[Visitors, clients, owner] --> DNS[Route 53]
-    DNS --> TLS[ACM TLS certificate]
-    TLS --> Edge[CloudFront]
-    Edge --> ALB[Application Load Balancer]
-    ALB --> App[Next.js containers on ECS Fargate or EC2]
-
-    App --> RDS[(Amazon RDS PostgreSQL)]
-    App --> S3[Private Amazon S3 bucket]
-    App --> SES[Amazon SES]
-    App --> Midtrans[Midtrans HTTPS webhook]
-    App --> CW[CloudWatch logs, metrics, alarms]
-    Secrets[Secrets Manager / SSM Parameter Store] --> App
-```
-
-### Planned AWS responsibilities
-
-| Service | Responsibility |
-|---|---|
-| Route 53 + ACM | Domain resolution and managed TLS certificates. |
-| CloudFront | CDN for public assets and controlled edge caching. |
-| ALB | HTTPS routing and health checks for the application tier. |
-| ECS Fargate or EC2 + Docker Compose | Run the containerized Next.js application. Initial deployment can begin with EC2; ECS provides the scale-out path. |
-| Amazon RDS for PostgreSQL | Managed production database, snapshots, backup/restore rehearsal, and controlled network access. |
-| Amazon S3 | Private storage for payment proofs, client files, delivery assets, and generated documents. |
-| Amazon SES | Domain-verified transactional email delivery. |
-| Secrets Manager / SSM | Store production secrets outside source control. |
-| CloudWatch | Application logs, alarms, dashboards, uptime signals, and operational alerting. |
-| AWS Budgets | Cost guardrails before and during infrastructure provisioning. |
-
-### Deployment milestones
-
-1. Create AWS Budget and billing alerts.
-2. Provision private database, backup policy, and restoration test.
-3. Containerize the app and configure runtime-only environment variables.
-4. Replace the local storage adapter with S3 private-object access.
-5. Configure domain, HTTPS, trusted proxy headers, and webhook endpoint.
-6. Activate SES identity and production Midtrans credentials after approval.
-7. Add CloudWatch alarms, error tracking, log retention, and an incident contact path.
-8. Run security, accessibility, payment, backup/restore, and browser QA against staging before production cutover.
-
-The complete pre-production gate is maintained in [`docs/production-readiness.md`](docs/production-readiness.md). No AWS resource or live deployment is implied by this repository alone.
-
----
+- Reviews originate from completed projects.
 
 ## Technology
 
-| Area | Tools |
+| Area | Technology |
 |---|---|
-| Web application | Next.js 16 App Router, React 19, TypeScript |
-| UI | Tailwind CSS 4, Radix primitives, Lucide |
+| Application | Next.js 16 App Router, React 19, TypeScript |
+| Interface | Tailwind CSS 4, Radix UI, Lucide, GSAP/ScrollTrigger |
 | Database | PostgreSQL 17, Prisma 7 |
-| Authentication | Auth.js credentials strategy |
+| Authentication | Auth.js credentials sessions |
 | Validation | Zod, React Hook Form |
-| Payments | Midtrans Sandbox adapter; production activation planned |
-| Quality | Vitest, Playwright, ESLint, TypeScript |
-| Production target | AWS: Route 53, ACM, CloudFront, ALB, ECS/EC2, RDS, S3, SES, CloudWatch |
-
----
+| Payments | Midtrans adapter and manual payment verification |
+| Testing | Vitest, Playwright, ESLint, TypeScript |
+| Production | Tencent Cloud CVM, Docker Compose, Nginx, Let's Encrypt |
 
 ## Local development
 
-### Prerequisites
+### Requirements
 
-- Node.js 20+
-- Docker Desktop (for local PostgreSQL)
+- Node.js 22
 - npm
+- Docker Desktop or another Docker Engine with Compose
 
 ### Setup
 
 ```bash
-# 1. Install dependencies
 npm install
 
-# 2. Configure local environment
-cp .env.example .env                  # macOS/Linux
-# Copy-Item .env.example .env         # Windows PowerShell
+# Windows PowerShell
+Copy-Item .env.example .env
 
-# 3. Start PostgreSQL
+# macOS or Linux
+cp .env.example .env
+
 npm run db:generate
 docker compose up -d db
-
-# 4. Apply schema and seed the controlled Owner account/services
 npm run db:migrate
 npm run db:seed
-
-# 5. Start development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+The development database is exposed locally at `127.0.0.1:5434`. The application runs at [http://localhost:3000](http://localhost:3000).
 
-> Never commit `.env`, production credentials, private uploads, or generated database client artifacts.
+Never commit environment files, credentials, private uploads, database exports, generated Prisma clients, or Playwright artifacts.
 
-### Useful commands
+### Commands
 
 ```bash
-npm run lint          # ESLint
-npm run typecheck     # TypeScript without emit
-npm run test          # Vitest unit/integration suite
-npm run test:e2e      # Playwright desktop and mobile suite
-npm run build         # Generate Prisma client and build Next.js
-npm run check         # Lint + typecheck + test + build
-npm run db:studio     # Prisma Studio
+npm run dev             # Start the Next.js development server
+npm run lint            # Run ESLint
+npm run typecheck       # Run TypeScript without emitting files
+npm run test            # Run Vitest unit and integration tests
+npm run test:e2e        # Run Playwright journeys
+npm run build           # Create a production build
+npm run check           # Lint, typecheck, test, and build
+npm run db:generate     # Generate Prisma Client
+npm run db:migrate      # Apply development migrations
+npm run db:migrate:deploy # Apply committed migrations
+npm run db:seed         # Seed controlled development data
+npm run db:studio       # Open Prisma Studio
 ```
 
----
+Database-backed integration and Playwright tests require the local PostgreSQL container and an appropriate seeded state.
 
-## Quality gates
+## Quality gate
 
-The project uses layered validation before a release candidate:
+Before a release checkpoint:
+
+```bash
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+npm run test:e2e
+git diff --check
+```
+
+When schema or critical domain behavior changes, also validate migrations from a clean database and rehearse the relevant data or payment journey.
+
+## Tencent Cloud production deployment
+
+Production runs on a Tencent Cloud CVM instance from `/opt/rrs-studio` using [docker-compose.production.yml](docker-compose.production.yml).
+
+### Runtime topology
 
 ```text
-ESLint
-→ TypeScript
-→ Vitest unit/integration tests
-→ Next.js production build
-→ Playwright desktop/mobile workflows
+Internet
+→ Tencent Cloud CVM security group
+→ Nginx :80/:443
+→ Next.js app :3000 on private Docker networks
+→ PostgreSQL :5432 on an internal-only Docker network
+
+Persistent volumes:
+- rrs_postgres_data
+- rrs_uploads
 ```
 
-Critical journeys covered include project acquisition, quotation acceptance, agreement acceptance, payment proof verification, protected routes, project workflow transitions, archive semantics, and responsive portal behavior.
+Only Nginx publishes host ports. PostgreSQL and the Next.js container are not bound directly to the public host interface.
 
----
+### Production prerequisites
+
+- Tencent Cloud CVM with Docker Engine and Docker Compose.
+- DNS for `rrs-studio.store` pointing to the CVM public address.
+- TCP 80 and 443 allowed by the CVM security group; SSH restricted to trusted administration sources.
+- Repository checked out at `/opt/rrs-studio`.
+- Production environment file at `/opt/rrs-studio/.env.production` with mode `600`.
+- Let's Encrypt certificate files available under `/etc/letsencrypt/live/rrs-studio.store/`.
+- A backup process for both PostgreSQL and the uploads volume.
+
+Create the environment file from [.env.production.example](.env.production.example) and replace every placeholder with a secret generated for production.
+
+```bash
+cd /opt/rrs-studio
+cp .env.production.example .env.production
+chmod 600 .env.production
+```
+
+Important production settings:
+
+- `DATABASE_URL` must use the internal Docker hostname `db:5432`.
+- `NEXT_PUBLIC_APP_URL` and `AUTH_URL` must use the production HTTPS origin.
+- `AUTH_SECRET` must be a strong random value and remain stable between deployments.
+- `OWNER_PASSWORD`, database credentials, Midtrans keys, and provider credentials must not be stored in Git.
+- Keep `MIDTRANS_IS_PRODUCTION=false` until production credentials and webhook verification are formally approved.
+- Keep `EMAIL_DRIVER=console` until an approved transactional provider is configured.
+
+### First deployment
+
+```bash
+cd /opt/rrs-studio
+docker compose --env-file .env.production -f docker-compose.production.yml config --quiet
+docker compose --env-file .env.production -f docker-compose.production.yml build app migrate
+docker compose --env-file .env.production -f docker-compose.production.yml up -d db uploads-init
+docker compose --env-file .env.production -f docker-compose.production.yml run --rm migrate
+docker compose --env-file .env.production -f docker-compose.production.yml up -d --remove-orphans
+docker compose --env-file .env.production -f docker-compose.production.yml exec -T nginx nginx -t
+curl --fail https://rrs-studio.store/api/health
+```
+
+The migration target is built from the same source revision as the application. Production deployment must never run `prisma migrate dev`, reset the database, remove volumes, or recreate the database as a routine step.
+
+### Routine deployment
+
+[deploy-production.sh](deploy-production.sh) performs a guarded deployment:
+
+1. Refuses to proceed from a dirty server working tree.
+2. Fast-forwards from `origin/main`.
+3. Validates the Compose configuration.
+4. Builds both `app` and `migrate` images.
+5. Starts database and upload prerequisites without running `compose down`.
+6. Applies committed migrations.
+7. Starts the production stack.
+8. Validates Nginx TLS configuration inside the container.
+9. Waits for the application health check.
+10. Verifies the public HTTPS health endpoint.
+
+```bash
+ssh <production-user>@<cvm-host>
+bash /opt/rrs-studio/deploy-production.sh
+```
+
+### GitHub Actions deployment
+
+[Deploy Production](.github/workflows/deploy-production.yml) connects to the Tencent Cloud CVM over SSH and invokes the server deployment script.
+
+A successful CI run triggered by a push to `main` can start the production workflow. A manual `workflow_dispatch` on `main` is also available. Pull requests do not receive production secrets.
+
+**A local commit does not deploy anything. Do not push to `main` until the release has been reviewed and production deployment is explicitly intended.**
+
+Required GitHub environment secrets:
+
+- `VPS_HOST`
+- `VPS_PORT`
+- `VPS_USER`
+- `VPS_SSH_KEY`
+
+The production environment should retain required reviewers and deployment protection rules.
+
+### TLS and proxy identity
+
+Nginx terminates TLS and forwards requests directly to the private application container. Because the current CVM topology has no trusted load balancer in front of Nginx, `X-Forwarded-For` is overwritten with the direct remote address instead of appending a client-supplied value.
+
+If a Tencent Cloud Load Balancer or CDN is added later, define its trusted proxy addresses before changing this policy.
+
+### Backup requirements
+
+Back up both data stores together:
+
+- PostgreSQL logical or physical backup from `rrs_postgres_data`.
+- Private upload backup from `rrs_uploads`.
+
+Backups are not complete until restore has been tested in an isolated environment. Keep database and upload retention aligned so file records do not point to missing objects.
+
+### Rollback
+
+Prefer a reviewed Git revert on `main`, followed by the normal deployment workflow. Before reverting a release that applied a migration:
+
+1. Review migration backward compatibility.
+2. Confirm the previous application revision can read the current schema.
+3. Preserve a database and upload backup.
+4. Rebuild both application and migration targets from the selected revision.
+5. Validate Nginx and `/api/health` after restart.
+
+Do not use `docker compose down -v`, delete production volumes, or run database reset commands as rollback procedures.
+
+## Security and privacy
+
+- `OWNER` and `CLIENT` are the only application roles.
+- Protected sessions are checked against the current database role.
+- Client ownership is enforced for projects, agreements, invoices, payment attempts, messages, and private file downloads.
+- Technical brief confirmation is Client-owned and excluded from search indexing.
+- Direct-CVM forwarding headers cannot override the trusted remote address.
+- Security headers include CSP, frame denial, content-type protection, and controlled browser permissions.
+- Sensitive responses and file downloads use private/no-store cache policy.
+
+See [docs/security-baseline.md](docs/security-baseline.md) and [docs/threat-model.md](docs/threat-model.md).
+
+## Motion and accessibility
+
+The public website uses GSAP and ScrollTrigger for coordinated, section-scoped motion. Native browser scrolling remains authoritative.
+
+- No scroll hijacking.
+- Cinematic motion is limited to public storytelling surfaces.
+- Forms, financial tables, agreements, invoices, and workspaces use restrained state transitions only.
+- `prefers-reduced-motion` disables scrub, floating loops, pointer depth, and marquee movement while keeping all content visible.
+- Keyboard navigation, focus visibility, semantic landmarks, and mobile alternatives are required for every primary action.
 
 ## Documentation
 
-- [`docs/product-scope.md`](docs/product-scope.md) — product model and actor scope
-- [`docs/architecture.md`](docs/architecture.md) — technical architecture and invariants
-- [`docs/database.md`](docs/database.md) — data model notes
-- [`docs/security-baseline.md`](docs/security-baseline.md) — security controls
-- [`docs/threat-model.md`](docs/threat-model.md) — threat model and mitigations
-- [`docs/payment-testing.md`](docs/payment-testing.md) — Midtrans/manual payment testing
-- [`docs/production-readiness.md`](docs/production-readiness.md) — production release requirements
-- [`docs/development.md`](docs/development.md) — development workflow
-- [`docs/known-limitations.md`](docs/known-limitations.md) — current limitations and follow-ups
+- [docs/product-scope.md](docs/product-scope.md) — product and actor boundaries
+- [docs/architecture.md](docs/architecture.md) — application architecture and invariants
+- [docs/database.md](docs/database.md) — data model guidance
+- [docs/security-baseline.md](docs/security-baseline.md) — security controls
+- [docs/threat-model.md](docs/threat-model.md) — threats and mitigations
+- [docs/payment-testing.md](docs/payment-testing.md) — payment validation
+- [docs/production-readiness.md](docs/production-readiness.md) — release requirements
+- [docs/development.md](docs/development.md) — engineering workflow
+- [docs/known-limitations.md](docs/known-limitations.md) — known constraints and follow-up work
 
----
+## Legal status
 
-## Portfolio framing
-
-RRS Studio demonstrates full-stack product engineering beyond a marketing site:
-
-- Product workflow design for a real service business.
-- Role-based web application architecture.
-- Transactional commercial operations: quotations, agreements, invoices, and payment verification.
-- Security-first handling of private client records and files.
-- Test-driven delivery across unit, integration, desktop, and mobile workflows.
-- A documented AWS deployment path with observability and operational readiness in mind.
-
----
+Privacy, Terms, and Cancellation/Refund pages are not published as final policy until official business identity, contact, provider, retention, cancellation, refund, and legal-review details are confirmed. The application must not present placeholder legal language as an approved policy.
 
 ## License
 
