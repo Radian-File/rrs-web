@@ -38,7 +38,7 @@ export function AgreementDocument({ agreement, project, snapshot, locale, showAu
               <div>
                 <div className="h-1 w-16 bg-[#175c46]" aria-hidden="true" />
                 <p className="mt-5 text-[10px] font-bold uppercase tracking-[.18em] text-[#687069]">{t.agreement}</p>
-                <h1 id="agreement-document-title" className="mt-2 font-display text-3xl font-extrabold tracking-[-.035em] text-[#111511] md:text-4xl">{agreement.agreementNumber}</h1>
+                <h2 id="agreement-document-title" className="mt-2 font-display text-3xl font-extrabold tracking-[-.035em] text-[#111511] md:text-4xl">{agreement.agreementNumber}</h2>
                 <p className="mt-3 text-sm leading-6 text-[#687069]">
                   {project.projectNumber} · {t.reference}: {snapshot.quotation.number} v{snapshot.quotation.version} · {t.version} {agreement.version}
                 </p>
@@ -65,7 +65,7 @@ export function AgreementDocument({ agreement, project, snapshot, locale, showAu
 
             <section className="border-b border-[#dfe2dc] py-8" aria-labelledby="agreement-commercial-title">
               <SectionTitle id="agreement-commercial-title">{t.commercial}</SectionTitle>
-              <div className="mt-5 overflow-x-auto">
+              <div role="region" aria-label={t.commercial} tabIndex={0} className="mt-5 overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#175c46]">
                 <table className="w-full min-w-[620px] border-collapse text-left text-sm print:min-w-0">
                   <caption className="sr-only">{t.commercial}</caption>
                   <thead className="border-y border-[#dfe2dc] bg-[#f7f8f5] text-[10px] uppercase tracking-[.13em] text-[#687069]">
@@ -181,7 +181,7 @@ export function AgreementDocument({ agreement, project, snapshot, locale, showAu
 }
 
 function SectionTitle({ children, id }: { children: React.ReactNode; id?: string }) {
-  return <h2 id={id} className="font-display text-xl font-extrabold tracking-[-.02em] text-[#182019]">{children}</h2>;
+  return <h3 id={id} className="font-display text-xl font-extrabold tracking-[-.02em] text-[#182019]">{children}</h3>;
 }
 
 function DocumentParty({ title, name, company, email }: { title: string; name: string; company: string | null; email: string | null }) {

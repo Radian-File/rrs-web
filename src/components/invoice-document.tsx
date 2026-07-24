@@ -79,7 +79,7 @@ export function InvoiceDocument({ invoice }: InvoiceDocumentProps) {
 
             <section className="py-8" aria-labelledby="invoice-charges-title">
               <h2 id="invoice-charges-title" className="font-display text-xl font-extrabold tracking-[-.02em] text-[#182019]">Invoice details</h2>
-              <div className="mt-5 overflow-x-auto">
+              <div role="region" aria-label="Invoice details" tabIndex={0} className="mt-5 overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#175c46]">
                 <table className="w-full min-w-[560px] border-collapse text-left text-sm print:min-w-0">
                   <caption className="sr-only">Invoice details</caption>
                   <thead className="border-y border-[#dfe2dc] bg-[#f7f8f5] text-[10px] uppercase tracking-[.13em] text-[#687069]">

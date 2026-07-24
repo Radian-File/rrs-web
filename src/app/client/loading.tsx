@@ -1,2 +1,5 @@
-import { PageSkeleton } from "@/components/ui/skeleton";
-export default function ClientLoading(){return <PageSkeleton cards={3}/>}
+import { WorkspaceSkeleton } from "@/components/workspace/workspace-skeleton";
+
+export default function ClientLoading() {
+  return <WorkspaceSkeleton label="Loading Client workspace" />;
+}
