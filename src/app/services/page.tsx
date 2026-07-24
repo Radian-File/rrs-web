@@ -5,9 +5,9 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { ServicesCapabilityHero } from "@/features/services/public/capability-hero";
 import { ServicesDiscoveryCommand } from "@/features/services/public/discovery-command";
 import { ServiceEditorialIndex } from "@/features/services/public/service-editorial-index";
-import { ServiceProductStage } from "@/features/services/public/service-product-stage";
+import { ServiceNavigator } from "@/features/services/public/service-navigator";
 import { ServicesEmptyState } from "@/features/services/public/services-empty-state";
-import type { ServiceDiscoveryItem } from "@/features/services/public/types";
+import type { ServiceDiscoveryGroup, ServiceDiscoveryItem } from "@/features/services/public/types";
 import { scoreServiceSearch } from "@/features/services/search";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getLocale } from "@/i18n/server";
@@ -50,6 +50,7 @@ export default async function ServicesPage({
       isPublished: true,
       ...(type ? { serviceType: { slug: type, isActive: true } } : {}),
     },
+    include: { serviceType: { select: { slug: true, name: true, isActive: true } } },
     orderBy: [{ isFeatured: "desc" }, { title: "asc" }],
   });
 
@@ -91,16 +92,33 @@ export default async function ServicesPage({
     slug: service.slug,
     title: service.title,
     summary: service.summary,
+    description: service.description,
     category: service.category,
+    serviceTypeSlug: service.serviceType?.isActive ? service.serviceType.slug : null,
+    serviceTypeName: service.serviceType?.isActive ? service.serviceType.name : null,
     deliveryEstimate: service.deliveryEstimate,
     deliverables: service.deliverables,
     technologies: service.technologies,
     estimate: service.startingPrice
       ? `${formatIdr(service.startingPrice.toString())}+`
       : (isId ? "Sesuai scope" : "Custom scope"),
+    isFeatured: service.isFeatured,
   }));
-  const primaryService = discoveryServices[0];
-  const remainingServices = discoveryServices.slice(1);
+  const groups: ServiceDiscoveryGroup[] = types
+    .map((serviceType) => ({
+      slug: serviceType.slug,
+      name: serviceType.name,
+      services: discoveryServices.filter((service) => service.serviceTypeSlug === serviceType.slug),
+    }))
+    .filter((group) => group.services.length > 0);
+  const untypedServices = discoveryServices.filter((service) => !service.serviceTypeSlug);
+  if (untypedServices.length > 0) {
+    groups.push({ slug: "other", name: isId ? "Lainnya" : "Other", services: untypedServices });
+  }
+  const hasActiveDiscovery = Boolean(q || type);
+  const indexServices = hasActiveDiscovery
+    ? discoveryServices
+    : discoveryServices.filter((service) => service.isFeatured);
 
   return (
     <>
@@ -119,15 +137,21 @@ export default async function ServicesPage({
             clearLabel={dictionary.common.clearFilters}
           />
 
-          {primaryService ? (
+          {groups.length > 0 ? (
             <>
-              <ServiceProductStage service={primaryService} isId={isId} />
-              {remainingServices.length > 0 && <ServiceEditorialIndex services={remainingServices} isId={isId} />}
+              <ServiceNavigator groups={groups} initialType={type} isId={isId} />
+              {indexServices.length > 0 && (
+                <ServiceEditorialIndex
+                  services={indexServices}
+                  isId={isId}
+                  mode={hasActiveDiscovery ? "results" : "curated"}
+                />
+              )}
             </>
           ) : (
             <ServicesEmptyState
               isId={isId}
-              hasFilters={Boolean(q || type)}
+              hasFilters={hasActiveDiscovery}
               activeLabel={activeLabel}
               clearLabel={dictionary.common.clearFilters}
             />
