@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { ArrowRight, FileCheck2, FolderKanban, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { WorkspaceDecisionModule } from "@/components/workspace/decision-module";
+import { WorkspaceModule, WorkspaceModuleHeader } from "@/components/workspace/workspace-module";
+import { WorkspaceRecordLink, WorkspaceRecordList } from "@/components/workspace/record-list";
 import { cn } from "@/lib/utils";
 
 export type ClientDashboardAction = {
@@ -52,77 +55,19 @@ export function ClientDecisionModule({
 
   return (
     <>
-      <section className="mt-8" aria-labelledby="client-primary-decision">
-        <article
-          className={cn(
-            "relative overflow-hidden border bg-surface",
-            primaryAction.tone === "warning" ? "border-warning/35" : "border-primary/35",
-          )}
-        >
-          <span
-            className={cn(
-              "absolute inset-y-0 left-0 w-1",
-              primaryAction.tone === "warning" ? "bg-warning" : "bg-accent-lime",
-            )}
-            aria-hidden="true"
-          />
-          <div className="grid lg:grid-cols-[minmax(0,1.35fr)_minmax(17rem,.65fr)]">
-            <div className="px-6 py-7 sm:p-8 lg:p-10">
-              <div className="flex items-center gap-3">
-                <span
-                  className={cn(
-                    "grid size-11 shrink-0 place-items-center rounded-full border",
-                    primaryAction.tone === "warning"
-                      ? "border-warning/25 bg-warning-soft text-warning"
-                      : "border-accent-lime/20 bg-accent-lime-soft text-accent-lime",
-                  )}
-                >
-                  <primaryAction.icon className="size-5" aria-hidden="true" />
-                </span>
-                <div>
-                  <p
-                    className={cn(
-                      "text-[10px] font-bold uppercase tracking-[.18em]",
-                      primaryAction.tone === "warning" ? "text-warning" : "text-primary",
-                    )}
-                  >
-                    {copy.primaryEyebrow}
-                  </p>
-                  <p className="mt-1 text-xs font-semibold text-secondary">{primaryAction.category}</p>
-                </div>
-              </div>
-
-              <h2
-                id="client-primary-decision"
-                className="mt-8 max-w-3xl font-display text-3xl font-bold tracking-[-.045em] sm:text-4xl lg:text-[2.75rem] lg:leading-[1.08]"
-              >
-                {primaryAction.title}
-              </h2>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-secondary sm:text-[15px]">
-                {primaryAction.description}
-              </p>
-              <Button asChild size="lg" className="mt-7 w-full sm:w-fit">
-                <Link href={primaryAction.href}>
-                  {primaryAction.label}
-                  <ArrowRight className="size-4" aria-hidden="true" />
-                </Link>
-              </Button>
-            </div>
-
-            <aside className="border-t border-border bg-background/30 px-6 py-7 sm:p-8 lg:border-l lg:border-t-0">
-              <p className="text-[10px] font-bold uppercase tracking-[.18em] text-muted">{copy.primaryContext}</p>
-              <dl className="mt-5 divide-y divide-border">
-                {primaryAction.details.map((detail) => (
-                  <div key={`${detail.label}-${detail.value}`} className="py-4 first:pt-0 last:pb-0">
-                    <dt className="text-[10px] font-bold uppercase tracking-[.14em] text-muted">{detail.label}</dt>
-                    <dd className="mt-1.5 text-sm font-semibold leading-6 text-foreground">{detail.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </aside>
-          </div>
-        </article>
-      </section>
+      <WorkspaceDecisionModule
+        titleId="client-primary-decision"
+        icon={primaryAction.icon}
+        eyebrow={copy.primaryEyebrow}
+        category={primaryAction.category}
+        title={primaryAction.title}
+        description={primaryAction.description}
+        href={primaryAction.href}
+        actionLabel={primaryAction.label}
+        contextLabel={copy.primaryContext}
+        details={primaryAction.details}
+        tone={primaryAction.tone === "warning" ? "warning" : "default"}
+      />
 
       {(decisions.length > 0 || supportingActions.length > 0) && (
         <div
@@ -148,49 +93,46 @@ function DecisionQueue({
   copy: DecisionModuleCopy;
 }) {
   return (
-    <section className="border border-border bg-surface" aria-labelledby="client-decision-queue">
-      <header className="border-b border-border px-5 py-4 sm:px-6">
-        <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">{copy.queueEyebrow}</p>
-        <h2 id="client-decision-queue" className="mt-1.5 font-display text-lg font-bold tracking-[-.025em]">
-          {copy.queueTitle}
-        </h2>
-      </header>
-      <ol className="divide-y divide-border">
+    <WorkspaceModule titleId="client-decision-queue" className="rounded-none">
+      <WorkspaceModuleHeader
+        titleId="client-decision-queue"
+        eyebrow={copy.queueEyebrow}
+        title={copy.queueTitle}
+        className="px-5 py-4 sm:px-6 md:px-6 md:py-4"
+        eyebrowClassName="text-[10px] tracking-[.18em]"
+        titleClassName="mt-1.5 text-lg font-bold tracking-[-.025em]"
+      />
+      <WorkspaceRecordList>
         {actions.map((action) => (
-          <li key={`${action.kind}-${action.href}`}>
-            <Link
-              href={action.href}
-              className="group grid gap-4 px-5 py-5 transition-colors hover:bg-surface-hover sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:px-6"
-            >
-              <span
-                className={cn(
-                  "grid size-10 place-items-center rounded-full border",
-                  action.tone === "warning"
-                    ? "border-warning/25 bg-warning-soft text-warning"
-                    : "border-border bg-surface-container text-primary",
-                )}
-              >
-                <action.icon className="size-[18px]" aria-hidden="true" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-[10px] font-bold uppercase tracking-[.14em] text-muted">
-                  {action.category}
-                </span>
-                <span className="mt-1 block text-sm font-semibold leading-6 text-foreground">{action.title}</span>
-                <span className="mt-1 block text-xs leading-5 text-secondary">{action.description}</span>
-              </span>
-              <span className="flex items-center gap-2 text-xs font-bold text-primary sm:justify-self-end">
+          <WorkspaceRecordLink
+            key={`${action.kind}-${action.href}`}
+            href={action.href}
+            icon={action.icon}
+            eyebrow={action.category}
+            title={action.title}
+            description={action.description}
+            iconClassName={cn(
+              "size-10",
+              action.tone === "warning"
+                ? "border-warning/25 bg-warning-soft text-warning"
+                : "border-border bg-surface-container text-primary",
+            )}
+            titleClassName="font-semibold leading-6"
+            trailingClassName="font-bold text-primary"
+            trailing={
+              <>
                 {action.label}
                 <ArrowRight
                   className="size-4 transition-transform motion-safe:group-hover:translate-x-1"
                   aria-hidden="true"
                 />
-              </span>
-            </Link>
-          </li>
+              </>
+            }
+            className="gap-4 px-5 py-5 sm:px-6 md:px-6"
+          />
         ))}
-      </ol>
-    </section>
+      </WorkspaceRecordList>
+    </WorkspaceModule>
   );
 }
 
@@ -202,13 +144,19 @@ function SupportingLinks({
   copy: DecisionModuleCopy;
 }) {
   return (
-    <aside className="border border-border bg-background" aria-labelledby="client-supporting-context">
-      <header className="border-b border-border px-5 py-4 sm:px-6">
-        <p className="text-[10px] font-bold uppercase tracking-[.18em] text-muted">{copy.contextEyebrow}</p>
-        <h2 id="client-supporting-context" className="mt-1.5 font-display text-lg font-bold tracking-[-.025em]">
-          {copy.contextTitle}
-        </h2>
-      </header>
+    <WorkspaceModule
+      as="aside"
+      titleId="client-supporting-context"
+      className="rounded-none bg-background"
+    >
+      <WorkspaceModuleHeader
+        titleId="client-supporting-context"
+        eyebrow={copy.contextEyebrow}
+        title={copy.contextTitle}
+        className="px-5 py-4 sm:px-6 md:px-6 md:py-4"
+        eyebrowClassName="text-[10px] tracking-[.18em] text-muted"
+        titleClassName="mt-1.5 text-lg font-bold tracking-[-.025em]"
+      />
       <div className="divide-y divide-border">
         {actions.map((action) => (
           <Link
@@ -235,7 +183,7 @@ function SupportingLinks({
           </Link>
         ))}
       </div>
-    </aside>
+    </WorkspaceModule>
   );
 }
 

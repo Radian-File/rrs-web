@@ -8,15 +8,15 @@ export function ConversionFrame({
   context,
   children,
 }: {
-  eyebrow: string;
-  title: string;
-  description: string;
+  eyebrow: React.ReactNode;
+  title: React.ReactNode;
+  description: React.ReactNode;
   identity: React.ReactNode;
   context: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <section className="relative isolate overflow-hidden border-b border-border">
+    <section data-composition="conversion-frame" className="relative isolate overflow-hidden border-b border-border">
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent" />
         <div className="absolute -left-28 top-20 size-80 rounded-full bg-accent-soft/55 blur-3xl" />

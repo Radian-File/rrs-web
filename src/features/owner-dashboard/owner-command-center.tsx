@@ -14,6 +14,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { WorkspaceModule, WorkspaceModuleHeader } from "@/components/workspace/workspace-module";
+import { WorkspacePageHeader } from "@/components/workspace/workspace-page-header";
+import { WorkspaceRecordLink, WorkspaceRecordList } from "@/components/workspace/record-list";
 import type { Locale } from "@/i18n/config";
 import type {
   ActiveProjectStatus,
@@ -319,33 +322,27 @@ export function OwnerCommandCenter({
 
   return (
     <>
-      <header className="flex flex-col gap-5 border-b border-border pb-6 lg:flex-row lg:items-end lg:justify-between">
-        <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-[.18em] text-primary">
-            {copy.eyebrow}
-          </p>
-          <h1 className="mt-3 max-w-3xl font-display text-3xl font-extrabold tracking-[-.045em] md:text-4xl">
-            {copy.title}
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-secondary">
-            {copy.description}
-          </p>
-        </div>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button asChild variant="outline" size="sm">
-            <Link href="/owner/analytics">
-              <ChartNoAxesCombined className="size-4" aria-hidden="true" />
-              {copy.openAnalytics}
-            </Link>
-          </Button>
-          <Button asChild size="sm">
-            <Link href="/owner/quotations/create">
-              <Plus className="size-4" aria-hidden="true" />
-              {copy.createQuotation}
-            </Link>
-          </Button>
-        </div>
-      </header>
+      <WorkspacePageHeader
+        eyebrow={copy.eyebrow}
+        title={copy.title}
+        description={copy.description}
+        actions={
+          <>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/owner/analytics">
+                <ChartNoAxesCombined className="size-4" aria-hidden="true" />
+                {copy.openAnalytics}
+              </Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link href="/owner/quotations/create">
+                <Plus className="size-4" aria-hidden="true" />
+                {copy.createQuotation}
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       <style>{ownerCommandGridStyles}</style>
       <div className="mt-6" data-owner-command-grid="">
@@ -653,29 +650,22 @@ function ProjectDistributionModule({
   const total = data.counts.activeProjects;
 
   return (
-    <section
-      className="min-w-0 rounded-[16px] border border-border bg-surface p-5 md:p-6"
-      aria-labelledby="owner-project-distribution-title"
+    <WorkspaceModule
+      titleId="owner-project-distribution-title"
+      className="p-5 md:p-6"
     >
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-[.16em] text-primary">
-            {copy.distributionEyebrow}
-          </p>
-          <h2
-            id="owner-project-distribution-title"
-            className="mt-2 font-display text-2xl font-extrabold tracking-[-.035em]"
-          >
-            {copy.distributionTitle}
-          </h2>
-        </div>
-        <span className="grid size-11 shrink-0 place-items-center rounded-full border border-primary/25 bg-accent-soft font-display text-lg font-extrabold text-primary tabular-nums">
-          {total}
-        </span>
-      </div>
-      <p className="mt-3 text-sm leading-6 text-secondary">
-        {copy.distributionDescription}
-      </p>
+      <WorkspaceModuleHeader
+        titleId="owner-project-distribution-title"
+        eyebrow={copy.distributionEyebrow}
+        title={copy.distributionTitle}
+        description={copy.distributionDescription}
+        className="border-b-0 p-0 md:p-0"
+        aside={
+          <span className="grid size-11 place-items-center rounded-full border border-primary/25 bg-accent-soft font-display text-lg font-extrabold text-primary tabular-nums">
+            {total}
+          </span>
+        }
+      />
 
       {total === 0 ? (
         <p className="mt-7 rounded-[12px] border border-dashed border-border p-6 text-sm leading-6 text-secondary">
@@ -709,7 +699,7 @@ function ProjectDistributionModule({
           })}
         </dl>
       )}
-    </section>
+    </WorkspaceModule>
   );
 }
 
@@ -723,29 +713,18 @@ function RecordedActivityModule({
   const copy = dashboardCopy[locale];
 
   return (
-    <section
-      className="min-w-0 overflow-hidden rounded-[16px] border border-border bg-surface"
-      aria-labelledby="owner-recorded-activity-title"
-    >
-      <div className="flex flex-col justify-between gap-4 border-b border-border p-5 sm:flex-row sm:items-start md:p-6">
-        <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-[.16em] text-primary">
-            {copy.activityEyebrow}
-          </p>
-          <h2
-            id="owner-recorded-activity-title"
-            className="mt-2 font-display text-2xl font-extrabold tracking-[-.035em]"
-          >
-            {copy.activityTitle}
-          </h2>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-secondary">
-            {copy.activityDescription}
-          </p>
-        </div>
-        <span className="w-fit shrink-0 rounded-full border border-border bg-surface-container px-3 py-1.5 text-[11px] font-semibold text-secondary">
-          {copy.activityLimit}
-        </span>
-      </div>
+    <WorkspaceModule titleId="owner-recorded-activity-title">
+      <WorkspaceModuleHeader
+        titleId="owner-recorded-activity-title"
+        eyebrow={copy.activityEyebrow}
+        title={copy.activityTitle}
+        description={copy.activityDescription}
+        aside={
+          <span className="rounded-full border border-border bg-surface-container px-3 py-1.5 text-[11px] font-semibold text-secondary">
+            {copy.activityLimit}
+          </span>
+        }
+      />
 
       {data.recentRecordedActivity.length === 0 ? (
         <div className="p-5 md:p-6">
@@ -760,46 +739,35 @@ function RecordedActivityModule({
           </div>
         </div>
       ) : (
-        <ol className="divide-y divide-border">
-          {data.recentRecordedActivity.map((activity) => {
-            const Icon = activitySourceIcons[activity.source];
-            return (
-              <li key={activity.id}>
-                <Link
-                  href={activity.href}
-                  className="group grid min-w-0 gap-3 px-5 py-4 transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center md:px-6"
-                >
-                  <span className="grid size-9 place-items-center rounded-full border border-border bg-surface-container text-primary">
-                    <Icon className="size-4" aria-hidden="true" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-sm font-bold">
-                      {activityEventLabels[locale][activity.event]}
-                    </span>
-                    <span className="mt-1 block min-w-0 break-words text-xs leading-5 text-secondary">
-                      {activitySourceLabels[locale][activity.source]} · {activity.identifier}
-                    </span>
-                  </span>
-                  <span className="flex items-center gap-2 text-xs text-secondary sm:justify-self-end">
-                    <time dateTime={activity.recordedAt.toISOString()}>
-                      {formatRecordedAt(activity.recordedAt, locale)}
-                    </time>
-                    <ArrowUpRight
-                      className="size-3.5 text-primary"
-                      aria-hidden="true"
-                    />
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ol>
+        <WorkspaceRecordList>
+          {data.recentRecordedActivity.map((activity) => (
+            <WorkspaceRecordLink
+              key={activity.id}
+              href={activity.href}
+              icon={activitySourceIcons[activity.source]}
+              title={activityEventLabels[locale][activity.event]}
+              description={
+                <>
+                  {activitySourceLabels[locale][activity.source]} · {activity.identifier}
+                </>
+              }
+              trailing={
+                <>
+                  <time dateTime={activity.recordedAt.toISOString()}>
+                    {formatRecordedAt(activity.recordedAt, locale)}
+                  </time>
+                  <ArrowUpRight className="size-3.5 text-primary" aria-hidden="true" />
+                </>
+              }
+            />
+          ))}
+        </WorkspaceRecordList>
       )}
 
       <p className="border-t border-border bg-surface-container/40 px-5 py-3 text-xs leading-5 text-secondary md:px-6">
         {copy.activityDisclosure}
       </p>
-    </section>
+    </WorkspaceModule>
   );
 }
 
@@ -838,10 +806,7 @@ function QuickActionsModule({ locale }: { locale: Locale }) {
   ];
 
   return (
-    <section
-      className="min-w-0 overflow-hidden rounded-[16px] border border-border bg-surface"
-      aria-labelledby="owner-quick-actions-title"
-    >
+    <WorkspaceModule titleId="owner-quick-actions-title">
       <div className="grid gap-5 border-b border-border p-5 md:grid-cols-[minmax(0,.75fr)_minmax(0,1.25fr)] md:items-end md:p-6">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[.16em] text-primary">
@@ -892,6 +857,6 @@ function QuickActionsModule({ locale }: { locale: Locale }) {
           );
         })}
       </div>
-    </section>
+    </WorkspaceModule>
   );
 }

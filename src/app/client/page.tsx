@@ -1,4 +1,5 @@
 import { Bell, FileText, FolderKanban, ReceiptText, Star } from "lucide-react";
+import { WorkspacePageHeader } from "@/components/workspace/workspace-page-header";
 import {
   ClientDecisionModule,
   ClientEmptyWorkspace,
@@ -199,17 +200,15 @@ export default async function ClientDashboard() {
 
   return (
     <>
-      <header className="border-b border-border pb-8">
-        <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">
-          {dictionary.dashboard.clientEyebrow}
-        </p>
-        <h1 className="mt-4 max-w-4xl font-display text-4xl font-bold tracking-[-.05em] md:text-5xl">
-          {dictionary.dashboard.clientWelcome}, {firstName}.
-        </h1>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-secondary">
-          {hasWork ? ui.attentionDescription : dictionary.dashboard.clientDescription}
-        </p>
-      </header>
+      <WorkspacePageHeader
+        eyebrow={dictionary.dashboard.clientEyebrow}
+        title={<>{dictionary.dashboard.clientWelcome}, {firstName}.</>}
+        description={hasWork ? ui.attentionDescription : dictionary.dashboard.clientDescription}
+        className="pb-8"
+        eyebrowClassName="text-[10px]"
+        titleClassName="mt-4 max-w-4xl text-4xl font-bold tracking-[-.05em] md:text-5xl"
+        descriptionClassName="mt-4 leading-7"
+      />
 
       {hasWork ? (
         <ClientDecisionModule
