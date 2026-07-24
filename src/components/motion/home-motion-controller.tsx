@@ -1,11 +1,14 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 export function HomeMotionController() {
   const marker = useRef<HTMLSpanElement>(null);
+  const reducedMotion = useReducedMotion();
 
   useLayoutEffect(() => {
+    if (reducedMotion) return;
     let cancelled = false;
     let dispose: (() => void) | undefined;
 
@@ -200,7 +203,7 @@ export function HomeMotionController() {
       cancelled = true;
       dispose?.();
     };
-  }, []);
+  }, [reducedMotion]);
 
-  return <span ref={marker} className="sr-only" aria-hidden="true" />;
+  return <span ref={marker} data-home-motion={reducedMotion ? "static" : "enabled"} className="sr-only" aria-hidden="true" />;
 }
