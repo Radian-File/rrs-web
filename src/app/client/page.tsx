@@ -1,7 +1,9 @@
-import Link from "next/link";
-import { ArrowRight, Bell, FileText, FolderKanban, ReceiptText, Star, type LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
+import { Bell, FileText, FolderKanban, ReceiptText, Star } from "lucide-react";
+import {
+  ClientDecisionModule,
+  ClientEmptyWorkspace,
+  type ClientDashboardAction,
+} from "@/features/client-dashboard/client-decision-module";
 import { getClientDashboard } from "@/features/client-dashboard/query";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getLocale } from "@/i18n/server";
@@ -9,24 +11,241 @@ import { requireClient } from "@/lib/authz";
 
 export default async function ClientDashboard() {
   const [client, locale] = await Promise.all([requireClient(), getLocale()]);
-  const [dictionary, dashboard] = await Promise.all([Promise.resolve(getDictionary(locale)), getClientDashboard(client.id)]);
+  const [dictionary, dashboard] = await Promise.all([
+    Promise.resolve(getDictionary(locale)),
+    getClientDashboard(client.id),
+  ]);
   const isId = locale === "id";
-  const hasWork = dashboard.activeProject || dashboard.pendingAgreement || dashboard.payableInvoice || dashboard.completedProject || dashboard.unreadNotifications > 0;
   const firstName = client.name.split(" ")[0] || "Client";
+  const now = new Date();
 
-  const actions: Array<{ icon: LucideIcon; title: string; description: string; href: string; label: string; tone?: "warning" }> = [];
-  if (dashboard.pendingAgreement) actions.push({ icon: FileText, title: isId ? "Agreement siap ditinjau" : "Agreement ready to review", description: isId ? `${dashboard.pendingAgreement.title} menunggu persetujuan agreement Anda.` : `${dashboard.pendingAgreement.title} is waiting for your agreement approval.`, href: `/client/projects/${dashboard.pendingAgreement.id}/agreement`, label: isId ? "Tinjau agreement" : "Review agreement" });
-  if (dashboard.payableInvoice) actions.push({ icon: ReceiptText, title: dashboard.payableInvoice.status === "OVERDUE" ? (isId ? "Invoice melewati jatuh tempo" : "Invoice overdue") : (isId ? "Pembayaran perlu ditinjau" : "Payment needs attention"), description: `${dashboard.payableInvoice.invoiceNumber} · ${dashboard.payableInvoice.project.title}`, href: `/client/invoices/${dashboard.payableInvoice.id}`, label: isId ? "Lihat invoice" : "View invoice", tone: "warning" });
-  if (dashboard.activeProject) actions.push({ icon: FolderKanban, title: isId ? "Project aktif" : "Current project", description: `${dashboard.activeProject.title} · ${dashboard.activeProject.status.replaceAll("_", " ")}`, href: `/client/projects/${dashboard.activeProject.id}`, label: isId ? "Buka project" : "Open project" });
-  if (dashboard.completedProject) actions.push({ icon: Star, title: isId ? "Bagikan review terverifikasi" : "Share a verified review", description: dashboard.completedProject.reviewInvite && !dashboard.completedProject.reviewInvite.revokedAt && !dashboard.completedProject.reviewInvite.usedAt && dashboard.completedProject.reviewInvite.expiresAt > new Date() ? (isId ? `${dashboard.completedProject.title} siap untuk diulas.` : `${dashboard.completedProject.title} is ready for your review.`) : (isId ? "Hubungi RRS jika Anda memerlukan undangan review baru." : "Ask RRS to resend the review invitation if you need a new link."), href: `/client/projects/${dashboard.completedProject.id}`, label: isId ? "Buka project" : "Open project" });
-  if (dashboard.unreadNotifications > 0) actions.push({ icon: Bell, title: isId ? "Pembaruan belum dibaca" : "Unread updates", description: isId ? `${dashboard.unreadNotifications} notifikasi memerlukan perhatian Anda.` : `${dashboard.unreadNotifications} notification${dashboard.unreadNotifications === 1 ? "" : "s"} need your attention.`, href: "/client/notifications", label: isId ? "Lihat notifikasi" : "View notifications" });
+  const ui = isId
+    ? {
+        attentionDescription: "Berikut pekerjaan dan keputusan yang memerlukan perhatian Anda.",
+        primaryEyebrow: "Langkah berikutnya",
+        primaryContext: "Konteks keputusan",
+        queueEyebrow: "Masih menunggu",
+        queueTitle: "Keputusan lainnya",
+        contextEyebrow: "Konteks aktif",
+        contextTitle: "Project dan pembaruan",
+        agreementCategory: "Agreement",
+        invoiceCategory: "Invoice",
+        projectCategory: "Project",
+        reviewCategory: "Review terverifikasi",
+        notificationCategory: "Pembaruan",
+        projectLabel: "Project",
+        statusLabel: "Status",
+        invoiceLabel: "Nomor invoice",
+        dueDateLabel: "Jatuh tempo",
+        updateLabel: "Belum dibaca",
+        invitationLabel: "Undangan review",
+        invitationReady: "Tersedia",
+        invitationNeeded: "Perlu dikirim ulang",
+        workspaceReady: "Workspace siap",
+        workspacePath: "Alur workspace",
+        workspaceSteps: [
+          dictionary.dashboard.startProject,
+          "Diskusi dan persetujuan quotation",
+          "Workspace project dibuat",
+        ],
+      }
+    : {
+        attentionDescription: "Here are the work items and decisions that need your attention.",
+        primaryEyebrow: "Your next step",
+        primaryContext: "Decision context",
+        queueEyebrow: "Still waiting",
+        queueTitle: "Other decisions",
+        contextEyebrow: "Active context",
+        contextTitle: "Project and updates",
+        agreementCategory: "Agreement",
+        invoiceCategory: "Invoice",
+        projectCategory: "Project",
+        reviewCategory: "Verified review",
+        notificationCategory: "Updates",
+        projectLabel: "Project",
+        statusLabel: "Status",
+        invoiceLabel: "Invoice number",
+        dueDateLabel: "Due date",
+        updateLabel: "Unread",
+        invitationLabel: "Review invitation",
+        invitationReady: "Available",
+        invitationNeeded: "Needs to be resent",
+        workspaceReady: "Workspace ready",
+        workspacePath: "Workspace path",
+        workspaceSteps: [
+          dictionary.dashboard.startProject,
+          "Discussion and quotation approval",
+          "Project workspace is created",
+        ],
+      };
 
-  return <>
-    <header className="border-b border-border pb-8"><p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">{dictionary.dashboard.clientEyebrow}</p><h1 className="mt-4 font-display text-4xl font-bold tracking-[-.05em] md:text-5xl">{dictionary.dashboard.clientWelcome}, {firstName}.</h1><p className="mt-4 max-w-2xl text-sm leading-7 text-secondary">{hasWork ? (isId ? "Berikut pekerjaan dan keputusan yang memerlukan perhatian Anda." : "Here are the work items and decisions that need your attention.") : dictionary.dashboard.clientDescription}</p></header>
-    {hasWork ? <section className="mt-8 grid gap-4 lg:grid-cols-2" aria-label={isId ? "Perlu perhatian" : "Needs attention"}>{actions.map((action, index) => <ActionCard key={`${action.href}-${action.title}`} {...action} index={index} />)}</section> : <><EmptyState className="mt-8" icon={FolderKanban} title={dictionary.dashboard.noActiveProject} description={dictionary.dashboard.noActiveProjectDescription} /><div className="mt-5 flex flex-col gap-3 sm:flex-row"><Button asChild size="lg"><Link href="/services">{dictionary.dashboard.exploreServices}<ArrowRight className="size-4" aria-hidden="true" /></Link></Button><Button asChild size="lg" variant="outline"><Link href="/start-project">{dictionary.dashboard.startProject}<ArrowRight className="size-4" aria-hidden="true" /></Link></Button></div></>}
-  </>;
+  const actions: ClientDashboardAction[] = [];
+
+  const agreementAction: ClientDashboardAction | null = dashboard.pendingAgreement
+    ? {
+        kind: "agreement",
+        icon: FileText,
+        category: ui.agreementCategory,
+        title: isId ? "Agreement siap ditinjau" : "Agreement ready to review",
+        description: isId
+          ? `${dashboard.pendingAgreement.title} menunggu persetujuan agreement Anda.`
+          : `${dashboard.pendingAgreement.title} is waiting for your agreement approval.`,
+        href: `/client/projects/${dashboard.pendingAgreement.id}/agreement`,
+        label: isId ? "Tinjau agreement" : "Review agreement",
+        details: [
+          { label: ui.projectLabel, value: dashboard.pendingAgreement.title },
+          { label: ui.statusLabel, value: isId ? "Menunggu persetujuan" : "Awaiting approval" },
+        ],
+      }
+    : null;
+
+  const invoiceAction: ClientDashboardAction | null = dashboard.payableInvoice
+    ? {
+        kind: "invoice",
+        icon: ReceiptText,
+        category: ui.invoiceCategory,
+        title:
+          dashboard.payableInvoice.status === "OVERDUE"
+            ? isId
+              ? "Invoice melewati jatuh tempo"
+              : "Invoice overdue"
+            : isId
+              ? "Pembayaran perlu ditinjau"
+              : "Payment needs attention",
+        description: `${dashboard.payableInvoice.invoiceNumber} · ${dashboard.payableInvoice.project.title}`,
+        href: `/client/invoices/${dashboard.payableInvoice.id}`,
+        label: isId ? "Lihat invoice" : "View invoice",
+        details: [
+          { label: ui.invoiceLabel, value: dashboard.payableInvoice.invoiceNumber },
+          { label: ui.projectLabel, value: dashboard.payableInvoice.project.title },
+          ...(dashboard.payableInvoice.dueDate
+            ? [{ label: ui.dueDateLabel, value: formatDate(dashboard.payableInvoice.dueDate, locale) }]
+            : []),
+        ],
+        tone: "warning",
+      }
+    : null;
+
+  if (invoiceAction && dashboard.payableInvoice?.status === "OVERDUE") actions.push(invoiceAction);
+  if (agreementAction) actions.push(agreementAction);
+  if (invoiceAction && dashboard.payableInvoice?.status !== "OVERDUE") actions.push(invoiceAction);
+
+  if (dashboard.activeProject) {
+    const status = dashboard.activeProject.status.replaceAll("_", " ");
+    actions.push({
+      kind: "project",
+      icon: FolderKanban,
+      category: ui.projectCategory,
+      title: isId ? "Project aktif" : "Current project",
+      description: `${dashboard.activeProject.title} · ${status}`,
+      href: `/client/projects/${dashboard.activeProject.id}`,
+      label: isId ? "Buka project" : "Open project",
+      details: [
+        { label: ui.projectLabel, value: dashboard.activeProject.title },
+        { label: ui.statusLabel, value: status },
+      ],
+      supporting: true,
+    });
+  }
+
+  if (dashboard.completedProject) {
+    const hasActiveReviewInvite = Boolean(
+      dashboard.completedProject.reviewInvite &&
+        !dashboard.completedProject.reviewInvite.revokedAt &&
+        !dashboard.completedProject.reviewInvite.usedAt &&
+        dashboard.completedProject.reviewInvite.expiresAt > now,
+    );
+    actions.push({
+      kind: "review",
+      icon: Star,
+      category: ui.reviewCategory,
+      title: isId ? "Bagikan review terverifikasi" : "Share a verified review",
+      description: hasActiveReviewInvite
+        ? isId
+          ? `${dashboard.completedProject.title} siap untuk diulas.`
+          : `${dashboard.completedProject.title} is ready for your review.`
+        : isId
+          ? "Hubungi RRS jika Anda memerlukan undangan review baru."
+          : "Ask RRS to resend the review invitation if you need a new link.",
+      href: `/client/projects/${dashboard.completedProject.id}`,
+      label: isId ? "Buka project" : "Open project",
+      details: [
+        { label: ui.projectLabel, value: dashboard.completedProject.title },
+        {
+          label: ui.invitationLabel,
+          value: hasActiveReviewInvite ? ui.invitationReady : ui.invitationNeeded,
+        },
+      ],
+    });
+  }
+
+  if (dashboard.unreadNotifications > 0) {
+    actions.push({
+      kind: "notifications",
+      icon: Bell,
+      category: ui.notificationCategory,
+      title: isId ? "Pembaruan belum dibaca" : "Unread updates",
+      description: isId
+        ? `${dashboard.unreadNotifications} notifikasi memerlukan perhatian Anda.`
+        : `${dashboard.unreadNotifications} notification${dashboard.unreadNotifications === 1 ? "" : "s"} need your attention.`,
+      href: "/client/notifications",
+      label: isId ? "Lihat notifikasi" : "View notifications",
+      details: [{ label: ui.updateLabel, value: String(dashboard.unreadNotifications) }],
+      supporting: true,
+    });
+  }
+
+  const hasWork = actions.length > 0;
+
+  return (
+    <>
+      <header className="border-b border-border pb-8">
+        <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">
+          {dictionary.dashboard.clientEyebrow}
+        </p>
+        <h1 className="mt-4 max-w-4xl font-display text-4xl font-bold tracking-[-.05em] md:text-5xl">
+          {dictionary.dashboard.clientWelcome}, {firstName}.
+        </h1>
+        <p className="mt-4 max-w-2xl text-sm leading-7 text-secondary">
+          {hasWork ? ui.attentionDescription : dictionary.dashboard.clientDescription}
+        </p>
+      </header>
+
+      {hasWork ? (
+        <ClientDecisionModule
+          actions={actions}
+          copy={{
+            primaryEyebrow: ui.primaryEyebrow,
+            primaryContext: ui.primaryContext,
+            queueEyebrow: ui.queueEyebrow,
+            queueTitle: ui.queueTitle,
+            contextEyebrow: ui.contextEyebrow,
+            contextTitle: ui.contextTitle,
+          }}
+        />
+      ) : (
+        <ClientEmptyWorkspace
+          copy={{
+            eyebrow: ui.workspaceReady,
+            title: dictionary.dashboard.noActiveProject,
+            description: dictionary.dashboard.noActiveProjectDescription,
+            primaryLabel: dictionary.dashboard.startProject,
+            secondaryLabel: dictionary.dashboard.exploreServices,
+            pathEyebrow: ui.workspacePath,
+            pathTitle: dictionary.dashboard.clientDescription,
+            pathSteps: ui.workspaceSteps,
+          }}
+        />
+      )}
+    </>
+  );
 }
 
-function ActionCard({ icon: Icon, title, description, href, label, tone, index }: { icon: LucideIcon; title: string; description: string; href: string; label: string; tone?: "warning"; index: number }) {
-  return <article className={`flex min-h-64 flex-col justify-between border p-6 ${tone === "warning" ? "border-warning/30 bg-warning-soft" : "border-border bg-surface"}`}><div><div className="flex items-start justify-between gap-4"><span className={`grid size-11 shrink-0 place-items-center rounded-full ${tone === "warning" ? "bg-warning/15 text-warning" : "bg-accent-soft text-primary"}`}><Icon className="size-5" aria-hidden="true" /></span><span className="font-mono text-[9px] text-muted">0{index + 1}</span></div><h2 className="mt-8 font-display text-2xl font-bold tracking-[-.035em]">{title}</h2><p className="mt-3 text-sm leading-7 text-secondary">{description}</p></div><Button asChild size="sm" variant="outline" className="mt-6 w-fit"><Link href={href}>{label}<ArrowRight className="size-4" aria-hidden="true" /></Link></Button></article>;
+function formatDate(value: Date, locale: "id" | "en") {
+  return new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-GB", {
+    timeZone: "Asia/Jakarta",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(value);
 }

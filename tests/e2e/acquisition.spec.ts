@@ -15,7 +15,7 @@ test("seeded owner can authenticate and open the owner workspace", async ({ page
   await page.getByLabel("Password").fill(process.env.OWNER_PASSWORD ?? "ChangeMe123!");
   await page.getByRole("button", { name: "Sign In" }).click();
   await expect(page).toHaveURL(/\/owner$/, { timeout: 30_000 });
-  await expect(page.getByText("Owner overview")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Operations, in their current state." })).toBeVisible();
 });
 
 test("service detail keeps quotation as the primary conversion", async ({ page }) => {
@@ -34,7 +34,7 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await page.getByLabel("Password").fill(process.env.OWNER_PASSWORD ?? "ChangeMe123!");
   await page.getByRole("button", { name: "Sign In" }).click();
   await expect(page).toHaveURL(/\/owner$/, { timeout: 30_000 });
-  await expect(page.getByText("Owner overview")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Operations, in their current state." })).toBeVisible();
   await page.goto("/owner/quotations/create");
 
   const ownerMain = page.locator("main:visible");
@@ -133,7 +133,7 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await page.getByLabel("Email").fill(process.env.OWNER_EMAIL ?? "owner@example.com");
   await page.getByLabel("Password").fill(process.env.OWNER_PASSWORD ?? "ChangeMe123!");
   await page.getByRole("button", { name: "Sign In" }).click();
-  await expect(page.getByText("Owner overview")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Operations, in their current state." })).toBeVisible();
   await page.goto(`/owner/projects/${projectId}/agreement`);
   await expect(page.getByRole("heading", { name: /AGR-2026-/ })).toBeVisible();
   await page.goto("/owner/payments");

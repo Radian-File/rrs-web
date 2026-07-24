@@ -26,11 +26,11 @@ test("owner archives and restores an inquiry without changing its status", async
   await page.goto("/start-project?service=website-development");
   await expect(page.getByLabel("Email")).toHaveValue(email);
   await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByLabel("Judul project").fill(title);
-  await page.getByLabel("Jenis project").fill("Web application");
-  await page.getByLabel("Deskripsi project").fill("A complete project brief used to verify that archiving only removes an inquiry from the active owner list.");
-  await page.getByLabel("Tujuan project").fill("Keep the project data and workflow status available after moving it to the archive list.");
-  await page.getByLabel("Fitur yang dibutuhkan").fill("Archive workflow\nOwner dashboard");
+  await page.getByLabel("Project title").fill(title);
+  await page.getByLabel("Project type").fill("Web application");
+  await page.getByLabel("Project description").fill("A complete project brief used to verify that archiving only removes an inquiry from the active owner list.");
+  await page.getByLabel("Project goals").fill("Keep the project data and workflow status available after moving it to the archive list.");
+  await page.getByLabel("Required features").fill("Archive workflow\nOwner dashboard");
   await page.getByRole("button", { name: "Continue" }).click();
   const submitBrief = page.getByRole("button", { name: "Submit Technical Brief" });
   if (await submitBrief.isVisible().catch(() => false)) await submitBrief.click();

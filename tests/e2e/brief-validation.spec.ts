@@ -16,15 +16,15 @@ test("an invalid project step cannot advance to submission", async ({ page }) =>
   await expect(page.getByLabel("Email")).toHaveValue(email);
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await page.getByLabel("Judul project").fill("x");
-  await page.getByLabel("Jenis project").fill("Website");
-  await page.getByLabel("Deskripsi project").fill("A valid description that is long enough to satisfy the project brief schema.");
-  await page.getByLabel("Tujuan project").fill("Validate the step guard.");
-  await page.getByLabel("Fitur yang dibutuhkan").fill("Contact form");
+  await page.getByLabel("Project title").fill("x");
+  await page.getByLabel("Project type").fill("Website");
+  await page.getByLabel("Project description").fill("A valid description that is long enough to satisfy the project brief schema.");
+  await page.getByLabel("Project goals").fill("Validate the step guard.");
+  await page.getByLabel("Required features").fill("Contact form");
   await page.getByRole("button", { name: "Continue" }).click();
 
   await expect(page.getByText("Too small: expected string to have >=3 characters", { exact: true })).toBeVisible();
-  await expect(page.getByLabel("Rentang budget")).toBeVisible();
-  await expect(page.getByLabel("Target deadline (opsional)")).toBeHidden();
-  await expect(page.getByLabel("Judul project")).toBeVisible();
+  await expect(page.getByLabel("Budget range (optional)")).toBeVisible();
+  await expect(page.getByLabel("Target deadline (optional)")).toBeHidden();
+  await expect(page.getByLabel("Project title")).toBeVisible();
 });
