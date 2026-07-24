@@ -1,11 +1,36 @@
 import Link from "next/link";
-import { Plus, Pencil, Eye, EyeOff, Star } from "lucide-react";
+import { BriefcaseBusiness, Eye, EyeOff, Pencil, Plus, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { PaginationControls, pageSize, parsePage } from "@/components/ui/pagination-controls";
+import { WorkspaceModule } from "@/components/workspace/workspace-module";
+import { WorkspacePageHeader } from "@/components/workspace/workspace-page-header";
 import { prisma } from "@/lib/db/prisma";
 import { formatIdr } from "@/lib/utils";
+
 export const dynamic = "force-dynamic";
-export default async function OwnerServicesPage({searchParams}:{searchParams:Promise<{page?:string}>}) { const page=parsePage((await searchParams).page); const [rows,total,published]=await Promise.all([prisma.service.findMany({orderBy:[{isPublished:"asc"},{isFeatured:"desc"},{updatedAt:"desc"}],skip:(page-1)*pageSize,take:pageSize+1,select:{id:true,isPublished:true,isFeatured:true,title:true,category:true,startingPrice:true,summary:true,updatedAt:true}}),prisma.service.count(),prisma.service.count({where:{isPublished:true}})]); const hasNext=rows.length>pageSize;const services=rows.slice(0,pageSize); return <><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p className="text-sm font-bold uppercase tracking-[.14em] text-primary">Layanan</p><h1 className="mt-3 font-display text-3xl font-extrabold">Kelola layanan yang ditampilkan ke client.</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-secondary">Draf tidak tampil di halaman publik. Gunakan unpublish untuk menyimpan riwayat quotation dan inquiry tanpa menghapus relasinya.</p></div><div className="flex flex-wrap gap-3"><Button asChild variant="outline"><Link href="/owner/services/types">Jenis layanan</Link></Button><Button asChild><Link href="/owner/services/create"><Plus className="size-4" />Buat layanan</Link></Button></div></div><div className="mt-8 grid gap-4 sm:grid-cols-3"><Metric label="Total layanan" value={total}/><Metric label="Sudah dipublikasikan" value={published}/><Metric label="Draf / belum tayang" value={total-published}/></div><div className="mt-8 grid gap-5 lg:grid-cols-2">{services.map((service) => <Card key={service.id} data-motion-card><CardContent><div className="flex justify-between gap-4"><div><div className="flex flex-wrap gap-2"><Badge variant={service.isPublished ? "success" : "neutral"}>{service.isPublished ? "Published" : "Draft"}</Badge>{service.isFeatured && <Badge><Star className="size-3"/>Unggulan</Badge>}</div><h2 className="mt-4 font-display text-xl font-extrabold">{service.title}</h2><p className="mt-2 text-sm text-secondary">{service.category} · {service.startingPrice ? formatIdr(service.startingPrice.toString()) : "Custom scope"}</p></div>{service.isPublished ? <Eye className="size-5 text-success" aria-label="Dipublikasikan"/> : <EyeOff className="size-5 text-secondary" aria-label="Draf"/>}</div><p className="mt-5 line-clamp-2 text-sm leading-6 text-secondary">{service.summary}</p><div className="mt-6 flex justify-between border-t border-border pt-5"><p className="text-xs text-secondary">Diperbarui {service.updatedAt.toLocaleDateString("id-ID")}</p><Button asChild size="sm" variant="outline"><Link href={`/owner/services/${service.id}/edit`}><Pencil className="size-4"/>Edit</Link></Button></div></CardContent></Card>)}</div>{services.length === 0&&page===1&&<Card className="mt-8"><CardContent className="py-12 text-center"><h2 className="font-display text-xl font-extrabold">Belum ada layanan</h2><p className="mt-2 text-sm text-secondary">Buat layanan pertama atau jalankan seed untuk memuat referensi layanan.</p></CardContent></Card>}<PaginationControls pathname="/owner/services" page={page} hasNext={hasNext}/></>; }
-function Metric({ label, value }: { label: string; value: number }) { return <Card><CardContent><p className="font-display text-3xl font-extrabold">{value}</p><p className="mt-2 text-sm text-secondary">{label}</p></CardContent></Card>; }
+
+export default async function OwnerServicesPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  const page = parsePage((await searchParams).page);
+  const [rows, total, published] = await Promise.all([
+    prisma.service.findMany({ orderBy: [{ isPublished: "asc" }, { isFeatured: "desc" }, { updatedAt: "desc" }], skip: (page - 1) * pageSize, take: pageSize + 1, select: { id: true, isPublished: true, isFeatured: true, title: true, category: true, startingPrice: true, summary: true, updatedAt: true } }),
+    prisma.service.count(),
+    prisma.service.count({ where: { isPublished: true } }),
+  ]);
+  const hasNext = rows.length > pageSize;
+  const services = rows.slice(0, pageSize);
+
+  return <>
+    <WorkspacePageHeader eyebrow="Layanan" title="Kelola katalog yang ditampilkan ke Client." description="Draf tidak tampil di halaman publik. Unpublish mempertahankan riwayat quotation dan inquiry tanpa menghapus relasinya." actions={<><Button asChild variant="outline"><Link href="/owner/services/types">Jenis layanan</Link></Button><Button asChild><Link href="/owner/services/create"><Plus className="size-4" aria-hidden="true"/>Buat layanan</Link></Button></>}/>
+    <dl className="mt-8 grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-3">
+      <Metric label="Total layanan" value={total}/><Metric label="Sudah dipublikasikan" value={published}/><Metric label="Draf / belum tayang" value={total-published}/>
+    </dl>
+    {services.length === 0 ? <EmptyState className="mt-8" icon={BriefcaseBusiness} title={page > 1 ? "Tidak ada layanan di halaman ini" : "Belum ada layanan"} description={page > 1 ? "Kembali ke halaman pertama untuk melihat record layanan." : "Buat layanan pertama atau jalankan seed untuk memuat referensi layanan."}/> : <div className="mt-8 grid gap-5 lg:grid-cols-2">{services.map((service) => <WorkspaceModule key={service.id} titleId={`service-${service.id}`}><div className="p-5 md:p-6"><div className="flex justify-between gap-4"><div className="min-w-0"><div className="flex flex-wrap gap-2"><Badge variant={service.isPublished ? "success" : "neutral"}>{service.isPublished ? "Published" : "Draft"}</Badge>{service.isFeatured && <Badge><Star className="size-3" aria-hidden="true"/>Unggulan</Badge>}</div><h2 id={`service-${service.id}`} className="mt-4 font-display text-xl font-extrabold">{service.title}</h2><p className="mt-2 text-sm text-secondary">{service.category} · {service.startingPrice ? `Mulai dari ${formatIdr(service.startingPrice.toString())}` : "Custom scope"}</p></div>{service.isPublished ? <Eye className="size-5 shrink-0 text-success" aria-label="Dipublikasikan"/> : <EyeOff className="size-5 shrink-0 text-secondary" aria-label="Draf"/>}</div><p className="mt-5 line-clamp-2 text-sm leading-6 text-secondary">{service.summary}</p><div className="mt-6 flex flex-col justify-between gap-3 border-t border-border pt-5 sm:flex-row sm:items-center"><p className="text-xs text-secondary">Diperbarui {service.updatedAt.toLocaleDateString("id-ID")}</p><Button asChild size="sm" variant="outline"><Link href={`/owner/services/${service.id}/edit`}><Pencil className="size-4" aria-hidden="true"/>Edit</Link></Button></div></div></WorkspaceModule>)}</div>}
+    <PaginationControls pathname="/owner/services" page={page} hasNext={hasNext}/>
+  </>;
+}
+
+function Metric({ label, value }: { label: string; value: number }) {
+  return <div className="bg-surface p-5 md:p-6"><dt className="text-[10px] font-bold uppercase tracking-[.14em] text-muted">{label}</dt><dd className="mt-3 font-display text-4xl font-extrabold tabular-nums">{value}</dd></div>;
+}

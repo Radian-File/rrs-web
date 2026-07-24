@@ -1,2 +1,5 @@
-import { PageSkeleton } from "@/components/ui/skeleton";
-export default function OwnerLoading(){return <PageSkeleton cards={4}/>}
+import { WorkspaceSkeleton } from "@/components/workspace/workspace-skeleton";
+
+export default function OwnerLoading() {
+  return <WorkspaceSkeleton label="Loading Owner workspace" />;
+}

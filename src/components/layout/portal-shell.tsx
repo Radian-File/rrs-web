@@ -29,23 +29,25 @@ export async function PortalShell({ kind, title, userLabel, unreadCount = 0, ite
   const workspaceLabel = kind === "owner" ? dictionary.portal.ownerWorkspace : dictionary.portal.clientPortal;
 
   return (
-    <div className="min-h-screen bg-background lg:grid lg:grid-cols-[236px_minmax(0,1fr)]">
+    <div className={`min-h-screen bg-background lg:grid ${kind === "owner" ? "lg:grid-cols-[88px_minmax(0,1fr)]" : "lg:grid-cols-[236px_minmax(0,1fr)]"}`}>
       <aside className="sticky top-0 hidden h-screen flex-col border-r border-border bg-[#0a0d0b] lg:flex">
-        <div className="border-b border-border px-6 py-5"><Brand /></div>
-        <div className="flex-1 overflow-y-auto px-4 py-6">
-          <div className="px-3">
+        <div className={kind === "owner" ? "grid min-h-[76px] place-items-center border-b border-border" : "border-b border-border px-6 py-5"}>
+          <Brand compact={kind === "owner"} />
+        </div>
+        <div className={kind === "owner" ? "flex-1 overflow-y-auto px-2 py-4" : "flex-1 overflow-y-auto px-4 py-6"}>
+          {kind !== "owner" && <div className="px-3">
             <p className="text-[9px] font-bold uppercase tracking-[.2em] text-accent-lime">RRS / {kind}</p>
             <p className="mt-2 truncate font-display text-lg font-bold tracking-[-.03em] text-foreground">{title}</p>
-          </div>
-          <nav className="mt-7 space-y-1" aria-label={`${title} navigation`}>
+          </div>}
+          <nav className={kind === "owner" ? "space-y-1" : "mt-7 space-y-1"} aria-label={`${title} navigation`}>
             {items.map(({ label, href, icon: Icon }) => (
-              <PortalActiveLink key={href} href={href} label={label}><Icon className="size-[18px]" aria-hidden="true" /></PortalActiveLink>
+              <PortalActiveLink key={href} href={href} label={label} compact={kind === "owner"}><Icon className={kind === "owner" ? "size-5" : "size-[18px]"} aria-hidden="true" /></PortalActiveLink>
             ))}
           </nav>
         </div>
-        <div className="border-t border-border p-4">
-          <Link href="/" className="flex min-h-11 items-center justify-between border border-border px-3 text-sm font-semibold text-secondary hover:bg-surface-hover hover:text-foreground">
-            {dictionary.portal.home}<ExternalLink className="size-4 text-muted" aria-hidden="true" />
+        <div className={kind === "owner" ? "border-t border-border p-2" : "border-t border-border p-4"}>
+          <Link href="/" title={kind === "owner" ? dictionary.portal.home : undefined} className={kind === "owner" ? "grid min-h-12 place-items-center border border-border text-secondary hover:bg-surface-hover hover:text-foreground" : "flex min-h-11 items-center justify-between border border-border px-3 text-sm font-semibold text-secondary hover:bg-surface-hover hover:text-foreground"}>
+            <span className={kind === "owner" ? "sr-only" : undefined}>{dictionary.portal.home}</span><ExternalLink className="size-4 text-muted" aria-hidden="true" />
           </Link>
         </div>
       </aside>
