@@ -40,10 +40,15 @@ export default async function RegisterPage({
         labels={{
           fullName: dictionary.auth.fullName,
           whatsapp: dictionary.auth.whatsapp,
+          whatsappHelp: dictionary.auth.whatsappHelp,
+          whatsappHelpLabel: dictionary.auth.whatsappHelpLabel,
           email: dictionary.auth.email,
+          emailHelp: dictionary.auth.emailHelp,
+          emailHelpLabel: dictionary.auth.emailHelpLabel,
           company: dictionary.auth.company,
           password: dictionary.auth.password,
           confirmPassword: dictionary.auth.confirmPassword,
+          privacyNote: dictionary.auth.privacyNote,
           create: dictionary.auth.createAccount,
           creating: dictionary.auth.creating,
         }}

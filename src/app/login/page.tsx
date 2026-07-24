@@ -39,7 +39,7 @@ export default async function LoginPage({
       {reason === "session-expired" && (
         <p role="status" className="mb-5 border border-primary/20 bg-accent-soft px-4 py-3 text-sm text-foreground">
           {isId
-            ? "Sesi Anda telah berakhir. Silakan masuk kembali untuk melanjutkan dengan aman."
+            ? "Sesi kamu sudah berakhir. Masuk lagi untuk lanjut dengan aman."
             : "Your session has ended. Please sign in again to continue safely."}
         </p>
       )}

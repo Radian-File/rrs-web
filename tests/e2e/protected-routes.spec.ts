@@ -22,7 +22,7 @@ test("anonymous users are redirected before a deep owner route renders", async (
 
   await expect(page).toHaveURL(/\/login/);
   expect(decodeURIComponent(page.url())).toContain("/owner/quotations/create");
-  await expect(page.getByRole("heading", { name: "Sign in to your portal." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sign in to the Client Portal." })).toBeVisible();
 });
 
 test("client sessions cannot access owner routes and logout removes access", async ({
@@ -52,9 +52,10 @@ test("client sessions cannot access owner routes and logout removes access", asy
   await expect(page).toHaveURL(/\/client$/);
 
   const signOut = page.getByRole("button", { name: "Sign out" });
-  if (!(await signOut.isVisible().catch(() => false))) {
-    await page.getByRole("button", { name: "More" }).click();
-  }
+  const more = page.getByRole("button", { name: "More" });
+  await expect(signOut.or(more)).toBeVisible();
+  if (await more.isVisible()) await more.click();
+  await expect(signOut).toBeVisible();
   await signOut.click();
   await expect(page).toHaveURL(/\/login$/, { timeout: 30_000 });
 

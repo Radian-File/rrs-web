@@ -6,7 +6,7 @@ test("guest technical brief requires a Client account", async ({ page }) => {
   await page.goto("/start-project?service=website-development");
   await expect(page).toHaveURL(/\/login/);
   expect(decodeURIComponent(page.url())).toContain("/start-project?service=website-development");
-  await expect(page.getByRole("heading", { name: "Sign in to your portal." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sign in to the Client Portal." })).toBeVisible();
 });
 
 test("seeded owner can authenticate and open the owner workspace", async ({ page }) => {
