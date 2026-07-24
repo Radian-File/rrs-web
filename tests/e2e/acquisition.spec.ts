@@ -22,7 +22,9 @@ test("service detail keeps quotation as the primary conversion", async ({ page }
   await page.goto("/services/website-development");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Website Development");
   await expect(page.locator("main:visible").getByRole("link", { name: "Sign in to request a quotation" })).toBeVisible();
-  await expect(page.getByText("Final pricing follows the agreed scope")).toBeVisible();
+  await expect(
+    page.getByText("Final pricing is defined only through a quotation after scope review.").first(),
+  ).toBeVisible();
 });
 
 test("owner can draft and send a quotation that the client accepts atomically", async ({ page }) => {
