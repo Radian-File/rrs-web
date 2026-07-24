@@ -39,7 +39,7 @@ export function ReferenceServices({ isId, services }: { isId: boolean; services:
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 {(services.length ? services : []).slice(0, 4).map((service, index) => <Link key={service.id} href={`/services/${service.slug}`} className={`group flex min-h-48 flex-col justify-between rounded-[16px] border p-5 transition-transform hover:-translate-y-1 ${index === 0 ? "border-[#5f805a] bg-[#30472f]" : index === 1 ? "border-[#565a63] bg-[#30343a]" : index === 2 ? "border-[#68545e] bg-[#3b3036]" : "border-white/10 bg-[#292c2a]"}`}>
                   <div className="flex items-start justify-between gap-3"><p className="text-[8px] font-black uppercase tracking-[.14em] text-white/45">0{index + 1} / {service.category}</p><ArrowUpRight className="size-3.5 text-white/35 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" /></div>
-                  <div><h4 className="font-display text-xl font-black leading-[.95] tracking-[-.035em]">{service.title}</h4><p className="mt-3 text-[10px] leading-5 text-white/45">{service.deliveryEstimate ?? (isId ? "Timeline mengikuti scope" : "Timeline follows scope")}</p><p className="mt-3 text-xs font-bold text-accent-lime">{service.estimate}</p></div>
+                  <div><h3 className="font-display text-xl font-black leading-[.95] tracking-[-.035em]">{service.title}</h3><p className="mt-3 text-[10px] leading-5 text-white/45">{service.deliveryEstimate ?? (isId ? "Timeline mengikuti scope" : "Timeline follows scope")}</p><p className="mt-3 text-xs font-bold text-accent-lime">{service.estimate}</p></div>
                 </Link>)}
                 {services.length === 0 && <div className="col-span-2 grid min-h-[420px] place-items-center rounded-[16px] border border-dashed border-white/15 text-center"><div><FolderKanban className="mx-auto size-8 text-accent-lime" aria-hidden="true" /><p className="mt-5 font-display text-2xl font-black">{isId ? "Layanan published sedang disiapkan" : "Published services are being prepared"}</p><p className="mx-auto mt-3 max-w-md text-sm leading-7 text-white/48">{isId ? "Katalog hanya menampilkan layanan yang telah dikonfirmasi Owner." : "The catalogue only displays services confirmed by the Owner."}</p></div></div>}
               </div>
@@ -104,12 +104,12 @@ export function ReferenceFeatureObjects({ isId }: { isId: boolean }) {
         <Button asChild size="lg" className="mt-7 rounded-full bg-accent-lime px-7 text-background hover:bg-[#d7f58f]"><Link href="/cara-kerja">{isId ? "Pelajari workflow" : "Explore the workflow"}<ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
       </div>
 
-      <div className="relative z-10 mx-auto mt-8 grid max-w-6xl grid-cols-2 items-end gap-4 px-5 pb-20 sm:grid-cols-3 md:px-8 lg:left-1/2 lg:mx-0 lg:mt-12 lg:flex lg:w-max lg:max-w-none lg:-translate-x-1/2 lg:justify-center lg:gap-7 lg:px-6" aria-label={isId ? "Kapabilitas workflow RRS" : "RRS workflow capabilities"}>
+      <div role="list" className="relative z-10 mx-auto mt-8 grid max-w-6xl grid-cols-2 items-end gap-4 px-5 pb-20 sm:grid-cols-3 md:px-8 lg:left-1/2 lg:mx-0 lg:mt-12 lg:flex lg:w-max lg:max-w-none lg:-translate-x-1/2 lg:justify-center lg:gap-7 lg:px-6" aria-label={isId ? "Kapabilitas workflow RRS" : "RRS workflow capabilities"}>
         {features.map((feature, index) => {
           const Icon = feature.icon;
           const tone = ["bg-[#3a2f34]", "bg-[#303532]", "bg-[#f1eee5] text-[#1a1c1b]", "bg-[#303a43]", "bg-accent-lime text-background", "bg-[#34301f]"][index];
           const sizing = feature.shape === "wide" ? "h-44 w-full rounded-[20px] lg:h-56 lg:w-80" : feature.shape === "square" ? "aspect-square w-full rounded-[24px] lg:size-52 lg:rounded-[28px]" : "aspect-square w-full rounded-full lg:size-48";
-          return <article key={feature.label} data-feature-object className={`flex shrink-0 flex-col items-center justify-center border border-white/10 p-6 text-center shadow-[0_26px_70px_rgba(0,0,0,.3)] ${sizing} ${tone} ${index % 2 ? "lg:translate-y-8" : ""}`}>
+          return <article role="listitem" key={feature.label} data-feature-object className={`flex shrink-0 flex-col items-center justify-center border border-white/10 p-6 text-center shadow-[0_26px_70px_rgba(0,0,0,.3)] ${sizing} ${tone} ${index % 2 ? "lg:translate-y-8" : ""}`}>
             <Icon className="size-14 opacity-80" aria-hidden="true" />
             <h3 className="mt-5 font-display text-xl font-black uppercase tracking-[-.035em]">{feature.label}</h3>
             <p className="mt-2 text-[10px] font-bold uppercase tracking-[.12em] opacity-48">{feature.detail}</p>

@@ -5,6 +5,8 @@ test("keyboard users can skip repeated navigation", async ({ page, context }) =>
   await page.goto("/");
   await page.keyboard.press("Tab");
   await expect(page.getByRole("link", { name: "Lewati ke konten" })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("main").first()).toBeFocused();
 });
 
 test("homepage initializes the coordinated motion system and static content remains present", async ({ page }) => {

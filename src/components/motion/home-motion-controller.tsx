@@ -1,14 +1,24 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 export function HomeMotionController() {
   const marker = useRef<HTMLSpanElement>(null);
   const reducedMotion = useReducedMotion();
+  const [desktopMotion, setDesktopMotion] = useState(false);
+  const motionEnabled = !reducedMotion && desktopMotion;
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1024px)");
+    const sync = () => setDesktopMotion(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
 
   useLayoutEffect(() => {
-    if (reducedMotion) return;
+    if (!motionEnabled) return;
     let cancelled = false;
     let dispose: (() => void) | undefined;
 
@@ -46,9 +56,11 @@ export function HomeMotionController() {
             const header = document.querySelector<HTMLElement>("[data-site-header]");
             const entrance = gsap.timeline({ defaults: { ease: "power3.out" } });
             if (header) entrance.from(header, { autoAlpha: 0, y: -12, duration: 0.55, clearProps: "all" }, 0);
+            entrance.from("[data-hero-eyebrow]", { autoAlpha: 0, y: 18, duration: 0.6 }, 0.12);
+            if (desktop) {
+              entrance.from("[data-hero-line]", { autoAlpha: 0, yPercent: 112, rotateX: 7, duration: 0.9, stagger: 0.1 }, 0.22);
+            }
             entrance
-              .from("[data-hero-eyebrow]", { autoAlpha: 0, y: 18, duration: 0.6 }, 0.12)
-              .from("[data-hero-line]", { autoAlpha: 0, yPercent: 112, rotateX: 7, duration: 0.9, stagger: 0.1 }, 0.22)
               .from("[data-hero-body]", { autoAlpha: 0, y: 24, duration: 0.72 }, 0.5)
               .from("[data-hero-actions]", { autoAlpha: 0, y: 20, duration: 0.66 }, 0.62)
               .from("[data-hero-artifact]", { autoAlpha: 0, y: 48, scale: 0.94, rotate: (index) => [-2.5, 2.5, -1][index] ?? 0, duration: 0.85, stagger: 0.12 }, 0.72)
@@ -203,7 +215,8 @@ export function HomeMotionController() {
       cancelled = true;
       dispose?.();
     };
-  }, [reducedMotion]);
+  }, [motionEnabled]);
 
-  return <span ref={marker} data-home-motion={reducedMotion ? "static" : "enabled"} className="sr-only" aria-hidden="true" />;
+  const state = reducedMotion ? "static" : desktopMotion ? "enabled" : "compact-static";
+  return <span ref={marker} data-home-motion={state} className="sr-only" aria-hidden="true" />;
 }

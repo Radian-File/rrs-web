@@ -3,6 +3,8 @@ import { Archivo, Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import { getLocale } from "@/i18n/server";
 import { MotionProvider } from "@/components/motion-provider";
+import { SkipLink } from "@/components/layout/skip-link";
+import { getServerAppUrl } from "@/lib/env";
 import "./globals.css";
 
 const inter = Inter({
@@ -17,21 +19,23 @@ const archivo = Archivo({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
-  title: {
-    default: "RRS Studio — Web & Product Projects with Clear Scope",
-    template: "%s | RRS Studio",
-  },
-  description: "Independent web and product studio with clear quotations, transparent project progress, and structured delivery.",
-  applicationName: "RRS Studio",
-  openGraph: {
-    type: "website",
-    locale: "id_ID",
-    title: "RRS Studio",
-    description: "From project brief to final delivery, managed through one transparent workflow.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    metadataBase: new URL(getServerAppUrl()),
+    title: {
+      default: "RRS Studio — Web & Product Projects with Clear Scope",
+      template: "%s | RRS Studio",
+    },
+    description: "Independent web and product studio with clear quotations, transparent project progress, and structured delivery.",
+    applicationName: "RRS Studio",
+    openGraph: {
+      type: "website",
+      locale: "id_ID",
+      title: "RRS Studio",
+      description: "From project brief to final delivery, managed through one transparent workflow.",
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#0d100e",
@@ -45,12 +49,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html lang={locale} data-scroll-behavior="smooth" className={`${inter.variable} ${archivo.variable}`}>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
         <MotionProvider>
-          <a
-            href="#main-content"
-            className="sr-only fixed left-4 top-4 z-[100] min-h-11 items-center rounded-[10px] border border-accent-lime/50 bg-accent-lime px-4 py-2 text-sm font-semibold text-background shadow-xl focus:not-sr-only focus:flex"
-          >
-            {locale === "id" ? "Lewati ke konten" : "Skip to content"}
-          </a>
+          <SkipLink label={locale === "id" ? "Lewati ke konten" : "Skip to content"} />
           <div id="main-content" tabIndex={-1}>
             {children}
           </div>

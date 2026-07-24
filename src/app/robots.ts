@@ -1,7 +1,10 @@
 import type { MetadataRoute } from "next";
-import { publicEnv } from "@/lib/env";
+import { getServerAppUrl } from "@/lib/env";
+
+export const dynamic = "force-dynamic";
 
 export default function robots(): MetadataRoute.Robots {
+  const appUrl = getServerAppUrl().replace(/\/$/, "");
   return {
     rules: {
       userAgent: "*",
@@ -19,7 +22,7 @@ export default function robots(): MetadataRoute.Robots {
         "/auth/",
       ],
     },
-    sitemap: `${publicEnv.appUrl}/sitemap.xml`,
-    host: publicEnv.appUrl,
+    sitemap: `${appUrl}/sitemap.xml`,
+    host: appUrl,
   };
 }

@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
-import { publicEnv } from "@/lib/env";
+import { getServerAppUrl } from "@/lib/env";
+
+export const dynamic = "force-dynamic";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes: Array<{ path: string; priority: number; frequency: "weekly" | "monthly" }> = [
@@ -12,8 +14,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/contact", priority: 0.6, frequency: "monthly" },
   ];
   const now = new Date();
+  const appUrl = getServerAppUrl().replace(/\/$/, "");
   return routes.map((route) => ({
-    url: `${publicEnv.appUrl}${route.path}`,
+    url: `${appUrl}${route.path}`,
     lastModified: now,
     changeFrequency: route.frequency,
     priority: route.priority,

@@ -21,7 +21,7 @@ RUN mkdir -p public uploads \
   && export STORAGE_DRIVER="local" LOCAL_UPLOAD_DIR="/app/uploads" MAX_UPLOAD_SIZE_MB="10" \
   && export EMAIL_DRIVER="console" EMAIL_FROM="RRS Studio <noreply@example.com>" \
   && npx prisma generate \
-  && npm run build
+  && npm run build -- --webpack
 
 FROM deps AS migration
 COPY prisma ./prisma

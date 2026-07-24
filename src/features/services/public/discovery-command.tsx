@@ -56,7 +56,7 @@ export function ServicesDiscoveryCommand({
               <p className="text-[9px] font-black uppercase tracking-[.18em]">{copy.eyebrow}</p>
             </div>
             <h2 id="services-command-title" className="mt-3 font-display text-2xl font-black tracking-[-.045em] text-white sm:text-3xl">{copy.title}</h2>
-            <p id="services-command-description" className="mt-2 text-xs leading-6 text-white/46">{copy.description}</p>
+            <p id="services-command-description" className="mt-2 text-xs leading-6 text-white/55">{copy.description}</p>
           </div>
 
           <form method="get" action="/services" className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]" aria-describedby="services-command-description">

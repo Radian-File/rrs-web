@@ -32,6 +32,7 @@ Public service prices are starting estimates. Final scope, commercial terms, and
 
 ### Client Portal
 
+- Decision-first workspace for the next formal Client action.
 - Client-owned quotations and formal quotation decisions.
 - Protected agreements and acceptance records.
 - Projects, milestones, messages, and private files.
@@ -40,7 +41,8 @@ Public service prices are starting estimates. Final scope, commercial terms, and
 
 ### Owner Workspace
 
-- Inquiry pipeline and reversible archives.
+- Exact-state operational command center with defined current-record metrics.
+- Inquiry queue and reversible archives.
 - Service and Service Type management.
 - Versioned quotation builder and discussion workflow.
 - Project, agreement, milestone, file, invoice, and payment operations.
@@ -63,7 +65,7 @@ Public service prices are starting estimates. Final scope, commercial terms, and
 | Area | Technology |
 |---|---|
 | Application | Next.js 16 App Router, React 19, TypeScript |
-| Interface | Tailwind CSS 4, Radix UI, Lucide, GSAP/ScrollTrigger |
+| Interface | Tailwind CSS 4, Radix UI, Lucide, desktop public-scene GSAP/ScrollTrigger |
 | Database | PostgreSQL 17, Prisma 7 |
 | Authentication | Auth.js credentials sessions |
 | Validation | Zod, React Hook Form |
@@ -138,6 +140,8 @@ When schema or critical domain behavior changes, also validate migrations from a
 ## Tencent Cloud production deployment
 
 Production runs on a Tencent Cloud CVM instance from `/opt/rrs-studio` using [docker-compose.production.yml](docker-compose.production.yml).
+
+The Linux Docker builder uses Next.js’s supported Webpack fallback when native Turbopack bindings are unavailable, then copies the standalone output into the non-root runner image. Local `npm run build` continues to use the platform default.
 
 ### Runtime topology
 

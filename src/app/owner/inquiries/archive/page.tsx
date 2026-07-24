@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, ArchiveRestore } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WorkspacePageHeader } from "@/components/workspace/workspace-page-header";
-import { InquiryTable } from "@/app/owner/inquiries/page";
+import { InquiryTable } from "@/features/inquiries/inquiry-table";
 import { restoreInquiryAction } from "@/features/inquiries/owner-actions";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getLocale } from "@/i18n/server";
