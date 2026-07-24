@@ -9,7 +9,7 @@ test("portfolio and About page link to the professional profile with formal iden
 
   await page.goto("/about");
   const aboutMain = page.locator("main:visible").first();
-  await expect(aboutMain.getByText("RRS is an independent digital service practice", { exact: false })).toBeVisible();
+  await expect(aboutMain.getByText("RRS is an independent digital studio led directly by Radhiansyah Putra", { exact: false })).toBeVisible();
   await expect(aboutMain.getByRole("link", { name: "View full portfolio" })).toHaveAttribute("href", "https://rrs-porto.vercel.app");
 });
 

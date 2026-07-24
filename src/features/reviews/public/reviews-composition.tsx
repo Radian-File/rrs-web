@@ -71,6 +71,8 @@ export function ReviewsComposition({
         ],
       };
 
+  const previewReviews = reviews.slice(0, 3);
+
   return (
     <main>
       <section className="rrs-grain relative isolate overflow-hidden border-b border-white/[.06] bg-[radial-gradient(circle_at_82%_24%,rgba(82,164,119,.18),transparent_28%),linear-gradient(180deg,#101211,#181b19)] text-white">
@@ -114,20 +116,35 @@ export function ReviewsComposition({
             <div className="mx-auto max-w-[1440px] px-5 py-20 md:px-8 lg:px-12 lg:py-28 xl:px-16">
               <p className="text-[9px] font-black uppercase tracking-[.2em] text-accent-lime">{copy.fan}</p>
               <h2 id="review-fan-title" className="sr-only">{copy.fan}</h2>
-              <div className="mt-9 grid gap-4 lg:grid-cols-3 lg:items-start">
-                {reviews.slice(0, 3).map((review, index) => (
-                  <article
-                    key={review.id}
-                    className={`relative min-w-0 rounded-[22px] border border-white/10 bg-[#242724] p-6 shadow-[0_24px_70px_rgba(0,0,0,.25)] lg:p-7 ${index === 1 ? "lg:translate-y-10 lg:rotate-[1.5deg]" : index === 2 ? "lg:translate-y-3 lg:-rotate-[1deg]" : "lg:rotate-[-1.5deg]"}`}
-                  >
-                    <Quote className="size-8 text-accent-lime/25" aria-hidden="true" />
-                    <blockquote className="mt-6 font-display text-xl font-semibold leading-8 tracking-[-.02em] text-white/82">“{review.comment}”</blockquote>
-                    <div className="mt-8 border-t border-white/10 pt-5">
-                      <p className="font-display text-lg font-black">{review.clientName}</p>
-                      <p className="mt-2 text-xs leading-5 text-white/45">{copy.verified} · {review.projectTitle}</p>
-                    </div>
-                  </article>
-                ))}
+              <div className="mt-9 grid gap-4 lg:min-h-[390px] lg:place-items-center lg:gap-0" aria-label={copy.fan}>
+                {previewReviews.map((review, index) => {
+                  const position = previewReviews.length === 1
+                    ? "lg:z-20"
+                    : previewReviews.length === 2
+                      ? index === 0
+                        ? "lg:z-10 lg:-translate-x-[22%] lg:translate-y-6 lg:-rotate-[5deg]"
+                        : "lg:z-20 lg:translate-x-[22%] lg:-translate-y-2 lg:rotate-[5deg]"
+                      : index === 0
+                        ? "lg:z-10 lg:-translate-x-[38%] lg:translate-y-12 lg:-rotate-[7deg]"
+                        : index === 1
+                          ? "lg:z-30 lg:-translate-y-5"
+                          : "lg:z-20 lg:translate-x-[38%] lg:translate-y-14 lg:rotate-[7deg]";
+                  return (
+                    <article
+                      key={review.id}
+                      className={`group relative min-w-0 rounded-[22px] border border-white/10 bg-[#242724] shadow-[0_24px_70px_rgba(0,0,0,.28)] transition-[transform,border-color] duration-200 hover:border-accent-lime/35 focus-within:z-40 focus-within:border-accent-lime/45 lg:hover:z-40 lg:hover:-translate-y-4 lg:hover:rotate-0 motion-reduce:transition-none motion-reduce:lg:translate-x-0 motion-reduce:lg:translate-y-0 motion-reduce:lg:rotate-0 lg:col-start-1 lg:row-start-1 lg:w-[min(430px,48vw)] ${position}`}
+                    >
+                      <Link href={`#review-${review.id}`} className="block rounded-[22px] p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus lg:p-7">
+                        <Quote className="size-8 text-accent-lime/25" aria-hidden="true" />
+                        <blockquote className="mt-6 font-display text-xl font-semibold leading-8 tracking-[-.02em] text-white/82">“{review.comment}”</blockquote>
+                        <div className="mt-8 border-t border-white/10 pt-5">
+                          <p className="font-display text-lg font-black">{review.clientName}</p>
+                          <p className="mt-2 text-xs leading-5 text-white/45">{copy.verified} · {review.projectTitle}</p>
+                        </div>
+                      </Link>
+                    </article>
+                  );
+                })}
               </div>
             </div>
           </section>
@@ -137,7 +154,7 @@ export function ReviewsComposition({
             <h2 id="review-index-title" className="sr-only">{copy.index}</h2>
             <div className="mt-6 border-t border-border">
               {reviews.map((review, index) => (
-                <article key={review.id} className="grid gap-6 border-b border-border py-10 lg:grid-cols-[72px_260px_1fr] lg:gap-10">
+                <article id={`review-${review.id}`} key={review.id} className="grid scroll-mt-28 gap-6 border-b border-border py-10 lg:grid-cols-[72px_260px_1fr] lg:gap-10">
                   <span className="pt-1 text-xs font-bold text-primary">{String((page - 1) * pageSize + index + 1).padStart(2, "0")}</span>
                   <div>
                     <h3 className="font-display text-2xl font-extrabold">{review.clientName}</h3>

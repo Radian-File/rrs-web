@@ -17,6 +17,16 @@ enum PortfolioSource {
   GITHUB
 }
 
+enum StudioStackCategory {
+  FRONTEND
+  BACKEND
+  DATABASE
+  DEVOPS
+  MOBILE
+  TOOLING
+  OTHER
+}
+
 enum InquiryStatus {
   DRAFT
   SUBMITTED
@@ -283,13 +293,26 @@ model Service {
   updatedAt        DateTime @updatedAt
 
   serviceType ServiceType? @relation(fields: [serviceTypeId], references: [id], onDelete: SetNull)
-  inquiries  Inquiry[]
-  quotations Quotation[]
-  reviews    Review[]
+  inquiries   Inquiry[]
+  quotations  Quotation[]
+  reviews     Review[]
 
   @@index([category])
   @@index([serviceTypeId])
   @@index([isPublished, isFeatured])
+}
+
+model StudioStackItem {
+  id          String              @id @default(cuid())
+  name        String
+  slug        String              @unique
+  category    StudioStackCategory
+  sortOrder   Int                 @default(0)
+  isPublished Boolean             @default(false)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@index([isPublished, category, sortOrder])
 }
 
 model PortfolioProject {

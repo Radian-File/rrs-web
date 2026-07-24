@@ -95,15 +95,16 @@ export function ProcessComposition({ isId }: { isId: boolean }) {
       <section className="mx-auto max-w-[1440px] px-5 py-20 md:px-8 lg:px-12 lg:py-28 xl:px-16" aria-label={copy.eyebrow}>
         <ol className="border-t border-border">
           {copy.stages.map(([number, title, description, output, mode], index) => (
-            <li key={number} className={`grid gap-5 border-b border-border py-8 md:grid-cols-[72px_minmax(12rem,.42fr)_minmax(0,.9fr)_minmax(12rem,.38fr)] md:py-10 ${index === 0 ? "bg-accent-soft/35 px-5 md:px-6" : ""}`}>
+            <li key={number} className={`group relative grid gap-5 overflow-hidden border-b border-border px-5 py-8 transition-colors duration-200 hover:bg-accent-soft/45 focus-within:bg-accent-soft/45 motion-reduce:transition-none md:grid-cols-[72px_minmax(12rem,.42fr)_minmax(0,.9fr)_minmax(12rem,.38fr)] md:px-6 md:py-10 ${index === 0 ? "bg-accent-soft/25" : ""}`}>
+              <span className="absolute inset-y-0 left-0 w-1 origin-bottom scale-y-0 bg-primary transition-transform duration-200 group-hover:scale-y-100 group-focus-within:scale-y-100 motion-reduce:transition-none" aria-hidden="true" />
               <div>
-                <span className="font-display text-2xl font-extrabold tracking-[-.04em] text-primary">{number}</span>
+                <span className="font-display text-2xl font-extrabold tracking-[-.04em] text-primary transition-colors group-hover:text-accent-lime group-focus-within:text-accent-lime motion-reduce:transition-none">{number}</span>
                 <p className="mt-2 text-[9px] font-bold uppercase tracking-[.14em] text-muted">{mode === "guest" ? copy.guest : copy.formal}</p>
               </div>
-              <h2 className="font-display text-2xl font-extrabold tracking-[-.035em]">{title}</h2>
+              <h2 className="font-display text-2xl font-extrabold tracking-[-.035em] transition-transform duration-200 group-hover:translate-x-1 group-focus-within:translate-x-1 motion-reduce:translate-x-0 motion-reduce:transition-none">{title}</h2>
               <p className="text-sm leading-7 text-secondary">{description}</p>
-              <p className="flex items-start gap-2 text-sm font-semibold leading-6 text-foreground">
-                <Check className="mt-1 size-4 shrink-0 text-primary" aria-hidden="true" />
+              <p className="flex items-start gap-2 text-sm font-semibold leading-6 text-foreground transition-colors group-hover:text-primary group-focus-within:text-primary motion-reduce:transition-none">
+                <Check className="mt-1 size-4 shrink-0 text-primary transition-transform duration-200 group-hover:scale-110 group-focus-within:scale-110 motion-reduce:scale-100 motion-reduce:transition-none" aria-hidden="true" />
                 <span><span className="sr-only">{copy.output}: </span>{output}</span>
               </p>
             </li>

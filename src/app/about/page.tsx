@@ -5,21 +5,31 @@ import { PageEntrance } from "@/components/page-entrance";
 import { AboutComposition } from "@/features/about/public/about-composition";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getLocale } from "@/i18n/server";
+import { prisma } from "@/lib/db/prisma";
 
 const professionalPortfolio = "https://rrs-porto.vercel.app";
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const isId = (await getLocale()) === "id";
   return {
     title: isId ? "Tentang RRS" : "About RRS",
     description: isId
-      ? "Independent digital studio di Bekasi untuk product thinking, interface design, dan full-stack development."
-      : "An independent digital studio in Bekasi for product thinking, interface design, and full-stack development.",
+      ? "Independent digital studio di Bandung dan Bekasi untuk product thinking, interface design, dan full-stack development."
+      : "An independent digital studio in Bandung and Bekasi for product thinking, interface design, and full-stack development.",
   };
 }
 
 export default async function AboutPage() {
-  const locale = await getLocale();
+  const [locale, stackItems] = await Promise.all([
+    getLocale(),
+    prisma.studioStackItem.findMany({
+      where: { isPublished: true },
+      orderBy: [{ category: "asc" }, { sortOrder: "asc" }, { name: "asc" }],
+      select: { id: true, name: true, category: true },
+    }),
+  ]);
   const dictionary = getDictionary(locale);
 
   return (
@@ -30,6 +40,7 @@ export default async function AboutPage() {
           copy={dictionary.about}
           isId={locale === "id"}
           portfolioUrl={professionalPortfolio}
+          stackItems={stackItems}
         />
       </PageEntrance>
       <SiteFooter />

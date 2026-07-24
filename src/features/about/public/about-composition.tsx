@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, ExternalLink, Layers3, MapPin, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Code2, ExternalLink, Layers3, MapPin, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { studioStackCategoryLabels, type StudioStackCategoryValue } from "@/features/studio-stack/schema";
 
 export type AboutCompositionCopy = {
   badge: string;
@@ -18,21 +19,29 @@ export type AboutCompositionCopy = {
   servicesCta: string;
 };
 
+export type AboutStackItem = {
+  id: string;
+  name: string;
+  category: StudioStackCategoryValue;
+};
+
 export function AboutComposition({
   copy,
   isId,
   portfolioUrl,
+  stackItems,
 }: {
   copy: AboutCompositionCopy;
   isId: boolean;
   portfolioUrl: string;
+  stackItems: AboutStackItem[];
 }) {
   const ui = isId
     ? {
-        studio: "Independent digital studio / Bekasi",
+        studio: "Independent digital studio / Bandung & Bekasi",
         accountable: "Dipimpin langsung",
         role: "Full-Stack Developer",
-        location: "Bekasi, Indonesia",
+        location: "Bandung & Bekasi, Indonesia",
         manifesto: "Clarity before complexity.",
         manifestoDescription:
           "RRS menggabungkan product thinking, interface design, dan implementation untuk membangun sistem yang dapat dipahami, dipelihara, dan dipertanggungjawabkan.",
@@ -41,10 +50,10 @@ export function AboutComposition({
         positioning: "Bekerja sebagai studio kecil dengan ownership langsung—bukan agency façade.",
       }
     : {
-        studio: "Independent digital studio / Bekasi",
+        studio: "Independent digital studio / Bandung & Bekasi",
         accountable: "Directly accountable",
         role: "Full-Stack Developer",
-        location: "Bekasi, Indonesia",
+        location: "Bandung & Bekasi, Indonesia",
         manifesto: "Clarity before complexity.",
         manifestoDescription:
           "RRS combines product thinking, interface design, and implementation to build systems that can be understood, maintained, and held accountable.",
@@ -58,28 +67,57 @@ export function AboutComposition({
     { title: copy.capabilityTitle, description: copy.capability, icon: Layers3 },
     { title: copy.collaborationTitle, description: copy.collaboration, icon: ArrowRight },
   ];
+  const stackGroups = Object.entries(
+    stackItems.reduce<Partial<Record<StudioStackCategoryValue, AboutStackItem[]>>>((groups, item) => {
+      (groups[item.category] ??= []).push(item);
+      return groups;
+    }, {}),
+  ) as [StudioStackCategoryValue, AboutStackItem[]][];
 
   return (
     <main>
-      <section className="rrs-grain relative isolate overflow-hidden border-b border-white/[.06] bg-[radial-gradient(circle_at_80%_26%,rgba(200,237,115,.12),transparent_28%),linear-gradient(180deg,#101211,#181a18)] text-white">
+      <section className="rrs-grain relative isolate overflow-hidden border-b border-white/[.06] bg-[radial-gradient(circle_at_80%_24%,rgba(200,237,115,.12),transparent_28%),linear-gradient(180deg,#101211,#181a18)] text-white">
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute inset-y-0 left-[7%] w-px bg-white/[.045]" />
           <div className="absolute inset-y-0 right-[7%] w-px bg-white/[.045]" />
           <div className="absolute -right-20 top-20 size-[31rem] rounded-full border border-white/[.045]" />
         </div>
-        <div className="relative mx-auto max-w-[1440px] px-5 py-20 md:px-8 lg:px-12 lg:py-28 xl:px-16">
+        <div className="relative mx-auto max-w-[1440px] px-5 py-16 md:px-8 lg:px-12 lg:py-24 xl:px-16">
           <p className="text-[10px] font-black uppercase tracking-[.2em] text-accent-lime">{copy.badge}</p>
-          <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,.5fr)] lg:items-end lg:gap-16">
-            <div>
-              <h1 className="max-w-5xl font-display text-[clamp(3.4rem,6.7vw,7.2rem)] font-black uppercase leading-[.83] tracking-[-.075em] text-[#f5f2ea]">{copy.title}</h1>
-              <p className="mt-7 max-w-3xl text-base leading-8 text-white/58 md:text-lg">{copy.intro}</p>
-            </div>
-            <aside className="border-l-2 border-accent-lime bg-white/[.035] p-6">
+          <div className="mt-7 grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[380px_minmax(0,1fr)]">
+            <aside className="min-w-0 rounded-[24px] border border-white/10 bg-white/[.045] p-6 lg:p-7" aria-label="Radhiansyah Putra profile">
               <p className="text-[9px] font-black uppercase tracking-[.16em] text-accent-lime">{ui.studio}</p>
-              <p className="mt-7 font-display text-3xl font-black tracking-[-.04em]">Radhiansyah Putra</p>
-              <p className="mt-3 text-sm leading-6 text-white/55">{ui.role}</p>
-              <p className="mt-2 flex items-center gap-2 text-xs text-white/42"><MapPin className="size-3.5" aria-hidden="true" />{ui.location}</p>
+              <div className="mt-8 border-b border-white/10 pb-7">
+                <p className="font-display text-3xl font-black tracking-[-.045em]">Radhiansyah Putra</p>
+                <p className="mt-3 text-sm font-semibold text-white/65">{ui.role}</p>
+                <p className="mt-3 flex items-start gap-2 text-xs leading-5 text-white/45"><MapPin className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />{ui.location}</p>
+              </div>
+
+              {stackGroups.length > 0 && (
+                <div className="mt-7">
+                  <p className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[.16em] text-white/42"><Code2 className="size-4 text-accent-lime" aria-hidden="true" />Studio stack</p>
+                  <div className="mt-5 space-y-5">
+                    {stackGroups.map(([category, items]) => (
+                      <div key={category}>
+                        <p className="text-[8px] font-black uppercase tracking-[.15em] text-accent-lime">{studioStackCategoryLabels[category]}</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {items.map((item) => <span key={item.id} className="rounded-full border border-white/10 bg-white/[.045] px-3 py-1.5 text-[9px] font-semibold text-white/68">{item.name}</span>)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </aside>
+
+            <div className="min-w-0 rounded-[24px] border border-white/[.07] bg-black/10 p-6 sm:p-8 lg:p-10 xl:p-12">
+              <h1 className="max-w-5xl break-words font-display text-[clamp(2.7rem,4.7vw,5.4rem)] font-black uppercase leading-[.9] tracking-[-.065em] text-[#f5f2ea]">{copy.title}</h1>
+              <p className="mt-7 max-w-3xl text-base leading-8 text-white/62 md:text-lg">{copy.intro}</p>
+              <div className="mt-10 grid gap-6 border-t border-white/10 pt-7 md:grid-cols-[.35fr_.65fr]">
+                <p className="text-[9px] font-black uppercase tracking-[.16em] text-accent-lime">{ui.manifesto}</p>
+                <p className="text-sm leading-7 text-white/55">{ui.manifestoDescription}</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
