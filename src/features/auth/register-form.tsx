@@ -24,7 +24,7 @@ export function RegisterForm({ labels, redirectTo }: { labels: RegisterLabels; r
     <Field label={labels.company} name="companyName" error={error("companyName")} className="sm:col-span-2" required={false} />
     <Field key={`password-${passwordKey}`} label={labels.password} name="password" type="password" error={error("password")} />
     <Field key={`confirm-${passwordKey}`} label={labels.confirmPassword} name="confirmPassword" type="password" error={error("confirmPassword")} />
-    {state.message && <p role="alert" className="rounded-[10px] bg-[#fbe8e8] px-4 py-3 text-sm text-error sm:col-span-2">{state.message}</p>}
+    {state.message && <p role="alert" className="rounded-[10px] border border-error/20 bg-error-soft px-4 py-3 text-sm text-error sm:col-span-2">{state.message}</p>}
     <Button className="sm:col-span-2" size="lg" disabled={pending}>{pending ? labels.creating : labels.create}</Button>
   </form>;
 }

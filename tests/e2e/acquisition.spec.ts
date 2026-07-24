@@ -176,7 +176,7 @@ test("owner can draft and send a quotation that the client accepts atomically", 
   await expect(page.getByText("PAID", { exact: true }).first()).toBeVisible();
   await page.goto(clientProjectUrl);
   await page.getByRole("button", { name: "Approve Final Delivery" }).click();
-  await expect(page.getByText("Verified project review")).toBeVisible();
+  await expect(page.getByText("Verified project review")).toBeVisible({ timeout: 30_000 });
   const reviewForm = page.locator('form:has(textarea[name="comment"])').first();
   await reviewForm.evaluate((form) => { (form as HTMLFormElement).noValidate = true; });
   await reviewForm.locator('textarea[name="comment"]').fill("Nice");

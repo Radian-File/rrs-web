@@ -154,8 +154,9 @@ export function ServiceDetailComposition({
             <div>
               <p className="text-[9px] font-black uppercase tracking-[.18em] text-accent-lime">RRS / {copy.context}</p>
               <h2 id="service-scope-title" className="mt-5 max-w-xl font-display text-[clamp(2.5rem,4.5vw,4.8rem)] font-black uppercase leading-[.88] tracking-[-.06em]">
-                {service.title}
+                {copy.stageLabel}
               </h2>
+              <p className="mt-3 text-xs font-bold uppercase tracking-[.12em] text-accent-lime">{service.title}</p>
               <p className="mt-6 whitespace-pre-line text-sm leading-7 text-white/60">{service.description}</p>
             </div>
 

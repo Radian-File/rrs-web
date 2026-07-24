@@ -43,7 +43,7 @@ export function ContactForm({ isId = true }: { isId?: boolean }) {
       <Field label={copy.subject} name="subject" error={error("subject")} />
       <label className="sm:col-span-2">
         <span className="mb-2 block text-sm font-semibold">{copy.message}</span>
-        <Textarea name="message" required aria-invalid={Boolean(error("message"))} className={fieldErrorClass(error("message"))} />
+        <Textarea name="message" required aria-invalid={Boolean(error("message"))} aria-describedby={error("message") ? "message-error" : undefined} className={fieldErrorClass(error("message"))} />
         <FieldError id="message-error" error={error("message")} />
       </label>
       {state.message && <p role="alert" className="border border-error/20 bg-error-soft px-4 py-3 text-sm text-error sm:col-span-2">{state.message}</p>}

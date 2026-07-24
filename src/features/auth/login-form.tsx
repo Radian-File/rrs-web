@@ -19,7 +19,7 @@ export function LoginForm({ redirectTo, labels }: { redirectTo?: string; labels:
     <input type="hidden" name="redirectTo" value={redirectTo ?? ""} />
     <div><label htmlFor="email" className="mb-2 block text-sm font-semibold">{labels.email}</label><Input id="email" name="email" type="email" autoComplete="email" required aria-invalid={Boolean(emailError)} aria-describedby={emailError ? "email-error" : undefined} className={fieldErrorClass(emailError)} /><FieldError id="email-error" error={emailError}/></div>
     <div><label htmlFor="password" className="mb-2 block text-sm font-semibold">{labels.password}</label><Input key={passwordKey} id="password" name="password" type="password" autoComplete="current-password" required aria-invalid={Boolean(passwordError)} aria-describedby={passwordError ? "password-error" : undefined} className={fieldErrorClass(passwordError)} /><FieldError id="password-error" error={passwordError}/></div>
-    {state.message && <p role="alert" className="rounded-[10px] bg-[#fbe8e8] px-4 py-3 text-sm text-error">{state.message}</p>}
+    {state.message && <p role="alert" className="rounded-[10px] border border-error/20 bg-error-soft px-4 py-3 text-sm text-error">{state.message}</p>}
     <Button className="w-full" size="lg" disabled={pending}>{pending ? labels.signingIn : labels.signIn}</Button>
   </form>;
 }

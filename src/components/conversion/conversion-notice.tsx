@@ -1,4 +1,4 @@
-import { CircleAlert, RotateCcw } from "lucide-react";
+import { CheckCircle2, CircleAlert, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function ConversionNotice({
@@ -8,17 +8,22 @@ export function ConversionNotice({
 }: {
   children?: React.ReactNode;
   title?: string;
-  tone?: "info" | "error";
+  tone?: "info" | "success" | "error";
 }) {
   const isError = tone === "error";
-  const Icon = isError ? CircleAlert : RotateCcw;
+  const isSuccess = tone === "success";
+  const Icon = isError ? CircleAlert : isSuccess ? CheckCircle2 : RotateCcw;
 
   return (
     <div
       role={isError ? "alert" : "status"}
       className={cn(
         "flex items-start gap-3 border px-4 py-3",
-        isError ? "border-error/35 bg-error-soft/70 text-error" : "border-primary/30 bg-accent-soft/65 text-primary",
+        isError
+          ? "border-error/35 bg-error-soft/70 text-error"
+          : isSuccess
+            ? "border-success/35 bg-success-soft/70 text-success"
+            : "border-primary/30 bg-accent-soft/65 text-primary",
       )}
     >
       <Icon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
