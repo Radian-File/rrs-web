@@ -18,6 +18,25 @@ test.describe("A1-A6 redesign audit", () => {
     await cleanupPool.end();
   });
 
+  test("header uses the transparent RRS mark", async ({ page }) => {
+    await page.goto("/");
+    const logo = page.getByRole("link", { name: "RRS Studio home" }).first().locator("img");
+    await expect(logo).toHaveAttribute("src", /rrs-studio-mark-transparent/);
+    await expect.poll(() => logo.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
+  });
+
+  test("Reviews uses the fan without the superseded index", async ({ page }) => {
+    await page.goto("/reviews");
+    await expect(page.locator("#review-index-title")).toHaveCount(0);
+    await expect(page.getByText("Published review index", { exact: true })).toHaveCount(0);
+    const fan = page.locator("#review-fan-title");
+    if (await fan.count()) {
+      await expect(fan).toBeAttached();
+    } else {
+      await expect(page.getByRole("heading", { name: "No verified reviews are published yet." })).toBeVisible();
+    }
+  });
+
   test("service discovery exposes type and service controls", async ({ page }) => {
     await page.goto("/services");
     const tabs = page.getByRole("tab");

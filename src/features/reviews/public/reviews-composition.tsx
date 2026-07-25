@@ -2,7 +2,7 @@ import Link from "next/link";
 import { BadgeCheck, FileCheck2, Quote, ShieldCheck, Star } from "lucide-react";
 import { PublicEmptyState } from "@/components/public/empty-state";
 import { Button } from "@/components/ui/button";
-import { PaginationControls, pageSize } from "@/components/ui/pagination-controls";
+import { PaginationControls } from "@/components/ui/pagination-controls";
 
 export type PublishedVerifiedReview = {
   id: string;
@@ -32,7 +32,6 @@ export function ReviewsComposition({
         trust: "Trust, bukan testimonial generik.",
         trustDetail: "Project selesai · Client terhubung · Submission dimoderasi",
         fan: "Selected verified voices",
-        index: "Indeks ulasan published",
         verified: "Project terverifikasi",
         emptyTitle: page > 1 ? "Tidak ada ulasan pada halaman ini." : "Belum ada ulasan terverifikasi published.",
         emptyDescription: page > 1
@@ -55,7 +54,6 @@ export function ReviewsComposition({
         trust: "Trust, not generic testimonials.",
         trustDetail: "Completed project · Linked Client · Moderated submission",
         fan: "Selected verified voices",
-        index: "Published review index",
         verified: "Verified project",
         emptyTitle: page > 1 ? "No reviews on this page." : "No verified reviews are published yet.",
         emptyDescription: page > 1
@@ -132,52 +130,26 @@ export function ReviewsComposition({
                   return (
                     <article
                       key={review.id}
-                      className={`group relative min-w-0 rounded-[22px] border border-white/10 bg-[#242724] shadow-[0_24px_70px_rgba(0,0,0,.28)] transition-[transform,border-color] duration-200 hover:border-accent-lime/35 focus-within:z-40 focus-within:border-accent-lime/45 lg:hover:z-40 lg:hover:-translate-y-4 lg:hover:rotate-0 motion-reduce:transition-none motion-reduce:lg:translate-x-0 motion-reduce:lg:translate-y-0 motion-reduce:lg:rotate-0 lg:col-start-1 lg:row-start-1 lg:w-[min(430px,48vw)] ${position}`}
+                      tabIndex={0}
+                      aria-label={`${review.clientName} · ${copy.verified} · ${review.overallRating} out of 5 stars`}
+                      className={`group relative min-w-0 rounded-[22px] border border-white/10 bg-[#242724] p-6 shadow-[0_24px_70px_rgba(0,0,0,.28)] transition-[transform,border-color] duration-200 hover:border-accent-lime/35 focus:z-40 focus:border-accent-lime/45 focus:outline-none focus:ring-2 focus:ring-focus lg:p-7 lg:hover:z-40 lg:hover:-translate-y-4 lg:hover:rotate-0 motion-reduce:transition-none motion-reduce:lg:translate-x-0 motion-reduce:lg:translate-y-0 motion-reduce:lg:rotate-0 lg:col-start-1 lg:row-start-1 lg:w-[min(430px,48vw)] ${position}`}
                     >
-                      <Link href={`#review-${review.id}`} className="block rounded-[22px] p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus lg:p-7">
                         <Quote className="size-8 text-accent-lime/25" aria-hidden="true" />
                         <blockquote className="mt-6 font-display text-xl font-semibold leading-8 tracking-[-.02em] text-white/82">“{review.comment}”</blockquote>
                         <div className="mt-8 border-t border-white/10 pt-5">
                           <p className="font-display text-lg font-black">{review.clientName}</p>
                           <p className="mt-2 text-xs leading-5 text-white/45">{copy.verified} · {review.projectTitle}</p>
+                          <div className="mt-4 flex items-center gap-1" aria-hidden="true">
+                            {Array.from({ length: 5 }, (_, star) => <Star key={star} className={`size-3.5 ${star < review.overallRating ? "fill-accent-lime text-accent-lime" : "text-white/18"}`} />)}
+                            <span className="ml-2 text-xs font-bold text-accent-lime">{review.overallRating.toFixed(1)}</span>
+                          </div>
                         </div>
-                      </Link>
                     </article>
                   );
                 })}
               </div>
+              <PaginationControls pathname="/reviews" page={page} hasNext={hasNext} />
             </div>
-          </section>
-
-          <section className="mx-auto max-w-[1440px] px-5 py-20 md:px-8 lg:px-12 lg:py-28 xl:px-16" aria-labelledby="review-index-title">
-            <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">{copy.index}</p>
-            <h2 id="review-index-title" className="sr-only">{copy.index}</h2>
-            <div className="mt-6 border-t border-border">
-              {reviews.map((review, index) => (
-                <article id={`review-${review.id}`} key={review.id} className="grid scroll-mt-28 gap-6 border-b border-border py-10 lg:grid-cols-[72px_260px_1fr] lg:gap-10">
-                  <span className="pt-1 text-xs font-bold text-primary">{String((page - 1) * pageSize + index + 1).padStart(2, "0")}</span>
-                  <div>
-                    <h3 className="font-display text-2xl font-extrabold">{review.clientName}</h3>
-                    <p className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
-                      <BadgeCheck className="size-4" aria-hidden="true" />
-                      {copy.verified}
-                    </p>
-                    <p className="mt-1 text-sm text-secondary">{review.projectTitle}</p>
-                    <div className="mt-5 flex items-center gap-1" aria-label={`${review.overallRating} out of 5 stars`}>
-                      {Array.from({ length: 5 }, (_, star) => (
-                        <Star key={star} className={`size-4 ${star < review.overallRating ? "fill-primary text-primary" : "text-border"}`} aria-hidden="true" />
-                      ))}
-                      <span className="ml-2 text-sm font-semibold text-primary">{review.overallRating.toFixed(1)}</span>
-                    </div>
-                  </div>
-                  <div className="relative max-w-3xl">
-                    <Quote className="absolute -left-1 -top-2 size-9 text-primary/15" aria-hidden="true" />
-                    <blockquote className="pl-8 font-display text-2xl font-semibold leading-9 tracking-[-.02em] text-foreground md:text-3xl md:leading-[1.3]">“{review.comment}”</blockquote>
-                  </div>
-                </article>
-              ))}
-            </div>
-            <PaginationControls pathname="/reviews" page={page} hasNext={hasNext} />
           </section>
         </>
       )}

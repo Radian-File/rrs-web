@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { PageEntrance } from "@/components/page-entrance";
-import { pageSize, parsePage } from "@/components/ui/pagination-controls";
+import { parsePage } from "@/components/ui/pagination-controls";
 import { ReviewsComposition } from "@/features/reviews/public/reviews-composition";
 import { getLocale } from "@/i18n/server";
 import { prisma } from "@/lib/db/prisma";
 
 export const dynamic = "force-dynamic";
+
+const reviewsPerPage = 3;
 
 export async function generateMetadata(): Promise<Metadata> {
   const isId = (await getLocale()) === "id";
@@ -34,8 +36,8 @@ export default async function ReviewsPage({
       project: { status: "COMPLETED" },
     },
     orderBy: { publishedAt: "desc" },
-    skip: (page - 1) * pageSize,
-    take: pageSize + 1,
+    skip: (page - 1) * reviewsPerPage,
+    take: reviewsPerPage + 1,
     select: {
       id: true,
       comment: true,
@@ -44,8 +46,8 @@ export default async function ReviewsPage({
       project: { select: { title: true } },
     },
   });
-  const hasNext = rows.length > pageSize;
-  const reviews = rows.slice(0, pageSize).map((review) => ({
+  const hasNext = rows.length > reviewsPerPage;
+  const reviews = rows.slice(0, reviewsPerPage).map((review) => ({
     id: review.id,
     comment: review.comment,
     overallRating: review.overallRating,
