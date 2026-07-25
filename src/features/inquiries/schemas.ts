@@ -10,7 +10,7 @@ export const projectBriefSchema = z.object({
   serviceSlug: optionalText,
   projectTitle: z.string().trim().min(3).max(160),
   projectType: z.string().trim().min(2).max(100),
-  projectDescription: z.string().trim().min(30).max(5000),
+  projectDescription: z.string().trim().min(15, "Deskripsi project minimal 15 karakter. Ceritakan singkat apa yang ingin kamu buat.").max(5000, "Deskripsi project maksimal 5.000 karakter."),
   projectGoals: z.string().trim().min(10).max(3000),
   targetUsers: optionalText,
   requiredFeatures: z.string().trim().min(3).max(3000),
