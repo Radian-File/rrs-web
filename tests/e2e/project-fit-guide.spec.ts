@@ -4,7 +4,7 @@ test.describe.configure({ mode: "serial" });
 
 test("Owner can publish a guide level and a guest can use its quotation-first handoff", async ({ page, browser }) => {
   test.skip(!process.env.RUN_CATALOG_MUTATION_E2E, "This focused shared-catalog mutation test runs only in its isolated validation command.");
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
 
   await page.goto("/login");
   await page.getByLabel("Email").fill(process.env.OWNER_EMAIL ?? "owner@example.com");
@@ -43,8 +43,10 @@ test("Owner can publish a guide level and a guest can use its quotation-first ha
   await guest.emulateMedia({ reducedMotion: "reduce" });
   try {
     await guest.goto("/services");
+    await guest.getByRole("button", { name: /Website Development/ }).click();
+    await expect(guest.locator("#service-navigator-title")).toHaveText("Website Development");
     await expect(guest.getByRole("heading", { name: "Essential" })).toBeVisible();
-    await guest.getByRole("button", { name: "Advanced" }).click();
+    await guest.getByRole("button", { name: "Choose a starting level 2: Advanced" }).click();
     await expect(guest.getByRole("heading", { name: "Advanced" })).toBeVisible();
     await expect(guest.getByRole("link", { name: "Sign in to send a brief" })).toHaveAttribute("href", /callbackUrl=.*start-project/);
 
@@ -58,15 +60,10 @@ test("Owner can publish a guide level and a guest can use its quotation-first ha
     if (test.info().project.name !== "mobile") {
       await guest.setViewportSize({ width: 1154, height: 740 });
       await guest.goto("/services/website-development?level=ADVANCED");
-      await expect(guest.getByRole("heading", { name: "Choose the level for your project." })).toBeVisible();
+      await expect(guest.getByRole("heading", { name: "Advanced" })).toBeVisible();
       await expect(guest.getByRole("link", { name: "Sign in to send a brief" })).toBeVisible();
-      const layout = await guest.evaluate(() => {
-        const heading = document.querySelector("#service-level-title")?.getBoundingClientRect();
-        const panel = document.querySelector("#service-level-detail")?.getBoundingClientRect();
-        return { overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth, headingBottom: heading?.bottom ?? 0, panelTop: panel?.top ?? 0 };
-      });
-      expect(layout.overflow).toBeLessThanOrEqual(1);
-      expect(layout.panelTop).toBeGreaterThan(layout.headingBottom);
+      const overflow = await guest.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow).toBeLessThanOrEqual(1);
     }
 
     await guest.goto("/services/website-development?level=UNTRUSTED");

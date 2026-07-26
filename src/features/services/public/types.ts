@@ -4,6 +4,16 @@ export type ServiceTypeOption = {
   count: number;
 };
 
+export type ServiceDiscoveryLevel = {
+  id: string;
+  code: "ESSENTIAL" | "ADVANCED" | "PREMIUM";
+  title: string;
+  summary: string;
+  indicators: string[];
+  escalationSignals: string[];
+  estimate: string | null;
+};
+
 export type ServiceDiscoveryItem = {
   id: string;
   slug: string;
@@ -17,6 +27,7 @@ export type ServiceDiscoveryItem = {
   deliverables: string[];
   technologies: string[];
   estimate: string;
+  levels: ServiceDiscoveryLevel[];
   isFeatured: boolean;
 };
 
@@ -25,3 +36,10 @@ export type ServiceDiscoveryGroup = {
   name: string;
   services: ServiceDiscoveryItem[];
 };
+
+export type ServiceNavigatorMicroTask = {
+  slug: string;
+  title: string;
+  summary: string;
+  estimate: string | null;
+} | null;
