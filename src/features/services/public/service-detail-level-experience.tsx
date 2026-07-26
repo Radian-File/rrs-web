@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Check, CircleHelp, ShieldCheck } from "lucide-react";
+import { ArrowRight, Check, CircleHelp, MessageCircle, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -86,6 +86,7 @@ export function ServiceDetailLevelPrice({ surface }: { surface: "hero" | "rail" 
         clientAction: "Lanjutkan dengan level ini",
         guestAction: "Login untuk kirim brief",
         ownerAction: "Buka Owner Workspace",
+        discussion: "Diskusi terlebih dahulu",
       }
     : {
         label: "Starting estimate",
@@ -93,6 +94,7 @@ export function ServiceDetailLevelPrice({ surface }: { surface: "hero" | "rail" 
         clientAction: "Continue with this level",
         guestAction: "Sign in to send a brief",
         ownerAction: "Open Owner Workspace",
+        discussion: "Discuss first",
       };
   const actionLabel = role === "CLIENT" ? copy.clientAction : role === "OWNER" ? copy.ownerAction : copy.guestAction;
 
@@ -100,7 +102,7 @@ export function ServiceDetailLevelPrice({ surface }: { surface: "hero" | "rail" 
     return <aside className="border-l-2 border-accent-lime bg-white/[.035] p-6 lg:p-7" aria-label={copy.label} aria-live="polite"><p className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[.17em] text-accent-lime"><ShieldCheck className="size-4" aria-hidden="true" />{activeLevel.title} / {copy.label}</p><p className="mt-8 text-[10px] font-bold uppercase tracking-[.14em] text-white/38">{copy.label}</p><p className="mt-2 break-words font-display text-4xl font-black tracking-[-.05em] text-accent-lime">{estimate}</p><p className="mt-4 text-xs leading-6 text-white/48">{copy.note}</p></aside>;
   }
 
-  return <div className="sticky top-24 overflow-hidden border border-border bg-surface shadow-[0_24px_80px_rgba(0,0,0,.2)]" aria-live="polite"><div className="border-b border-border bg-accent-soft/60 p-6"><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">{activeLevel.title} / {copy.label}</p><p className="mt-3 font-display text-3xl font-extrabold tracking-[-.045em] text-foreground">{estimate}</p><p className="mt-3 text-sm leading-6 text-secondary">{copy.note}</p></div><div className="p-6"><Button asChild size="lg" className="w-full"><Link href={actionHref}>{actionLabel}<ArrowRight className="size-4" aria-hidden="true" /></Link></Button></div></div>;
+  return <div className="sticky top-24 overflow-hidden border border-border bg-surface shadow-[0_24px_80px_rgba(0,0,0,.2)]" aria-live="polite"><div className="border-b border-border bg-accent-soft/60 p-6"><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">{activeLevel.title} / {copy.label}</p><p className="mt-3 font-display text-3xl font-extrabold tracking-[-.045em] text-foreground">{estimate}</p><p className="mt-3 text-sm leading-6 text-secondary">{copy.note}</p></div><div className="p-6"><Button asChild size="lg" className="w-full"><Link href={actionHref}>{actionLabel}<ArrowRight className="size-4" aria-hidden="true" /></Link></Button><Button asChild size="lg" variant="outline" className="mt-3 w-full"><Link href="/contact"><MessageCircle className="size-4" aria-hidden="true" />{copy.discussion}</Link></Button></div></div>;
 }
 
 export function ServiceDetailLevelGuide() {

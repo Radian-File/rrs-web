@@ -2,8 +2,8 @@ import { expect, test } from "@playwright/test";
 
 test.describe.configure({ mode: "serial" });
 
-test("Owner can publish a guide level and a guest can use its quotation-first handoff", async ({ page, browser }, testInfo) => {
-  test.skip(testInfo.project.name !== "chromium" || !process.env.RUN_CATALOG_MUTATION_E2E, "This focused shared-catalog mutation test runs only in its isolated validation command.");
+test("Owner can publish a guide level and a guest can use its quotation-first handoff", async ({ page, browser }) => {
+  test.skip(!process.env.RUN_CATALOG_MUTATION_E2E, "This focused shared-catalog mutation test runs only in its isolated validation command.");
   test.setTimeout(120_000);
 
   await page.goto("/login");
@@ -12,17 +12,11 @@ test("Owner can publish a guide level and a guest can use its quotation-first ha
   await page.getByRole("button", { name: "Sign In" }).click();
   await expect(page).toHaveURL(/\/owner$/, { timeout: 30_000 });
 
-  let editUrl = "";
-  for (let index = 1; index <= 10; index += 1) {
-    await page.goto(index === 1 ? "/owner/services" : `/owner/services?page=${index}`);
-    const serviceCard = page.getByRole("region", { name: "Website Development" });
-    if (await serviceCard.count() === 0) continue;
-    await serviceCard.getByRole("link", { name: "Edit" }).click();
-    await page.waitForURL(/\/owner\/services\/[^/]+\/edit/);
-    editUrl = page.url();
-    break;
-  }
-  expect(editUrl).toContain("/owner/services/");
+  await page.goto("/owner/services?q=website-development");
+  const serviceCard = page.getByRole("region", { name: "Website Development" });
+  await serviceCard.getByRole("link", { name: "Edit" }).click();
+  await page.waitForURL(/\/owner\/services\/[^/]+\/edit/);
+  const editUrl = page.url();
 
   const guideVisibility = page.getByRole("checkbox", { name: "Tampilkan di Project Fit Guide" });
   const publicVisibility = page.getByRole("checkbox", { name: "Publikasikan ke halaman publik" });
@@ -46,6 +40,7 @@ test("Owner can publish a guide level and a guest can use its quotation-first ha
     storageState: { cookies: [{ name: "rrs-locale", value: "en", domain: "127.0.0.1", path: "/", expires: -1, httpOnly: false, secure: false, sameSite: "Lax" }], origins: [] },
   });
   const guest = await guestContext.newPage();
+  await guest.emulateMedia({ reducedMotion: "reduce" });
   try {
     await guest.goto("/services");
     await expect(guest.getByRole("heading", { name: "Essential" })).toBeVisible();
@@ -59,6 +54,10 @@ test("Owner can publish a guide level and a guest can use its quotation-first ha
     await guest.getByRole("tab", { name: /Level 3 Premium/ }).click();
     await expect(guest).toHaveURL(/level=PREMIUM/);
     await expect(guest.getByText("Rp 10.000.000+").first()).toBeVisible();
+
+    await guest.goto("/services/website-development?level=UNTRUSTED");
+    await expect(guest.getByRole("heading", { name: "Essential" })).toBeVisible();
+    await expect(guest.getByText("Rp 1.000.000+").first()).toBeVisible();
   } finally {
     await guestContext.close();
   }
