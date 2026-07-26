@@ -6,13 +6,15 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PaginationControls, pageSize, parsePage } from "@/components/ui/pagination-controls";
 import { WorkspaceModule } from "@/components/workspace/workspace-module";
 import { WorkspacePageHeader } from "@/components/workspace/workspace-page-header";
+import { importDefaultServiceCatalogAction } from "@/features/services/actions";
 import { prisma } from "@/lib/db/prisma";
 import { formatIdr } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function OwnerServicesPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
-  const page = parsePage((await searchParams).page);
+export default async function OwnerServicesPage({ searchParams }: { searchParams: Promise<{ page?: string; catalog?: string }> }) {
+  const { page: rawPage, catalog } = await searchParams;
+  const page = parsePage(rawPage);
   const [rows, total, published] = await Promise.all([
     prisma.service.findMany({ orderBy: [{ isPublished: "asc" }, { isFeatured: "desc" }, { updatedAt: "desc" }], skip: (page - 1) * pageSize, take: pageSize + 1, select: { id: true, isPublished: true, isFeatured: true, title: true, category: true, startingPrice: true, summary: true, updatedAt: true } }),
     prisma.service.count(),
@@ -22,7 +24,8 @@ export default async function OwnerServicesPage({ searchParams }: { searchParams
   const services = rows.slice(0, pageSize);
 
   return <>
-    <WorkspacePageHeader eyebrow="Layanan" title="Kelola katalog yang ditampilkan ke Client." description="Draf tidak tampil di halaman publik. Unpublish mempertahankan riwayat quotation dan inquiry tanpa menghapus relasinya." actions={<><Button asChild variant="outline"><Link href="/owner/services/types">Jenis layanan</Link></Button><Button asChild><Link href="/owner/services/create"><Plus className="size-4" aria-hidden="true"/>Buat layanan</Link></Button></>}/>
+    <WorkspacePageHeader eyebrow="Layanan" title="Kelola katalog yang ditampilkan ke Client." description="Draf tidak tampil di halaman publik. Unpublish mempertahankan riwayat quotation dan inquiry tanpa menghapus relasinya." actions={<><form action={importDefaultServiceCatalogAction}><Button type="submit" variant="outline">Impor katalog default</Button></form><Button asChild variant="outline"><Link href="/owner/services/types">Jenis layanan</Link></Button><Button asChild><Link href="/owner/services/create"><Plus className="size-4" aria-hidden="true"/>Buat layanan</Link></Button></>}/>
+    {catalog === "imported" ? <p role="status" className="mt-6 rounded-[10px] bg-accent-soft px-4 py-3 text-sm font-semibold text-primary">Katalog default diperiksa. Record yang belum ada ditambahkan sebagai draf tanpa menimpa perubahan Owner.</p> : null}
     <dl className="mt-8 grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-3">
       <Metric label="Total layanan" value={total}/><Metric label="Sudah dipublikasikan" value={published}/><Metric label="Draf / belum tayang" value={total-published}/>
     </dl>

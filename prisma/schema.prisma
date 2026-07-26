@@ -27,6 +27,17 @@ enum StudioStackCategory {
   OTHER
 }
 
+enum ServiceCatalogKind {
+  PROJECT
+  MICRO_TASK
+}
+
+enum ComplexityLevelCode {
+  ESSENTIAL
+  ADVANCED
+  PREMIUM
+}
+
 enum InquiryStatus {
   DRAFT
   SUBMITTED
@@ -272,34 +283,60 @@ model ServiceType {
 }
 
 model Service {
-  id               String   @id @default(cuid())
-  title            String
-  slug             String   @unique
-  summary          String
-  description      String   @db.Text
-  category         String
-  serviceTypeId    String?
-  startingPrice    Decimal? @db.Decimal(18, 2)
-  currency         String   @default("IDR")
-  deliveryEstimate String?
-  revisionGuidance String?
-  deliverables     String[]
-  technologies     String[]
-  searchAliases    String[] @default([])
-  coverImageUrl    String?
-  isFeatured       Boolean  @default(false)
-  isPublished      Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                 String             @id @default(cuid())
+  title              String
+  slug               String             @unique
+  summary            String
+  description        String             @db.Text
+  category           String
+  serviceTypeId      String?
+  catalogKind        ServiceCatalogKind @default(PROJECT)
+  showInPricingGuide Boolean            @default(false)
+  startingPrice      Decimal?           @db.Decimal(18, 2)
+  currency           String             @default("IDR")
+  deliveryEstimate   String?
+  revisionGuidance   String?
+  deliverables       String[]
+  technologies       String[]
+  searchAliases      String[]           @default([])
+  coverImageUrl      String?
+  isFeatured         Boolean            @default(false)
+  isPublished        Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
 
-  serviceType ServiceType? @relation(fields: [serviceTypeId], references: [id], onDelete: SetNull)
-  inquiries   Inquiry[]
-  quotations  Quotation[]
-  reviews     Review[]
+  serviceType      ServiceType?             @relation(fields: [serviceTypeId], references: [id], onDelete: SetNull)
+  complexityLevels ServiceComplexityLevel[]
+  inquiries        Inquiry[]
+  quotations       Quotation[]
+  reviews          Review[]
 
   @@index([category])
   @@index([serviceTypeId])
   @@index([isPublished, isFeatured])
+  @@index([showInPricingGuide, isPublished])
+}
+
+model ServiceComplexityLevel {
+  id                String              @id @default(cuid())
+  serviceId         String
+  code              ComplexityLevelCode
+  title             String
+  summary           String              @db.Text
+  indicators        String[]
+  escalationSignals String[]
+  startingPrice     Decimal?            @db.Decimal(18, 2)
+  currency          String              @default("IDR")
+  sortOrder         Int                 @default(0)
+  isPublished       Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  service   Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  inquiries Inquiry[]
+
+  @@unique([serviceId, code])
+  @@index([serviceId, isPublished, sortOrder])
 }
 
 model StudioStackItem {
@@ -341,44 +378,49 @@ model PortfolioProject {
 }
 
 model Inquiry {
-  id                 String        @id @default(cuid())
-  inquiryNumber      String        @unique
-  clientId           String?
-  selectedServiceId  String?
-  clientName         String
-  clientPhone        String
-  clientEmail        String
-  companyName        String?
-  projectTitle       String
-  projectType        String
-  projectDescription String        @db.Text
-  projectGoals       String        @db.Text
-  targetUsers        String?
-  requiredFeatures   String[]
-  referenceLinks     String[]
-  budgetRange        String?
-  expectedDeadline   DateTime?
-  hasDesign          Boolean?
-  hasDomain          Boolean?
-  hasHosting         Boolean?
-  needsMaintenance   Boolean?
-  isRedesign         Boolean?
-  source             InquirySource @default(WEBSITE_TO_WHATSAPP)
-  status             InquiryStatus @default(SUBMITTED)
-  internalNotes      String?       @db.Text
-  archivedAt         DateTime?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  id                          String               @id @default(cuid())
+  inquiryNumber               String               @unique
+  clientId                    String?
+  selectedServiceId           String?
+  initialComplexityLevelId    String?
+  initialComplexityLevelCode  ComplexityLevelCode?
+  initialComplexityLevelLabel String?
+  clientName                  String
+  clientPhone                 String
+  clientEmail                 String
+  companyName                 String?
+  projectTitle                String
+  projectType                 String
+  projectDescription          String               @db.Text
+  projectGoals                String               @db.Text
+  targetUsers                 String?
+  requiredFeatures            String[]
+  referenceLinks              String[]
+  budgetRange                 String?
+  expectedDeadline            DateTime?
+  hasDesign                   Boolean?
+  hasDomain                   Boolean?
+  hasHosting                  Boolean?
+  needsMaintenance            Boolean?
+  isRedesign                  Boolean?
+  source                      InquirySource        @default(WEBSITE_TO_WHATSAPP)
+  status                      InquiryStatus        @default(SUBMITTED)
+  internalNotes               String?              @db.Text
+  archivedAt                  DateTime?
+  createdAt                   DateTime             @default(now())
+  updatedAt                   DateTime             @updatedAt
 
-  client          User?             @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  selectedService Service?          @relation(fields: [selectedServiceId], references: [id], onDelete: SetNull)
-  quotations      Quotation[]
-  projects        Project[]
-  files           FileAsset[]
-  activities      InquiryActivity[]
+  client                 User?                   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  selectedService        Service?                @relation(fields: [selectedServiceId], references: [id], onDelete: SetNull)
+  initialComplexityLevel ServiceComplexityLevel? @relation(fields: [initialComplexityLevelId], references: [id], onDelete: SetNull)
+  quotations             Quotation[]
+  projects               Project[]
+  files                  FileAsset[]
+  activities             InquiryActivity[]
 
   @@index([clientId])
   @@index([selectedServiceId])
+  @@index([initialComplexityLevelId])
   @@index([status, createdAt])
   @@index([archivedAt, createdAt])
   @@index([clientEmail])

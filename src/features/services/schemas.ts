@@ -10,6 +10,8 @@ export const serviceSchema = z.object({
   summary: z.string().trim().min(10, "Ringkasan minimal 10 karakter.").max(500),
   description: z.string().trim().min(20, "Deskripsi minimal 20 karakter.").max(10000),
   serviceTypeId: z.string().cuid("Pilih jenis layanan yang valid."),
+  catalogKind: z.enum(["PROJECT", "MICRO_TASK"]).default("PROJECT"),
+  showInPricingGuide: z.preprocess((value) => value === "on", z.boolean()),
   startingPrice: z.preprocess((value) => value === "" ? undefined : value, z.coerce.number().finite().min(0, "Harga tidak boleh negatif.").optional()),
   deliveryEstimate: optionalText,
   revisionGuidance: optionalText,
@@ -21,4 +23,17 @@ export const serviceSchema = z.object({
   isPublished: z.preprocess((value) => value === "on", z.boolean()),
 });
 
+export const serviceComplexityLevelSchema = z.object({
+  id: z.string().cuid(),
+  serviceId: z.string().cuid(),
+  code: z.enum(["ESSENTIAL", "ADVANCED", "PREMIUM"]),
+  title: z.string().trim().min(2, "Nama level minimal 2 karakter.").max(80),
+  summary: z.string().trim().min(20, "Penjelasan level minimal 20 karakter.").max(2000),
+  indicators: linesToList,
+  escalationSignals: linesToList,
+  startingPrice: z.preprocess((value) => value === "" ? undefined : value, z.coerce.number().finite().min(0, "Harga tidak boleh negatif.").optional()),
+  isPublished: z.preprocess((value) => value === "on", z.boolean()),
+});
+
 export type ServiceInput = z.infer<typeof serviceSchema>;
+export type ServiceComplexityLevelInput = z.infer<typeof serviceComplexityLevelSchema>;

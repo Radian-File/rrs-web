@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireOwner } from "@/lib/authz";
 import { prisma } from "@/lib/db/prisma";
-import { serviceSchema } from "@/features/services/schemas";
+import { importDefaultServiceCatalog } from "@/features/services/catalog-defaults";
+import { serviceComplexityLevelSchema, serviceSchema } from "@/features/services/schemas";
 
 export type ServiceActionState = { message?: string; errors?: Record<string, string[]> };
 
@@ -52,4 +53,41 @@ export async function updateServiceAction(_state: ServiceActionState, formData: 
   await prisma.service.update({ where: { id: current.id }, data: { ...parsed.data, category: type.name, startingPrice: parsed.data.startingPrice ?? null, coverImageUrl: parsed.data.coverImageUrl ?? null, deliveryEstimate: parsed.data.deliveryEstimate ?? null, revisionGuidance: parsed.data.revisionGuidance ?? null, currency: "IDR" } });
   revalidateServicePaths(parsed.data.slug, current.slug);
   return { message: parsed.data.isPublished ? "Layanan berhasil diperbarui dan dipublikasikan." : "Draf layanan berhasil disimpan." };
+}
+
+export async function importDefaultServiceCatalogAction() {
+  await requireOwner();
+  await prisma.$transaction((tx) => importDefaultServiceCatalog(tx));
+  revalidatePath("/");
+  revalidatePath("/services");
+  revalidatePath("/start-project");
+  revalidatePath("/owner/services");
+  redirect("/owner/services?catalog=imported");
+}
+
+export async function updateServiceComplexityLevelAction(
+  _state: ServiceActionState,
+  formData: FormData,
+): Promise<ServiceActionState> {
+  await requireOwner();
+  const parsed = serviceComplexityLevelSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { errors: parsed.error.flatten().fieldErrors };
+  const current = await prisma.serviceComplexityLevel.findUnique({
+    where: { id: parsed.data.id },
+    select: { id: true, serviceId: true, service: { select: { slug: true } } },
+  });
+  if (!current || current.serviceId !== parsed.data.serviceId) return { message: "Level layanan tidak ditemukan." };
+  await prisma.serviceComplexityLevel.update({
+    where: { id: current.id },
+    data: {
+      title: parsed.data.title,
+      summary: parsed.data.summary,
+      indicators: parsed.data.indicators,
+      escalationSignals: parsed.data.escalationSignals,
+      startingPrice: parsed.data.startingPrice ?? null,
+      isPublished: parsed.data.isPublished,
+    },
+  });
+  revalidateServicePaths(current.service.slug);
+  return { message: "Panduan level berhasil diperbarui." };
 }

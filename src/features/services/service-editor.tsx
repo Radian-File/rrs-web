@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRetainedFormValues } from "@/components/ui/use-retained-form-values";
 
-export type EditableService = { id: string; title: string; slug: string; summary: string; description: string; category: string; serviceTypeId: string | null; startingPrice: string | null; deliveryEstimate: string | null; revisionGuidance: string | null; deliverables: string[]; technologies: string[]; searchAliases: string[]; coverImageUrl: string | null; isFeatured: boolean; isPublished: boolean };
+export type EditableService = { id: string; title: string; slug: string; summary: string; description: string; category: string; serviceTypeId: string | null; catalogKind: "PROJECT" | "MICRO_TASK"; showInPricingGuide: boolean; startingPrice: string | null; deliveryEstimate: string | null; revisionGuidance: string | null; deliverables: string[]; technologies: string[]; searchAliases: string[]; coverImageUrl: string | null; isFeatured: boolean; isPublished: boolean };
 
 export function ServiceEditor({ service, types }: { service?: EditableService; types: { id: string; name: string }[] }) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -21,6 +21,7 @@ export function ServiceEditor({ service, types }: { service?: EditableService; t
       <Field label="Nama layanan" name="title" defaultValue={service?.title} error={error("title")} />
       <Field label="Slug URL" name="slug" defaultValue={service?.slug} placeholder="website-development" error={error("slug")} />
       <label><span className="mb-2 block text-sm font-semibold">Jenis layanan</span><select name="serviceTypeId" required defaultValue={service?.serviceTypeId ?? ""} className={fieldErrorClass(error("serviceTypeId"), "h-12 w-full rounded-[12px] border border-border bg-surface px-4 text-sm")}><option value="">Pilih jenis layanan</option>{types.map((type)=><option key={type.id} value={type.id}>{type.name}</option>)}</select><FieldError id="serviceTypeId-error" error={error("serviceTypeId")}/></label>
+      <label><span className="mb-2 block text-sm font-semibold">Peran katalog</span><select name="catalogKind" defaultValue={service?.catalogKind ?? "PROJECT"} className={fieldErrorClass(error("catalogKind"), "h-12 w-full rounded-[12px] border border-border bg-surface px-4 text-sm")}><option value="PROJECT">Project service</option><option value="MICRO_TASK">Micro Task</option></select><FieldError id="catalogKind-error" error={error("catalogKind")}/></label>
       <Field label="Harga mulai dari (IDR)" name="startingPrice" type="number" min="0" step="1000" defaultValue={service?.startingPrice ?? ""} error={error("startingPrice")} />
       <Field label="Estimasi pengerjaan" name="deliveryEstimate" defaultValue={service?.deliveryEstimate ?? ""} placeholder="14–30 hari" error={error("deliveryEstimate")} />
       <Field label="Panduan revisi" name="revisionGuidance" defaultValue={service?.revisionGuidance ?? ""} placeholder="Sesuai quotation" error={error("revisionGuidance")} />
@@ -33,7 +34,7 @@ export function ServiceEditor({ service, types }: { service?: EditableService; t
       <Area label="Deliverables" hint="Satu item per baris." name="deliverables" defaultValue={service?.deliverables.join("\n")} error={error("deliverables")} />
       <Area label="Teknologi / keahlian" hint="Satu item per baris." name="technologies" defaultValue={service?.technologies.join("\n")} error={error("technologies")} />
     </div>
-    <div className="flex flex-wrap gap-5 rounded-[14px] border border-border bg-surface-container/40 p-5"><Check label="Tampilkan sebagai layanan unggulan" name="isFeatured" defaultChecked={service?.isFeatured ?? false} /><Check label="Publikasikan ke halaman publik" name="isPublished" defaultChecked={service?.isPublished ?? false} /></div>
+    <div className="flex flex-wrap gap-5 rounded-[14px] border border-border bg-surface-container/40 p-5"><Check label="Tampilkan sebagai layanan unggulan" name="isFeatured" defaultChecked={service?.isFeatured ?? false} /><Check label="Tampilkan di Project Fit Guide" name="showInPricingGuide" defaultChecked={service?.showInPricingGuide ?? false} /><Check label="Publikasikan ke halaman publik" name="isPublished" defaultChecked={service?.isPublished ?? false} /></div>
     {state.message && <p role="status" className="rounded-[10px] bg-accent-soft px-4 py-3 text-sm font-semibold text-primary">{state.message}</p>}
     <div className="flex justify-end"><Button size="lg" disabled={pending}>{pending ? "Menyimpan…" : service ? "Simpan perubahan" : "Buat layanan"}</Button></div>
   </form>;
