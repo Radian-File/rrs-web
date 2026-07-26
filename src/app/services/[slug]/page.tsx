@@ -12,66 +12,48 @@ import { formatIdr } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const service = await prisma.service.findFirst({
-    where: { slug, isPublished: true },
-    select: { title: true, summary: true },
-  });
-
-  return service
-    ? { title: service.title, description: service.summary }
-    : { title: "Service not found", robots: { index: false, follow: false } };
+  const service = await prisma.service.findFirst({ where: { slug, isPublished: true }, select: { title: true, summary: true } });
+  return service ? { title: service.title, description: service.summary } : { title: "Service not found", robots: { index: false, follow: false } };
 }
 
 export default async function ServiceDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ level?: string }>;
 }) {
-  const [{ slug }, locale, session] = await Promise.all([params, getLocale(), auth()]);
+  const [{ slug }, { level: requestedLevel }, locale, session] = await Promise.all([params, searchParams, getLocale(), auth()]);
   const service = await prisma.service.findFirst({
     where: { slug, isPublished: true },
-    include: { complexityLevels: { where: { isPublished: true }, orderBy: { sortOrder: "asc" }, take: 1, select: { startingPrice: true } } },
+    include: {
+      complexityLevels: {
+        where: { isPublished: true },
+        orderBy: { sortOrder: "asc" },
+        select: { code: true, title: true, summary: true, indicators: true, escalationSignals: true, startingPrice: true },
+      },
+    },
   });
   if (!service) notFound();
 
   const isId = locale === "id";
   const role = session?.user?.role;
-  const quotationHref =
-    role === "CLIENT"
-      ? `/start-project?service=${service.slug}`
-      : role === "OWNER"
-        ? "/owner"
-        : loginUrl(`/start-project?service=${service.slug}`);
-  const quotationLabel =
-    role === "CLIENT"
-      ? (isId ? "Mulai mengajukan quotation" : "Start a quotation request")
-      : role === "OWNER"
-        ? (isId ? "Buka Owner Workspace" : "Open Owner Workspace")
-        : (isId ? "Login untuk mengajukan quotation" : "Sign in to request a quotation");
-  const startingEstimate = (service.showInPricingGuide ? service.complexityLevels[0]?.startingPrice : null) ?? service.startingPrice;
-  const estimate = startingEstimate
-    ? `${formatIdr(startingEstimate.toString())}+`
-    : (isId ? "Sesuai scope" : "Custom scope");
+  const quotationHref = role === "CLIENT" ? `/start-project?service=${service.slug}` : role === "OWNER" ? "/owner" : loginUrl(`/start-project?service=${service.slug}`);
+  const quotationLabel = role === "CLIENT" ? (isId ? "Mulai mengajukan quotation" : "Start a quotation request") : role === "OWNER" ? (isId ? "Buka Owner Workspace" : "Open Owner Workspace") : (isId ? "Login untuk mengajukan quotation" : "Sign in to request a quotation");
+  const publishedGuideLevels = service.showInPricingGuide ? service.complexityLevels : [];
+  const initialLevel = publishedGuideLevels.find((item) => item.code === requestedLevel) ?? publishedGuideLevels[0];
+  const startingEstimate = initialLevel?.startingPrice ?? ((service.showInPricingGuide ? publishedGuideLevels[0]?.startingPrice : null) ?? service.startingPrice);
+  const estimate = startingEstimate ? `${formatIdr(startingEstimate.toString())}+` : (isId ? "Sesuai scope" : "Custom scope");
+  const levels = publishedGuideLevels.map((item) => ({
+    code: item.code,
+    title: item.title,
+    summary: item.summary,
+    indicators: item.indicators,
+    escalationSignals: item.escalationSignals,
+    estimate: item.startingPrice ? `${formatIdr(item.startingPrice.toString())}+` : null,
+  }));
 
-  return (
-    <>
-      <SiteHeader />
-      <PageEntrance>
-        <ServiceDetailComposition
-          service={service}
-          estimate={estimate}
-          quotationHref={quotationHref}
-          quotationLabel={quotationLabel}
-          isId={isId}
-        />
-      </PageEntrance>
-      <SiteFooter />
-    </>
-  );
+  return <><SiteHeader /><PageEntrance><ServiceDetailComposition service={service} estimate={estimate} quotationHref={quotationHref} quotationLabel={quotationLabel} role={role === "OWNER" || role === "CLIENT" ? role : undefined} levels={levels} initialLevelCode={initialLevel?.code} isId={isId} /></PageEntrance><SiteFooter /></>;
 }

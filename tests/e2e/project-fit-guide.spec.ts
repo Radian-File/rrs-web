@@ -52,6 +52,13 @@ test("Owner can publish a guide level and a guest can use its quotation-first ha
     await guest.getByRole("button", { name: "Advanced" }).click();
     await expect(guest.getByRole("heading", { name: "Advanced" })).toBeVisible();
     await expect(guest.getByRole("link", { name: "Sign in to send a brief" })).toHaveAttribute("href", /callbackUrl=.*start-project/);
+
+    await guest.goto("/services/website-development?level=ADVANCED");
+    await expect(guest.getByRole("heading", { name: "Advanced" })).toBeVisible();
+    await expect(guest.getByText("Rp 4.000.000+").first()).toBeVisible();
+    await guest.getByRole("tab", { name: /Level 3 Premium/ }).click();
+    await expect(guest).toHaveURL(/level=PREMIUM/);
+    await expect(guest.getByText("Rp 10.000.000+").first()).toBeVisible();
   } finally {
     await guestContext.close();
   }
