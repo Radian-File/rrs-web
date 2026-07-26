@@ -24,6 +24,10 @@ test("owner can create, publish, and unpublish a service without deleting it", a
   await main.getByRole("button", { name: "Buat layanan" }).click();
   await expect(page.getByText("Layanan dibuat sebagai draf", { exact: false })).toBeVisible({ timeout: 30_000 });
   const editUrl = page.url();
+  await expect(page.getByRole("button", { name: "Buat draft Level 1–3" })).toBeVisible();
+  await page.getByRole("button", { name: "Buat draft Level 1–3" }).click();
+  await expect(page.getByText("Draft Level 1–3 telah dibuat", { exact: false })).toBeVisible();
+  await expect(page.getByLabel("Nama level untuk Client")).toHaveCount(3);
 
   await page.goto(`/services/${slug}`);
   await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();

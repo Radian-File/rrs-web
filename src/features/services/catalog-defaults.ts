@@ -49,7 +49,7 @@ const serviceTypes = [
   { name: "Maintenance & Technical Support", slug: "maintenance-technical-support", icon: "wrench", sortOrder: 80 },
 ] as const;
 
-function complexityLevels(prices?: Partial<Record<CatalogLevel["code"], string>>): CatalogLevel[] {
+export function defaultComplexityLevels(prices?: Partial<Record<CatalogLevel["code"], string>>): CatalogLevel[] {
   return [
     {
       code: "ESSENTIAL",
@@ -97,7 +97,7 @@ function draftService(spec: DraftSpec): CatalogService {
     deliverables: ["Scope yang disepakati melalui quotation", "Handoff sesuai kebutuhan project"],
     technologies: spec.technologies ?? ["Custom workflow", "Discovery", "Technical handoff"],
     searchAliases: spec.aliases ?? [],
-    levels: hasLevels ? complexityLevels() : undefined,
+    levels: hasLevels ? defaultComplexityLevels() : undefined,
   };
 }
 
@@ -113,7 +113,7 @@ const catalogServices: CatalogService[] = [
       technologies: ["Web development", "SEO foundation", "Deployment"],
     }),
     startingPrice: "1000000",
-    levels: complexityLevels({ ESSENTIAL: "1000000", ADVANCED: "4000000", PREMIUM: "10000000" }),
+    levels: defaultComplexityLevels({ ESSENTIAL: "1000000", ADVANCED: "4000000", PREMIUM: "10000000" }),
   },
   ...[
     ["Landing Page", "landing-page-campaign", "Landing page untuk campaign, validasi ide, lead, atau peluncuran layanan.", ["landing page", "campaign page"]],
@@ -145,7 +145,7 @@ const catalogServices: CatalogService[] = [
       technologies: ["Android", "API integration", "Mobile UI"],
     }),
     startingPrice: "3000000",
-    levels: complexityLevels({ ESSENTIAL: "3000000", ADVANCED: "8000000", PREMIUM: "20000000" }),
+    levels: defaultComplexityLevels({ ESSENTIAL: "3000000", ADVANCED: "8000000", PREMIUM: "20000000" }),
   },
   ...[
     ["Android WebView Application", "android-webview-application", "Aplikasi Android yang membungkus workflow web yang telah tersedia."],
@@ -173,7 +173,7 @@ const catalogServices: CatalogService[] = [
       technologies: ["Desktop application", "Local or server data", "Operational workflow"],
     }),
     startingPrice: "2500000",
-    levels: complexityLevels({ ESSENTIAL: "2500000", ADVANCED: "7000000", PREMIUM: "18000000" }),
+    levels: defaultComplexityLevels({ ESSENTIAL: "2500000", ADVANCED: "7000000", PREMIUM: "18000000"})
   },
   ...[
     ["Desktop Utility Application", "desktop-utility-application", "Aplikasi desktop sederhana untuk task khusus dan produktivitas."],

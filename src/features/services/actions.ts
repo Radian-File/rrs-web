@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireOwner } from "@/lib/authz";
 import { prisma } from "@/lib/db/prisma";
-import { importDefaultServiceCatalog } from "@/features/services/catalog-defaults";
+import { defaultComplexityLevels, importDefaultServiceCatalog } from "@/features/services/catalog-defaults";
 import { serviceComplexityLevelSchema, serviceSchema } from "@/features/services/schemas";
 
 export type ServiceActionState = { message?: string; errors?: Record<string, string[]> };
@@ -63,6 +63,26 @@ export async function importDefaultServiceCatalogAction() {
   revalidatePath("/start-project");
   revalidatePath("/owner/services");
   redirect(`/owner/services?catalog=imported&types=${result.createdTypes}&services=${result.createdServices}&levels=${result.createdLevels}&skipped=${result.skippedServices}`);
+}
+
+export async function initializeServiceComplexityLevelsAction(formData: FormData) {
+  await requireOwner();
+  const serviceId = z.string().cuid().safeParse(formData.get("serviceId"));
+  if (!serviceId.success) throw new Error("Layanan tidak valid.");
+  const service = await prisma.service.findUnique({ where: { id: serviceId.data }, select: { id: true, slug: true, catalogKind: true } });
+  if (!service || service.catalogKind !== "PROJECT") throw new Error("Level hanya tersedia untuk layanan project.");
+
+  await prisma.$transaction(async (tx) => {
+    for (const level of defaultComplexityLevels()) {
+      await tx.serviceComplexityLevel.upsert({
+        where: { serviceId_code: { serviceId: service.id, code: level.code } },
+        create: { serviceId: service.id, ...level, currency: "IDR", isPublished: false },
+        update: {},
+      });
+    }
+  });
+  revalidateServicePaths(service.slug);
+  redirect(`/owner/services/${service.id}/edit?levels=initialized`);
 }
 
 export async function updateServiceComplexityLevelAction(
