@@ -54,6 +54,16 @@ test.describe("A1-A6 redesign audit", () => {
     expect(overflow).toBeLessThanOrEqual(1);
   });
 
+  test("service navigator remains contained at intermediate desktop width", async ({ page }) => {
+    await page.setViewportSize({ width: 1154, height: 740 });
+    await page.goto("/services");
+    const typeTabs = page.getByRole("tablist").first();
+    await expect(typeTabs).toBeVisible();
+    await expect(typeTabs).toHaveCSS("flex-direction", "row");
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(1);
+  });
+
   test("About keeps verified identity inside the viewport", async ({ page }) => {
     await page.goto("/about");
     await expect(page.getByText("Bandung & Bekasi, Indonesia", { exact: true })).toBeVisible();

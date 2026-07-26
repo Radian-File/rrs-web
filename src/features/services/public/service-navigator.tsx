@@ -83,9 +83,9 @@ export function ServiceNavigator({
       meta={activeGroup.name}
       frameClassName="bg-[radial-gradient(circle_at_82%_16%,rgba(200,237,115,.1),transparent_30%),linear-gradient(145deg,#302d1d,#1d201d_62%)]"
     >
-      <div className="grid gap-4 lg:grid-cols-[104px_minmax(260px,.72fr)_minmax(0,1.28fr)]">
+      <div className="grid gap-4 xl:grid-cols-[104px_minmax(260px,.72fr)_minmax(0,1.28fr)]">
         <div
-          className="flex snap-x gap-2 overflow-x-auto rounded-[20px] border border-white/10 bg-black/15 p-3 focus-within:border-accent-lime/35 lg:flex-col lg:overflow-visible"
+          className="flex snap-x gap-2 overflow-x-auto rounded-[20px] border border-white/10 bg-black/15 p-3 focus-within:border-accent-lime/35 xl:flex-col xl:overflow-visible"
           role="tablist"
           aria-label={copy.typeLabel}
           aria-orientation="vertical"
@@ -104,7 +104,7 @@ export function ServiceNavigator({
                 onClick={() => selectType(group.slug)}
                 onKeyDown={(event) => handleTypeKeyDown(event, index)}
                 className={cn(
-                  "group min-w-[76px] snap-start rounded-[14px] border px-3 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus lg:min-w-0",
+                  "group min-w-[76px] snap-start rounded-[14px] border px-3 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus xl:min-w-0",
                   active
                     ? "border-accent-lime/45 bg-accent-lime text-background"
                     : "border-white/10 bg-white/[.035] text-white hover:border-white/25 hover:bg-white/[.07]",
@@ -119,7 +119,7 @@ export function ServiceNavigator({
 
         <section id="service-options-panel" role="tabpanel" aria-labelledby={`service-type-${activeGroup.slug}`} className="min-w-0 rounded-[20px] border border-white/10 bg-black/12 p-4 sm:p-5">
           <p className="text-[9px] font-black uppercase tracking-[.18em] text-accent-lime">{copy.serviceLabel}</p>
-          <div className="mt-5 flex snap-x gap-3 overflow-x-auto pb-2 lg:block lg:space-y-3 lg:overflow-visible lg:pb-0">
+          <div className="mt-5 flex snap-x gap-3 overflow-x-auto pb-2 xl:block xl:space-y-3 xl:overflow-visible xl:pb-0">
             {activeGroup.services.map((item, index) => {
               const active = item.slug === service.slug;
               return (
@@ -129,9 +129,9 @@ export function ServiceNavigator({
                   aria-pressed={active}
                   onClick={() => setActiveService(item.slug)}
                   className={cn(
-                    "min-w-[78%] snap-start rounded-[16px] border p-4 text-left transition-[border-color,background-color,transform] duration-200 motion-reduce:transition-none sm:min-w-[56%] lg:min-w-0 lg:w-full",
+                    "min-w-[78%] snap-start rounded-[16px] border p-4 text-left transition-[border-color,background-color,transform] duration-200 motion-reduce:transition-none sm:min-w-[56%] xl:min-w-0 xl:w-full",
                     active
-                      ? "border-accent-lime/45 bg-[#30472f] lg:translate-x-1 motion-reduce:translate-x-0"
+                      ? "border-accent-lime/45 bg-[#30472f] xl:translate-x-1 motion-reduce:translate-x-0"
                       : "border-white/10 bg-[#242724] hover:border-white/25 hover:bg-[#292c2a]",
                   )}
                 >

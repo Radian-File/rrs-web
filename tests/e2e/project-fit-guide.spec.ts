@@ -55,6 +55,20 @@ test("Owner can publish a guide level and a guest can use its quotation-first ha
     await expect(guest).toHaveURL(/level=PREMIUM/);
     await expect(guest.getByText("Rp 10.000.000+").first()).toBeVisible();
 
+    if (test.info().project.name !== "mobile") {
+      await guest.setViewportSize({ width: 1154, height: 740 });
+      await guest.goto("/services/website-development?level=ADVANCED");
+      await expect(guest.getByRole("heading", { name: "Choose the level for your project." })).toBeVisible();
+      await expect(guest.getByRole("link", { name: "Sign in to send a brief" })).toBeVisible();
+      const layout = await guest.evaluate(() => {
+        const heading = document.querySelector("#service-level-title")?.getBoundingClientRect();
+        const panel = document.querySelector("#service-level-detail")?.getBoundingClientRect();
+        return { overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth, headingBottom: heading?.bottom ?? 0, panelTop: panel?.top ?? 0 };
+      });
+      expect(layout.overflow).toBeLessThanOrEqual(1);
+      expect(layout.panelTop).toBeGreaterThan(layout.headingBottom);
+    }
+
     await guest.goto("/services/website-development?level=UNTRUSTED");
     await expect(guest.getByRole("heading", { name: "Essential" })).toBeVisible();
     await expect(guest.getByText("Rp 1.000.000+").first()).toBeVisible();
