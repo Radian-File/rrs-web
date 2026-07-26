@@ -42,7 +42,7 @@ export default async function ServiceDetailPage({
   const isId = locale === "id";
   const role = session?.user?.role;
   const quotationHref = role === "CLIENT" ? `/start-project?service=${service.slug}` : role === "OWNER" ? "/owner" : loginUrl(`/start-project?service=${service.slug}`);
-  const quotationLabel = role === "CLIENT" ? (isId ? "Mulai mengajukan quotation" : "Start a quotation request") : role === "OWNER" ? (isId ? "Buka Owner Workspace" : "Open Owner Workspace") : (isId ? "Login untuk mengajukan quotation" : "Sign in to request a quotation");
+  const quotationLabel = role === "OWNER" ? (isId ? "Buka Workspace Owner" : "Open Owner Workspace") : (isId ? "Mulai brief proyek" : "Start a project brief");
   const publishedGuideLevels = service.showInPricingGuide ? service.complexityLevels : [];
   const initialLevel = selectPublishedServiceLevel(publishedGuideLevels, requestedLevel);
   const startingEstimate = initialLevel?.startingPrice ?? ((service.showInPricingGuide ? publishedGuideLevels[0]?.startingPrice : null) ?? service.startingPrice);

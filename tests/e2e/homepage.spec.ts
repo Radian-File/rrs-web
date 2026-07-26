@@ -7,8 +7,8 @@ test("homepage follows the reference-led quotation-first journey", async ({ page
   expect(response?.headers()["x-content-type-options"]).toBe("nosniff");
   expect(response?.headers()["x-frame-options"]).toBe("DENY");
 
-  await expect(page.getByRole("heading", { level: 1, name: "PROJECT DIGITAL, DIBANGUN DENGAN ARAH." })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Login untuk mengajukan quotation" }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "WEBSITE & SISTEM DIGITAL, DENGAN SCOPE YANG JELAS." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Mulai brief proyek" }).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "SEMUA YANG DIBUTUHKAN, DALAM SATU PROSES." })).toBeVisible();
   await expect(page.getByRole("heading", { name: "DIBUAT UNTUK MENJAGA PROJECT TETAP JELAS." })).toBeVisible();
   await expect(page.getByRole("heading", { name: /APA YANG CLIENT SUKAI TENTANG RRS|BUKTI DELIVERY, BUKAN PUJIAN PALSU/ })).toBeVisible();

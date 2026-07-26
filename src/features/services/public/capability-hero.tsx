@@ -9,29 +9,29 @@ export function ServicesCapabilityHero({ isId, types }: { isId: boolean; types: 
   const copy = isId
     ? {
         eyebrow: "SERVICE DISCOVERY / RRS STUDIO",
-        titleLines: ["KAPABILITAS DIGITAL,", "DIBENTUK DARI", "KEBUTUHAN NYATA."],
+        titleLines: ["TEMUKAN TITIK AWAL", "YANG SESUAI UNTUK", "PROYEK ANDA."],
         description:
-          "Jelajahi layanan untuk website, aplikasi, dashboard, internal system, API, dan workflow. Pilih titik awal; scope final tetap ditinjau bersama.",
-        action: "Jelajahi kapabilitas",
-        pricingNote: "Estimasi awal · Scope, timeline, dan harga final melalui quotation",
-        catalogue: "Katalog published",
-        profile: "Peta kapabilitas",
-        emptyProfile: "Layanan disusun berdasarkan scope",
-        quotation: "Quotation-first",
-        quotationDetail: "Harga final setelah scope ditinjau",
+          "Pilih layanan dan tingkat kompleksitas yang paling mendekati kebutuhan Anda. RRS meninjau ruang lingkup sebelum menyiapkan quotation.",
+        action: "Lihat layanan",
+        pricingNote: "Estimasi awal · Ruang lingkup, timeline, dan harga final dijelaskan dalam quotation",
+        catalogue: "Layanan tersedia",
+        profile: "Peta layanan",
+        emptyProfile: "Layanan disusun berdasarkan ruang lingkup",
+        quotation: "Quotation setelah review",
+        quotationDetail: "Harga final mengikuti ruang lingkup yang disepakati",
       }
     : {
         eyebrow: "SERVICE DISCOVERY / RRS STUDIO",
-        titleLines: ["DIGITAL CAPABILITY,", "SHAPED AROUND", "THE REAL NEED."],
+        titleLines: ["FIND THE RIGHT", "STARTING POINT FOR", "YOUR PROJECT."],
         description:
-          "Explore services for websites, applications, dashboards, internal systems, APIs, and workflows. Choose a starting point; the final scope is reviewed together.",
-        action: "Explore capabilities",
-        pricingNote: "Starting estimates · Final scope, timeline, and price through a quotation",
-        catalogue: "Published catalogue",
-        profile: "Capability map",
+          "Choose the service and complexity level that most closely matches your need. RRS reviews the scope before preparing a quotation.",
+        action: "View services",
+        pricingNote: "Starting estimates · Scope, timeline, and final price are defined in the quotation",
+        catalogue: "Available services",
+        profile: "Service map",
         emptyProfile: "Services are shaped around scope",
-        quotation: "Quotation-first",
-        quotationDetail: "Final pricing follows scope review",
+        quotation: "Quotation after review",
+        quotationDetail: "Final pricing follows the agreed scope",
       };
 
   const publishedTypes = types.filter((type) => type.count > 0).slice(0, 4);

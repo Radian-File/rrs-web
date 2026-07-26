@@ -5,9 +5,15 @@ export function ProcessComposition({ isId }: { isId: boolean }) {
   const copy = isId
     ? {
         eyebrow: "Cara kerja RRS / quotation-first",
-        title: "Diskusi terbuka. Keputusan formal tetap terdokumentasi.",
+        title: "Mulai dari diskusi. Lanjut saat keputusan sudah jelas.",
         description:
-          "Workflow dimulai dari percakapan tanpa komitmen, lalu berpindah ke akun Client untuk brief, quotation, agreement, pembayaran, delivery, dan review yang dapat diverifikasi.",
+          "Anda dapat membahas kebutuhan tanpa komitmen. Saat proyek siap bergerak, brief, quotation, agreement, dan delivery dikelola dalam alur yang terdokumentasi.",
+        phasesTitle: "Tiga fase sebelum dan selama proyek berjalan.",
+        phases: [
+          ["01", "Ceritakan kebutuhan Anda", "Diskusi awal melalui Contact atau WhatsApp untuk memahami konteks dan menentukan titik awal."],
+          ["02", "Terima quotation yang jelas", "RRS meninjau ruang lingkup, deliverables, timeline, revisi, dan harga sebelum ada komitmen."],
+          ["03", "Pantau proyek sampai delivery", "Setelah quotation disetujui, keputusan, progres, file, dan approval tersimpan dalam satu portal."],
+        ],
         guest: "Guest entry",
         formal: "Formal Client workflow",
         boundaryTitle: "Guest boleh berdiskusi. Workflow formal memerlukan akun Client.",
@@ -37,9 +43,15 @@ export function ProcessComposition({ isId }: { isId: boolean }) {
       }
     : {
         eyebrow: "How RRS works / quotation-first",
-        title: "Open discussion. Documented formal decisions.",
+        title: "Start with a discussion. Continue when decisions are clear.",
         description:
-          "The workflow begins with a no-commitment conversation, then moves into a Client account for the brief, quotation, agreement, payment, delivery, and verifiable review.",
+          "You can discuss the need without commitment. When the project is ready to move, the brief, quotation, agreement, and delivery are managed in a documented flow.",
+        phasesTitle: "Three phases before and throughout the project.",
+        phases: [
+          ["01", "Share your need", "Start with Contact or WhatsApp to establish the context and decide the right first step."],
+          ["02", "Receive a clear quotation", "RRS reviews the scope, deliverables, timeline, revisions, and price before any commitment."],
+          ["03", "Follow the project through delivery", "Once the quotation is agreed, decisions, progress, files, and approvals stay in one portal."],
+        ],
         guest: "Guest entry",
         formal: "Formal Client workflow",
         boundaryTitle: "Guests can discuss. The formal workflow requires a Client account.",
@@ -89,6 +101,22 @@ export function ProcessComposition({ isId }: { isId: boolean }) {
               {copy.account}
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="border-b border-border bg-surface" aria-labelledby="process-phases-title">
+        <div className="mx-auto max-w-[1440px] px-5 py-20 md:px-8 lg:px-12 lg:py-24 xl:px-16">
+          <p className="text-[10px] font-bold uppercase tracking-[.18em] text-primary">RRS / Overview</p>
+          <h2 id="process-phases-title" className="mt-4 max-w-3xl font-display text-4xl font-extrabold tracking-[-.05em] md:text-5xl">{copy.phasesTitle}</h2>
+          <ol className="mt-10 grid gap-4 lg:grid-cols-3">
+            {copy.phases.map(([number, title, description]) => (
+              <li key={number} className="rounded-[20px] border border-border bg-background p-6">
+                <p className="font-mono text-xs font-bold text-primary">{number}</p>
+                <h3 className="mt-8 font-display text-2xl font-extrabold tracking-[-.04em]">{title}</h3>
+                <p className="mt-4 text-sm leading-7 text-secondary">{description}</p>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 

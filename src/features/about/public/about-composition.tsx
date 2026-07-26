@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Code2, ExternalLink, Layers3, MapPin, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Code2, Layers3, MapPin, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { studioStackCategoryLabels, type StudioStackCategoryValue } from "@/features/studio-stack/schema";
 
@@ -15,7 +15,6 @@ export type AboutCompositionCopy = {
   capability: string;
   collaborationTitle: string;
   collaboration: string;
-  portfolioCta: string;
   servicesCta: string;
 };
 
@@ -28,12 +27,10 @@ export type AboutStackItem = {
 export function AboutComposition({
   copy,
   isId,
-  portfolioUrl,
   stackItems,
 }: {
   copy: AboutCompositionCopy;
   isId: boolean;
-  portfolioUrl: string;
   stackItems: AboutStackItem[];
 }) {
   const ui = isId
@@ -44,10 +41,10 @@ export function AboutComposition({
         location: "Bandung & Bekasi, Indonesia",
         manifesto: "Clarity before complexity.",
         manifestoDescription:
-          "RRS menggabungkan product thinking, interface design, dan implementation untuk membangun sistem yang dapat dipahami, dipelihara, dan dipertanggungjawabkan.",
-        objects: "Studio capability objects",
+          "RRS menerjemahkan kebutuhan bisnis menjadi website, aplikasi, dan sistem internal yang jelas untuk digunakan serta dipelihara.",
+        objects: "Kapabilitas studio",
         principles: "Prinsip kerja",
-        positioning: "Bekerja sebagai studio kecil dengan ownership langsung—bukan agency façade.",
+        positioning: "Anda berbicara langsung dengan orang yang meninjau kebutuhan, menyusun solusi, dan mengawal implementasi.",
       }
     : {
         studio: "Independent digital studio / Bandung & Bekasi",
@@ -56,10 +53,10 @@ export function AboutComposition({
         location: "Bandung & Bekasi, Indonesia",
         manifesto: "Clarity before complexity.",
         manifestoDescription:
-          "RRS combines product thinking, interface design, and implementation to build systems that can be understood, maintained, and held accountable.",
-        objects: "Studio capability objects",
+          "RRS translates business needs into websites, applications, and internal systems that are clear to use and maintain.",
+        objects: "Studio capabilities",
         principles: "Working principles",
-        positioning: "A small studio with direct ownership—not an agency façade.",
+        positioning: "You work directly with the person who reviews the need, shapes the solution, and guides implementation.",
       };
   const objects = [
     { title: copy.identityTitle, description: copy.identity, icon: ShieldCheck },
@@ -129,11 +126,7 @@ export function AboutComposition({
             <h2 id="studio-manifesto-title" className="mt-4 font-display text-4xl font-extrabold tracking-[-.05em] md:text-5xl">{ui.manifesto}</h2>
           </div>
           <div className="lg:pt-8">
-            <p className="max-w-3xl text-lg leading-9 text-secondary">{ui.manifestoDescription}</p>
-            <a href={portfolioUrl} target="_blank" rel="noreferrer" className="mt-7 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
-              {copy.portfolioCta}
-              <ExternalLink className="size-4" aria-hidden="true" />
-            </a>
+            <p className="max-w-3xl text-lg leading-9 text-secondary">{copy.collaboration}</p>
           </div>
         </div>
       </section>

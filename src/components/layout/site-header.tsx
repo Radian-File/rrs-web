@@ -21,7 +21,6 @@ export async function SiteHeader() {
   const role = session?.user?.role as Role | undefined;
   const links: NavLink[] = [
     { label: dictionary.nav.services, href: "/services" },
-    { label: dictionary.nav.portfolio, href: "/portfolio" },
     { label: dictionary.nav.process, href: "/cara-kerja" },
     { label: dictionary.nav.reviews, href: "/reviews" },
     { label: dictionary.nav.about, href: "/about" },

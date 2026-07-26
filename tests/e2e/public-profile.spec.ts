@@ -1,16 +1,13 @@
 import { expect, test } from "@playwright/test";
 
-test("portfolio and About page link to the professional profile with formal identity copy", async ({ page }) => {
+test("retired portfolio URL redirects to About and keeps RRS direct-ownership positioning", async ({ page }) => {
   await page.goto("/portfolio");
-  const portfolioLink = page.getByRole("link", { name: "Open portfolio" });
-  await expect(portfolioLink).toHaveAttribute("href", "https://rrs-porto.vercel.app");
-  await expect(portfolioLink).toHaveAttribute("target", "_blank");
-  await expect(portfolioLink).toHaveAttribute("rel", "noreferrer");
+  await expect(page).toHaveURL(/\/about$/);
 
-  await page.goto("/about");
   const aboutMain = page.locator("main:visible").first();
-  await expect(aboutMain.getByText("RRS is an independent digital studio led directly by Radhiansyah Putra", { exact: false })).toBeVisible();
-  await expect(aboutMain.getByRole("link", { name: "View full portfolio" })).toHaveAttribute("href", "https://rrs-porto.vercel.app");
+  await expect(aboutMain.getByText("One technical partner, from scope to handover.")).toBeVisible();
+  await expect(aboutMain.getByText("You work directly with the person who reviews the need", { exact: false })).toBeVisible();
+  await expect(aboutMain.getByRole("link", { name: "Explore services" })).toBeVisible();
 });
 
 test("contact page exposes the configured direct WhatsApp destination", async ({ page }) => {

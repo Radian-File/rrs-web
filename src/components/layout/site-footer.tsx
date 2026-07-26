@@ -18,10 +18,10 @@ export async function SiteFooter() {
   const whatsappNumber = formatWhatsAppNumber(env.OWNER_WHATSAPP_NUMBER);
   const whatsapp = createWhatsAppUrl(env.OWNER_WHATSAPP_NUMBER, isId ? "Halo RRS Studio, saya ingin mendiskusikan kebutuhan project digital." : "Hello RRS Studio, I would like to discuss a digital project.");
   const primaryHref = role === "OWNER" ? "/owner" : role === "CLIENT" ? "/start-project" : loginUrl("/start-project");
-  const primaryLabel = role === "OWNER" ? dictionary.portal.ownerWorkspace : role === "CLIENT" ? (isId ? "Ajukan quotation" : "Request a quotation") : (isId ? "Login untuk mengajukan quotation" : "Sign in to request a quotation");
+  const primaryLabel = role === "OWNER" ? dictionary.portal.ownerWorkspace : (isId ? "Mulai brief proyek" : "Start a project brief");
   const accountHref = role === "OWNER" ? "/owner" : role === "CLIENT" ? "/client" : "/login";
   const accountLabel = role === "OWNER" ? dictionary.portal.ownerWorkspace : role === "CLIENT" ? dictionary.portal.clientPortal : dictionary.nav.signIn;
-  const navigation = [[dictionary.nav.services, "/services"], [dictionary.nav.portfolio, "/portfolio"], [dictionary.nav.process, "/cara-kerja"], [dictionary.nav.reviews, "/reviews"], [dictionary.nav.about, "/about"]] as const;
+  const navigation = [[dictionary.nav.services, "/services"], [dictionary.nav.process, "/cara-kerja"], [dictionary.nav.reviews, "/reviews"], [dictionary.nav.about, "/about"]] as const;
 
   return (
     <footer data-perspective-cta className="rrs-grain relative overflow-hidden bg-[radial-gradient(circle_at_50%_20%,rgba(200,237,115,.14),transparent_30%),linear-gradient(180deg,#373018,#211f17)] px-4 py-20 [perspective:1400px] sm:px-6 lg:py-28">

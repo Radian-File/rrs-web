@@ -7,8 +7,6 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { getLocale } from "@/i18n/server";
 import { prisma } from "@/lib/db/prisma";
 
-const professionalPortfolio = "https://rrs-porto.vercel.app";
-
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -39,7 +37,6 @@ export default async function AboutPage() {
         <AboutComposition
           copy={dictionary.about}
           isId={locale === "id"}
-          portfolioUrl={professionalPortfolio}
           stackItems={stackItems}
         />
       </PageEntrance>

@@ -3,23 +3,23 @@ import { ArrowRight, FileCheck2, Layers3, ShieldCheck } from "lucide-react";
 import { WorkflowArtifacts } from "@/components/home/workflow-artifacts";
 import { Button } from "@/components/ui/button";
 
-type StudioHeroProps = { isId: boolean; primaryHref: string; primaryLabel: string };
+type StudioHeroProps = { isId: boolean; primaryHref: string; primaryLabel: string; primaryDetail: string | null };
 
-export function StudioHero({ isId, primaryHref, primaryLabel }: StudioHeroProps) {
+export function StudioHero({ isId, primaryHref, primaryLabel, primaryDetail }: StudioHeroProps) {
   const copy = isId
     ? {
         eyebrow: "INDEPENDENT DIGITAL STUDIO — BEKASI",
-        titleLines: ["PROJECT DIGITAL,", "DIBANGUN DENGAN ARAH."],
-        description: "Website, aplikasi, dashboard, dan workflow digital yang dimulai dari scope jelas—bukan asumsi.",
-        pricingNote: "Tanpa checkout instan · Harga final melalui quotation",
-        artifactLabel: "Demonstrasi workflow RRS Studio",
+        titleLines: ["WEBSITE & SISTEM DIGITAL,", "DENGAN SCOPE YANG JELAS."],
+        description: "Untuk bisnis yang membutuhkan website, aplikasi, dashboard, atau alur kerja custom. Kita mulai dari brief, menyepakati quotation, lalu mengelola delivery dalam satu alur terdokumentasi.",
+        pricingNote: "Tanpa checkout instan · Harga final mengikuti quotation yang disepakati",
+        artifactLabel: "Contoh scope board RRS Studio",
       }
     : {
         eyebrow: "INDEPENDENT DIGITAL STUDIO — BEKASI",
-        titleLines: ["DIGITAL WORK,", "BUILT WITH DIRECTION."],
-        description: "Websites, applications, dashboards, and digital workflows that begin with a clear scope—not assumptions.",
-        pricingNote: "No instant checkout · Final pricing through a quotation",
-        artifactLabel: "RRS Studio workflow demonstration",
+        titleLines: ["DIGITAL PRODUCTS,", "WITH A CLEAR SCOPE."],
+        description: "For businesses that need a website, application, dashboard, or custom workflow. We begin with a brief, agree the quotation, then manage delivery in one documented flow.",
+        pricingNote: "No instant checkout · Final pricing follows the agreed quotation",
+        artifactLabel: "RRS Studio scope board example",
       };
 
   return (
@@ -48,8 +48,9 @@ export function StudioHero({ isId, primaryHref, primaryLabel }: StudioHeroProps)
 
           <p data-hero-body className="mt-6 max-w-2xl text-sm leading-7 text-white/62 sm:text-base sm:leading-8">{copy.description}</p>
 
-          <div data-hero-actions className="mt-7 flex items-center justify-center">
+          <div data-hero-actions className="mt-7 flex flex-col items-center justify-center gap-3">
             <Button asChild size="lg" className="rounded-full bg-accent-lime px-7 text-background hover:bg-[#d7f58f]"><Link href={primaryHref}>{primaryLabel}<ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
+            {primaryDetail && <p className="max-w-md text-xs leading-5 text-white/48">{primaryDetail}</p>}
           </div>
 
           <p data-hero-detail className="mt-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.12em] text-white/38"><ShieldCheck className="size-3.5 text-accent-lime" aria-hidden="true" />{copy.pricingNote}</p>

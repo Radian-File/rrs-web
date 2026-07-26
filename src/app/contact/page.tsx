@@ -44,9 +44,7 @@ export default async function ContactPage({
   const projectLabel =
     role === "OWNER"
       ? (isId ? "Buka Owner Workspace" : "Open Owner Workspace")
-      : role === "CLIENT"
-        ? (isId ? "Ajukan quotation" : "Request a quotation")
-        : (isId ? "Login untuk mengajukan quotation" : "Sign in to request a quotation");
+      : (isId ? "Mulai brief proyek" : "Start a project brief");
 
   return (
     <>
