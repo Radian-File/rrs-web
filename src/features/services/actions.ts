@@ -57,12 +57,12 @@ export async function updateServiceAction(_state: ServiceActionState, formData: 
 
 export async function importDefaultServiceCatalogAction() {
   await requireOwner();
-  await prisma.$transaction((tx) => importDefaultServiceCatalog(tx));
+  const result = await prisma.$transaction((tx) => importDefaultServiceCatalog(tx));
   revalidatePath("/");
   revalidatePath("/services");
   revalidatePath("/start-project");
   revalidatePath("/owner/services");
-  redirect("/owner/services?catalog=imported");
+  redirect(`/owner/services?catalog=imported&types=${result.createdTypes}&services=${result.createdServices}&levels=${result.createdLevels}&skipped=${result.skippedServices}`);
 }
 
 export async function updateServiceComplexityLevelAction(
