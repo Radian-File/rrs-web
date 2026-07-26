@@ -13,6 +13,12 @@ export type BriefActionState = { message?: string; errors?: Record<string, strin
 const lines = (value?: string) => value?.split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean) ?? [];
 const bool = (value?: string) => value === "yes" ? true : value === "no" ? false : null;
 
+class InvalidBriefSelectionError extends Error {
+  constructor(readonly field: "serviceSlug" | "complexityLevelId") {
+    super("Invalid project-fit selection.");
+  }
+}
+
 export async function submitProjectBrief(
   _state: BriefActionState,
   formData: FormData,
@@ -28,13 +34,38 @@ export async function submitProjectBrief(
     if (attachment instanceof File && attachment.size > 0) stored = await storePrivateFile(attachment, "inquiries");
 
     const inquiry = await prisma.$transaction(async (tx) => {
-      const service = parsed.data.serviceSlug ? await tx.service.findUnique({ where: { slug: parsed.data.serviceSlug }, select: { id: true } }) : null;
+      const service = parsed.data.serviceSlug
+        ? await tx.service.findFirst({ where: { slug: parsed.data.serviceSlug, isPublished: true }, select: { id: true } })
+        : null;
+      if (parsed.data.serviceSlug && !service) throw new InvalidBriefSelectionError("serviceSlug");
+
+      if (parsed.data.complexityLevelId && !service) throw new InvalidBriefSelectionError("complexityLevelId");
+      const complexityLevel = parsed.data.complexityLevelId && service
+        ? await tx.serviceComplexityLevel.findFirst({
+            where: {
+              id: parsed.data.complexityLevelId,
+              isPublished: true,
+              service: {
+                id: service.id,
+                isPublished: true,
+                showInPricingGuide: true,
+                catalogKind: "PROJECT",
+              },
+            },
+            select: { id: true, code: true, title: true },
+          })
+        : null;
+      if (parsed.data.complexityLevelId && !complexityLevel) throw new InvalidBriefSelectionError("complexityLevelId");
+
       const inquiryNumber = await allocateDocumentNumber(tx, "INQUIRY");
       return tx.inquiry.create({
         data: {
           inquiryNumber,
           clientId: client.id,
           selectedServiceId: service?.id,
+          initialComplexityLevelId: complexityLevel?.id,
+          initialComplexityLevelCode: complexityLevel?.code,
+          initialComplexityLevelLabel: complexityLevel?.title,
           clientName: client.name,
           clientPhone: client.whatsappNumber ?? parsed.data.clientPhone,
           clientEmail: client.email,
@@ -64,6 +95,13 @@ export async function submitProjectBrief(
   } catch (error) {
     if (stored) await removePrivateFile(stored.storageKey);
     if (error && typeof error === "object" && "digest" in error) throw error;
+    if (error instanceof InvalidBriefSelectionError) {
+      return {
+        errors: {
+          [error.field]: [error.field === "serviceSlug" ? "Layanan yang dipilih sudah tidak tersedia. Pilih layanan lain atau gunakan custom scope." : "Level tersebut tidak lagi tersedia untuk layanan ini. Pilih ulang titik awal project Anda."],
+        },
+      };
+    }
     return { message: error instanceof Error ? error.message : "Unable to submit the project brief." };
   }
 }

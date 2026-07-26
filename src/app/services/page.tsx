@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { auth } from "@/auth";
 import { PageEntrance } from "@/components/page-entrance";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -6,6 +7,7 @@ import { ServicesCapabilityHero } from "@/features/services/public/capability-he
 import { ServicesDiscoveryCommand } from "@/features/services/public/discovery-command";
 import { ServiceEditorialIndex } from "@/features/services/public/service-editorial-index";
 import { ServiceNavigator } from "@/features/services/public/service-navigator";
+import { ProjectFitGuide } from "@/features/services/public/project-fit-guide";
 import { ServicesEmptyState } from "@/features/services/public/services-empty-state";
 import type { ServiceDiscoveryGroup, ServiceDiscoveryItem } from "@/features/services/public/types";
 import { scoreServiceSearch } from "@/features/services/search";
@@ -31,7 +33,7 @@ export default async function ServicesPage({
 }: {
   searchParams: Promise<{ q?: string; type?: string }>;
 }) {
-  const [{ q: rawQuery, type: rawType }, locale, types] = await Promise.all([
+  const [{ q: rawQuery, type: rawType }, locale, types, session, guideRows, microTask] = await Promise.all([
     searchParams,
     getLocale(),
     prisma.serviceType.findMany({
@@ -39,6 +41,13 @@ export default async function ServicesPage({
       include: { _count: { select: { services: { where: { isPublished: true } } } } },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
     }),
+    auth(),
+    prisma.service.findMany({
+      where: { isPublished: true, showInPricingGuide: true, catalogKind: "PROJECT" },
+      include: { complexityLevels: { where: { isPublished: true }, orderBy: { sortOrder: "asc" } } },
+      orderBy: { title: "asc" },
+    }),
+    prisma.service.findFirst({ where: { isPublished: true, catalogKind: "MICRO_TASK" }, orderBy: { updatedAt: "desc" } }),
   ]);
 
   const dictionary = getDictionary(locale);
@@ -50,7 +59,10 @@ export default async function ServicesPage({
       isPublished: true,
       ...(type ? { serviceType: { slug: type, isActive: true } } : {}),
     },
-    include: { serviceType: { select: { slug: true, name: true, isActive: true } } },
+    include: {
+      serviceType: { select: { slug: true, name: true, isActive: true } },
+      complexityLevels: { where: { isPublished: true }, orderBy: { sortOrder: "asc" }, take: 1, select: { startingPrice: true } },
+    },
     orderBy: [{ isFeatured: "desc" }, { title: "asc" }],
   });
 
@@ -99,8 +111,8 @@ export default async function ServicesPage({
     deliveryEstimate: service.deliveryEstimate,
     deliverables: service.deliverables,
     technologies: service.technologies,
-    estimate: service.startingPrice
-      ? `${formatIdr(service.startingPrice.toString())}+`
+    estimate: (service.showInPricingGuide ? service.complexityLevels[0]?.startingPrice : null) ?? service.startingPrice
+      ? `${formatIdr(((service.showInPricingGuide ? service.complexityLevels[0]?.startingPrice : null) ?? service.startingPrice)!.toString())}+`
       : (isId ? "Sesuai scope" : "Custom scope"),
     isFeatured: service.isFeatured,
   }));
@@ -115,6 +127,26 @@ export default async function ServicesPage({
   if (untypedServices.length > 0) {
     groups.push({ slug: "other", name: isId ? "Lainnya" : "Other", services: untypedServices });
   }
+  const guideServices = guideRows
+    .filter((service) => service.complexityLevels.length > 0)
+    .map((service) => ({
+      id: service.id,
+      slug: service.slug,
+      title: service.title,
+      levels: service.complexityLevels.map((level) => ({
+        id: level.id,
+        code: level.code,
+        title: level.title,
+        summary: level.summary,
+        indicators: level.indicators,
+        escalationSignals: level.escalationSignals,
+        estimate: level.startingPrice ? `${formatIdr(level.startingPrice.toString())}+` : null,
+      })),
+    }));
+  const microTaskGuide = microTask
+    ? { slug: microTask.slug, title: microTask.title, summary: microTask.summary, estimate: microTask.startingPrice ? `${formatIdr(microTask.startingPrice.toString())}+` : null }
+    : null;
+  const role = session?.user?.role === "OWNER" || session?.user?.role === "CLIENT" ? session.user.role : undefined;
   const hasActiveDiscovery = Boolean(q || type);
   const indexServices = hasActiveDiscovery
     ? discoveryServices
@@ -140,6 +172,7 @@ export default async function ServicesPage({
           {groups.length > 0 ? (
             <>
               <ServiceNavigator groups={groups} initialType={type} isId={isId} />
+              {guideServices.length > 0 ? <ProjectFitGuide services={guideServices} microTask={microTaskGuide} role={role} isId={isId} /> : null}
               {indexServices.length > 0 && (
                 <ServiceEditorialIndex
                   services={indexServices}

@@ -2,6 +2,7 @@ import "dotenv/config";
 import { hash } from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
+import { importDefaultServiceCatalog } from "../src/features/services/catalog-defaults";
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -148,6 +149,8 @@ async function main() {
       create: { ...service, serviceTypeId: type.id },
     });
   }
+
+  await prisma.$transaction((tx) => importDefaultServiceCatalog(tx));
 }
 
 main()

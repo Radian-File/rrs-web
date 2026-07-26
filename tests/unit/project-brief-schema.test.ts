@@ -32,4 +32,11 @@ describe("project brief schema", () => {
       ]);
     }
   });
+
+  it("accepts an optional complexity-level context and rejects malformed identifiers", () => {
+    const input = { ...validBrief, projectDescription: "Secure login app", complexityLevelId: "cms1q7tdd0007rwfps6y5t9h5" };
+    const valid = projectBriefSchema.safeParse(input);
+    expect(valid.success).toBe(true);
+    expect(projectBriefSchema.safeParse({ ...input, complexityLevelId: "not-a-level" }).success).toBe(false);
+  });
 });

@@ -17,16 +17,28 @@ export const dynamic = "force-dynamic";
 export default async function StartProjectPage({
   searchParams,
 }: {
-  searchParams: Promise<{ service?: string }>;
+  searchParams: Promise<{ service?: string; level?: string }>;
 }) {
-  const { service } = await searchParams;
-  const callbackUrl = `/start-project${service ? `?service=${encodeURIComponent(service)}` : ""}`;
+  const { service: requestedService, level: requestedLevel } = await searchParams;
+  const query = new URLSearchParams();
+  if (requestedService) query.set("service", requestedService);
+  if (requestedLevel) query.set("level", requestedLevel);
+  const callbackUrl = `/start-project${query.size > 0 ? `?${query.toString()}` : ""}`;
   const [client, locale, services] = await Promise.all([
     requireClient(callbackUrl),
     getLocale(),
     prisma.service.findMany({
       where: { isPublished: true },
-      select: { slug: true, title: true },
+      select: {
+        slug: true,
+        title: true,
+        showInPricingGuide: true,
+        complexityLevels: {
+          where: { isPublished: true },
+          select: { id: true, code: true, title: true },
+          orderBy: { sortOrder: "asc" },
+        },
+      },
       orderBy: { title: "asc" },
     }),
   ]);
@@ -72,7 +84,15 @@ export default async function StartProjectPage({
           "RRS reviews this brief before creating a quotation. Technical details, files, and project decisions remain connected to your Client account.",
         formLabel: "Three-step technical brief form",
       };
-  const selectedService = services.find((item) => item.slug === service)?.title ?? copy.customService;
+  const selectedService = services.find((item) => item.slug === requestedService);
+  const selectedLevel = selectedService?.showInPricingGuide
+    ? selectedService.complexityLevels.find((item) => item.code === requestedLevel)
+    : undefined;
+  const serviceOptions = services.map(({ slug, title, showInPricingGuide, complexityLevels }) => ({
+    slug,
+    title,
+    levels: showInPricingGuide ? complexityLevels : [],
+  }));
 
   return (
     <>
@@ -90,7 +110,7 @@ export default async function StartProjectPage({
                 email={client.email}
                 status={copy.identityStatus}
                 serviceLabel={copy.serviceLabel}
-                service={selectedService}
+                service={selectedService?.title ?? copy.customService}
               />
             }
             context={
@@ -104,8 +124,9 @@ export default async function StartProjectPage({
           >
             <ConversionFormPanel label={copy.formLabel}>
               <ProjectBriefForm
-                services={services}
-                selectedService={service}
+                services={serviceOptions}
+                selectedService={selectedService?.slug}
+                selectedComplexityLevelId={selectedLevel?.id}
                 client={{
                   id: client.id,
                   name: client.name,

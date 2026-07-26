@@ -24,7 +24,18 @@ export default async function Home() {
       where: { isPublished: true },
       orderBy: [{ isFeatured: "desc" }, { updatedAt: "desc" }],
       take: 4,
-      select: { id: true, title: true, slug: true, summary: true, category: true, startingPrice: true, deliveryEstimate: true, technologies: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        summary: true,
+        category: true,
+        startingPrice: true,
+        showInPricingGuide: true,
+        deliveryEstimate: true,
+        technologies: true,
+        complexityLevels: { where: { isPublished: true }, orderBy: { sortOrder: "asc" }, take: 1, select: { startingPrice: true } },
+      },
     }),
     prisma.portfolioProject.findMany({
       where: { isPublished: true },
@@ -50,10 +61,13 @@ export default async function Home() {
       ? (isId ? "Ajukan quotation" : "Request a quotation")
       : (isId ? "Login untuk mengajukan quotation" : "Sign in to request a quotation");
 
-  const services: HomeService[] = serviceRows.map((service) => ({
-    ...service,
-    estimate: service.startingPrice ? `${formatIdr(service.startingPrice.toString())}+` : (isId ? "Sesuai scope" : "Custom scope"),
-  }));
+  const services: HomeService[] = serviceRows.map((service) => {
+    const startingEstimate = (service.showInPricingGuide ? service.complexityLevels[0]?.startingPrice : null) ?? service.startingPrice;
+    return {
+      ...service,
+      estimate: startingEstimate ? `${formatIdr(startingEstimate.toString())}+` : (isId ? "Sesuai scope" : "Custom scope"),
+    };
+  });
   const projects: HomeProject[] = projectRows;
   const reviews: HomeReview[] = reviewRows.map((review) => ({
     id: review.id,

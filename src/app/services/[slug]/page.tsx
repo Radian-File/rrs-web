@@ -34,7 +34,10 @@ export default async function ServiceDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const [{ slug }, locale, session] = await Promise.all([params, getLocale(), auth()]);
-  const service = await prisma.service.findFirst({ where: { slug, isPublished: true } });
+  const service = await prisma.service.findFirst({
+    where: { slug, isPublished: true },
+    include: { complexityLevels: { where: { isPublished: true }, orderBy: { sortOrder: "asc" }, take: 1, select: { startingPrice: true } } },
+  });
   if (!service) notFound();
 
   const isId = locale === "id";
@@ -51,8 +54,9 @@ export default async function ServiceDetailPage({
       : role === "OWNER"
         ? (isId ? "Buka Owner Workspace" : "Open Owner Workspace")
         : (isId ? "Login untuk mengajukan quotation" : "Sign in to request a quotation");
-  const estimate = service.startingPrice
-    ? `${formatIdr(service.startingPrice.toString())}+`
+  const startingEstimate = (service.showInPricingGuide ? service.complexityLevels[0]?.startingPrice : null) ?? service.startingPrice;
+  const estimate = startingEstimate
+    ? `${formatIdr(startingEstimate.toString())}+`
     : (isId ? "Sesuai scope" : "Custom scope");
 
   return (

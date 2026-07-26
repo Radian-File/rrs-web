@@ -21,6 +21,7 @@ const stepOneSchema = projectBriefSchema.pick({
   clientEmail: true,
   companyName: true,
   serviceSlug: true,
+  complexityLevelId: true,
 });
 const stepTwoSchema = projectBriefSchema.pick({
   projectTitle: true,
@@ -34,18 +35,22 @@ const stepTwoSchema = projectBriefSchema.pick({
 export function ProjectBriefForm({
   services,
   selectedService,
+  selectedComplexityLevelId,
   client,
   isId,
 }: {
-  services: { slug: string; title: string }[];
+  services: { slug: string; title: string; levels: { id: string; code: string; title: string }[] }[];
   selectedService?: string;
+  selectedComplexityLevelId?: string;
   client: { id: string; name: string; email: string; phone: string; companyName: string };
   isId: boolean;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
-  const draftKey = `rrs:brief:${client.id}:${selectedService ?? "custom"}`;
+  const draftKey = `rrs:brief:${client.id}:${selectedService ?? "custom"}:${selectedComplexityLevelId ?? "none"}`;
   const [step, setStep] = useState(1);
+  const [activeServiceSlug, setActiveServiceSlug] = useState(selectedService ?? "");
+  const activeLevels = services.find((service) => service.slug === activeServiceSlug)?.levels ?? [];
   const [clientErrors, setClientErrors] = useState<Record<string, string[]>>({});
   const [draftRestored, setDraftRestored] = useState(false);
   const [state, action, pending] = useActionState(submitProjectBrief, {});
@@ -87,6 +92,7 @@ export function ProjectBriefForm({
           clientEmail: "Email",
           companyName: "Perusahaan (opsional)",
           serviceSlug: "Layanan yang diminati",
+          complexityLevelId: "Titik awal kompleksitas (opsional)",
           projectTitle: "Judul project",
           projectType: "Jenis project",
           targetUsers: "Target user (opsional)",
@@ -113,6 +119,7 @@ export function ProjectBriefForm({
         },
         options: {
           customService: "Custom / belum yakin",
+          complexityOptional: "Belum memilih level",
           designNo: "Belum ada desain",
           designPartial: "Sebagian / hanya referensi",
           designYes: "Desain sudah siap",
@@ -124,6 +131,7 @@ export function ProjectBriefForm({
           maintenanceYes: "Dibutuhkan",
         },
         fileHint: "JPG, PNG, WebP, atau PDF. Maksimum 10 MB. File tidak disimpan dalam draft browser.",
+        complexityHint: "Pilihan ini hanya membantu Owner memahami titik mulai Anda. Scope, timeline, dan harga final tetap ditetapkan melalui quotation.",
       }
     : {
         formLabel: "Technical brief",
@@ -160,6 +168,7 @@ export function ProjectBriefForm({
           clientEmail: "Email",
           companyName: "Company (optional)",
           serviceSlug: "Service of interest",
+          complexityLevelId: "Complexity starting point (optional)",
           projectTitle: "Project title",
           projectType: "Project type",
           targetUsers: "Target users (optional)",
@@ -186,6 +195,7 @@ export function ProjectBriefForm({
         },
         options: {
           customService: "Custom / not sure yet",
+          complexityOptional: "No level selected",
           designNo: "No design yet",
           designPartial: "Partial / reference only",
           designYes: "Design is ready",
@@ -197,6 +207,7 @@ export function ProjectBriefForm({
           maintenanceYes: "Needed",
         },
         fileHint: "JPG, PNG, WebP, or PDF. Maximum 10 MB. Files are not stored in the browser draft.",
+        complexityHint: "This only helps the Owner understand your starting point. The quotation always defines the final scope, timeline, and price.",
       };
   const activeStep = copy.stepDetails[step - 1];
 
@@ -377,6 +388,7 @@ export function ProjectBriefForm({
             defaultValue={selectedService ?? ""}
             error={error("serviceSlug")}
             className="sm:col-span-2"
+            onChange={(event) => setActiveServiceSlug(event.target.value)}
           >
             <option value="">{copy.options.customService}</option>
             {services.map((service) => (
@@ -385,6 +397,21 @@ export function ProjectBriefForm({
               </option>
             ))}
           </SelectField>
+          {activeLevels.length > 0 ? (
+            <div className="sm:col-span-2">
+              <SelectField
+                key={activeServiceSlug}
+                label={copy.fields.complexityLevelId}
+                name="complexityLevelId"
+                defaultValue={activeServiceSlug === selectedService ? selectedComplexityLevelId ?? "" : ""}
+                error={error("complexityLevelId")}
+              >
+                <option value="">{copy.options.complexityOptional}</option>
+                {activeLevels.map((level) => <option key={level.id} value={level.id}>{level.title} · {level.code}</option>)}
+              </SelectField>
+              <p className="mt-2 text-xs leading-5 text-secondary">{copy.complexityHint}</p>
+            </div>
+          ) : null}
         </div>
       </section>
 
@@ -640,6 +667,7 @@ function SelectField({
   error,
   className,
   children,
+  onChange,
 }: {
   label: string;
   name: string;
@@ -647,6 +675,7 @@ function SelectField({
   error?: string;
   className?: string;
   children: React.ReactNode;
+  onChange?: React.ChangeEventHandler<HTMLSelectElement>;
 }) {
   const errorId = `${name}-error`;
   return (
@@ -661,6 +690,7 @@ function SelectField({
         aria-invalid={Boolean(error)}
         aria-describedby={error ? errorId : undefined}
         className={cn(selectClass, error && "border-error bg-error-soft/30")}
+        onChange={onChange}
       >
         {children}
       </select>

@@ -1,6 +1,10 @@
 import { z } from "zod";
 
 const optionalText = z.string().trim().transform((value) => value || undefined).optional();
+const optionalCuid = z.preprocess(
+  (value) => typeof value === "string" ? value.trim() || undefined : value,
+  z.string().cuid().optional(),
+);
 
 export const projectBriefSchema = z.object({
   clientName: z.string().trim().min(2).max(100),
@@ -8,6 +12,7 @@ export const projectBriefSchema = z.object({
   clientEmail: z.string().email().transform((value) => value.toLowerCase()),
   companyName: optionalText,
   serviceSlug: optionalText,
+  complexityLevelId: optionalCuid,
   projectTitle: z.string().trim().min(3).max(160),
   projectType: z.string().trim().min(2).max(100),
   projectDescription: z.string().trim().min(15, "Deskripsi project minimal 15 karakter. Ceritakan singkat apa yang ingin kamu buat.").max(5000, "Deskripsi project maksimal 5.000 karakter."),

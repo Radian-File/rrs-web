@@ -26,10 +26,11 @@ export default async function EditServicePage({
   ]);
   if (!service) notFound();
 
+  const { complexityLevels, ...serviceRecord } = service;
   const editable = {
-    ...service,
-    searchAliases: service.searchAliases ?? [],
-    startingPrice: service.startingPrice?.toString() ?? null,
+    ...serviceRecord,
+    searchAliases: serviceRecord.searchAliases ?? [],
+    startingPrice: serviceRecord.startingPrice?.toString() ?? null,
   };
 
   return (
@@ -53,12 +54,12 @@ export default async function EditServicePage({
       />
       {created ? <p role="status" className="mt-6 rounded-[10px] bg-accent-soft px-4 py-3 text-sm font-semibold text-primary">Layanan dibuat sebagai draf. Lengkapi informasi lalu publikasikan saat siap.</p> : null}
       <div className="mt-8 rounded-[20px] border border-border bg-surface p-6 md:p-8"><ServiceEditor service={editable} types={types} /></div>
-      {service.catalogKind === "PROJECT" && service.complexityLevels.length > 0 ? (
+      {service.catalogKind === "PROJECT" && complexityLevels.length > 0 ? (
         <section className="mt-8">
           <h2 className="font-display text-2xl font-extrabold">Project Fit & Complexity Guide</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-secondary">Level adalah context discovery non-binding. Publikasikan level hanya setelah copy, estimate, capability, dan batas scope siap untuk Client.</p>
           <div className="mt-5 grid gap-5 xl:grid-cols-3">
-            {service.complexityLevels.map((level) => (
+            {complexityLevels.map((level) => (
               <ServiceComplexityLevelEditor
                 key={level.id}
                 level={{ ...level, startingPrice: level.startingPrice?.toString() ?? null }}

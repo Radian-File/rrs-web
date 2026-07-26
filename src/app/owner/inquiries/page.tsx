@@ -21,6 +21,7 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
       ...(status ? { status: status as never } : {}),
       ...(q ? { OR: [{ inquiryNumber: { contains: q, mode: "insensitive" } }, { clientName: { contains: q, mode: "insensitive" } }, { projectTitle: { contains: q, mode: "insensitive" } }] } : {}),
     },
+    include: { initialComplexityLevel: { select: { title: true } } },
     orderBy: { createdAt: "desc" },
     take: 50,
   });
