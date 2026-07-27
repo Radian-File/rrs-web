@@ -51,3 +51,6 @@ next-env.d.ts
 # local editor and agent artifacts
 *.local.md
 /NUL
+
+# local handoff and working documentation
+/docs/
