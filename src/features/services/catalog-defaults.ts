@@ -239,7 +239,7 @@ const catalogServices: CatalogService[] = [
 export const defaultCatalogServiceSlugs = catalogServices.map((service) => service.slug);
 
 export type CatalogImportResult = {
-  runId: string;
+  runId: string | null;
   createdTypes: number;
   createdServices: number;
   createdLevels: number;
@@ -304,6 +304,11 @@ export async function importDefaultServiceCatalog(tx: Prisma.TransactionClient):
       });
       result.createdLevels += 1;
     }
+  }
+
+  if (result.createdServices === 0) {
+    await tx.catalogImportRun.delete({ where: { id: run.id } });
+    result.runId = null;
   }
 
   return result;

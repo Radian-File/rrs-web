@@ -74,11 +74,13 @@ export async function previewLegacyCatalogRevert(db: CatalogClient, source: Cata
 }
 
 export async function applyCatalogImportRevert(tx: Prisma.TransactionClient, preview: CatalogRevertPreview) {
+  const result = { archived: 0, restored: 0 };
   const now = new Date();
   for (const item of preview.items) {
     if (item.action === "ARCHIVE_CREATED") {
       if (await isProtectedForCatalogRevert(tx, item.serviceId)) continue;
       await tx.service.update({ where: { id: item.serviceId }, data: { archivedAt: now } });
+      result.archived += 1;
     }
     if (item.action === "RESTORE_UPDATED" && item.entryId) {
       if (await isProtectedForCatalogRevert(tx, item.serviceId)) continue;
@@ -87,7 +89,9 @@ export async function applyCatalogImportRevert(tx: Prisma.TransactionClient, pre
       if (!snapshot) continue;
       await restoreImportSnapshot(tx, item.serviceId, snapshot);
       await tx.catalogImportEntry.update({ where: { id: item.entryId }, data: { revertedAt: now } });
+      result.restored += 1;
     }
   }
   if (preview.runId) await tx.catalogImportRun.update({ where: { id: preview.runId }, data: { revertedAt: now } });
+  return result;
 }

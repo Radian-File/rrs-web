@@ -64,7 +64,8 @@ export async function importDefaultServiceCatalogAction() {
   revalidatePath("/services");
   revalidatePath("/start-project");
   revalidatePath("/owner/services");
-  redirect(`/owner/services?catalog=imported&run=${result.runId}&types=${result.createdTypes}&services=${result.createdServices}&levels=${result.createdLevels}&skipped=${result.skippedServices}`);
+  const run = result.runId ? `&run=${result.runId}` : "";
+  redirect(`/owner/services?catalog=imported${run}&types=${result.createdTypes}&services=${result.createdServices}&levels=${result.createdLevels}&skipped=${result.skippedServices}`);
 }
 
 export async function importServicesThreeCatalogAction() {
@@ -85,18 +86,18 @@ export async function revertCatalogImportAction(formData: FormData) {
   const legacy = formData.get("legacy") === "true";
   if (!source.success || !runId.success) throw new Error("Preview revert tidak valid.");
   if (legacy && formData.get("confirmed") !== "on") throw new Error("Konfirmasi legacy revert diperlukan.");
-  await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const preview = legacy
       ? await previewLegacyCatalogRevert(tx, source.data)
       : runId.data ? await previewCatalogImportRevert(tx, runId.data) : null;
     if (!preview || preview.source !== source.data) throw new Error("Preview revert tidak ditemukan.");
-    await applyCatalogImportRevert(tx, preview);
+    return applyCatalogImportRevert(tx, preview);
   });
   revalidatePath("/");
   revalidatePath("/services");
   revalidatePath("/start-project");
   revalidatePath("/owner/services");
-  redirect(`/owner/services?reverted=${source.data.toLowerCase()}`);
+  redirect(`/owner/services?reverted=${source.data.toLowerCase()}&archived=${result.archived}&restored=${result.restored}`);
 }
 
 export async function restoreArchivedServiceAction(formData: FormData) {
