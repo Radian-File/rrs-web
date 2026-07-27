@@ -19,7 +19,10 @@ test("owner can open a service type workspace and create within its locked type"
   await expect(page.getByText("Dipilih dari workspace Jenis Layanan.")).toBeVisible();
 
   await page.goto("/owner/services");
-  await expect(page.getByRole("button", { name: "Impor preset Services III" })).toBeVisible();
+  await page.getByRole("link", { name: "Preview preset Services III" }).click();
+  await expect(page).toHaveURL(/\/owner\/services\?preview=services-three/);
+  await expect(page.getByRole("heading", { name: "Dampak preset Services III" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Terapkan preset sebagai draft" })).toBeVisible();
 });
 
 test("owner can create, publish, and unpublish a service without deleting it", async ({ page }) => {

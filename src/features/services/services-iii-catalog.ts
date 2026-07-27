@@ -28,7 +28,7 @@ export type ServicesThreeCatalogService = {
 
 // Draft-only authoring preset derived from RRS_TOP_3_SERVICES_COMPLEXITY_COPY.md.
 // It must be imported explicitly by an Owner and never publishes services or levels.
-export const servicesThreeCatalog: ServicesThreeCatalogService[] = [
+const baseServicesThreeCatalog: ServicesThreeCatalogService[] = [
   {
     "sourceCategory": "Backend & API Development",
     "typeSlug": "backend-system-services",
@@ -3138,3 +3138,67 @@ export const servicesThreeCatalog: ServicesThreeCatalogService[] = [
     ]
   }
 ];
+
+type ServiceSpecificFocus = { initial: string; expanded: string; complex: string; escalation: string };
+
+const serviceSpecificFocus: Record<string, ServiceSpecificFocus> = {
+  "REST API Development": { initial: "satu proses bisnis inti yang memerlukan pertukaran data terstruktur", expanded: "beberapa resource, autentikasi, dan integrasi API yang saling terhubung", complex: "API lintas sistem dengan audit, keamanan, dan reliability yang lebih matang", escalation: "data atau proses perlu sinkron ke sistem lain" },
+  "Third-Party API Integration": { initial: "satu provider untuk satu kebutuhan seperti notifikasi, status, atau transaksi", expanded: "webhook, mapping data, dan monitoring status provider", complex: "orkestrasi multi-provider yang sensitif terhadap kegagalan dan retry", escalation: "provider atau event mulai memengaruhi operasi utama" },
+  "Authentication & Authorization API": { initial: "login dan proteksi akses dasar untuk pengguna aplikasi", expanded: "role dan permission bagi beberapa tipe pengguna", complex: "kontrol akses granular, audit, dan integrasi identitas", escalation: "akses data atau role perlu dikendalikan lebih ketat" },
+  "Internal Operations Web App": { initial: "satu proses manual yang ingin dirapikan dalam aplikasi internal", expanded: "beberapa alur tim, data aktif, dan kontrol kerja dasar", complex: "operasi lintas tim dengan approval dan integrasi sistem", escalation: "workflow operasional mulai melibatkan banyak peran" },
+  "Client & Member Portal": { initial: "satu kebutuhan mandiri bagi client atau member, seperti status atau dokumen", expanded: "akun pengguna, beberapa layanan portal, dan data aktif", complex: "kanal layanan utama dengan akses multi-role dan integrasi", escalation: "pengguna perlu mengelola lebih dari satu layanan atau status" },
+  "SaaS MVP Development": { initial: "satu nilai produk inti yang perlu diuji ke pengguna", expanded: "beberapa flow produk, akun pengguna, dan data aktif", complex: "MVP multi-tenant dengan integrasi dan fondasi scale", escalation: "validasi produk membutuhkan lebih dari satu use case inti" },
+  "Application Deployment Setup": { initial: "satu aplikasi pada satu environment dengan konfigurasi dasar", expanded: "staging/production, database, dan environment yang terstruktur", complex: "multi-service deployment dengan kontrol operasi dan reliability", escalation: "aplikasi memiliki beberapa dependency atau environment" },
+  "CI/CD Pipeline Setup": { initial: "satu repository dengan build dan deploy utama", expanded: "stage build-test-deploy, secrets, dan environment terpisah", complex: "multi-repository release, rollback, dan observability", escalation: "rilis perlu approval, rollback, atau koordinasi antar service" },
+  "Server, Domain & SSL Configuration": { initial: "satu domain, satu aplikasi, dan SSL standar", expanded: "subdomain, reverse proxy, routing, dan akses yang rapi", complex: "multi-environment dengan hardening, monitoring, dan dependency provider", escalation: "infrastruktur publik melibatkan banyak endpoint atau provider" },
+  "Landing Page UI Implementation": { initial: "satu halaman dengan satu tujuan conversion yang jelas", expanded: "section conversion, form, dan state interaktif", complex: "interface marketing dengan integrasi, motion, dan state presisi", escalation: "desain memerlukan data dinamis, tracking, atau banyak variasi responsif" },
+  "Multi-Page Website UI Implementation": { initial: "beberapa halaman inti dengan navigasi dan komponen ringan", expanded: "template halaman reusable, form, dan state konten", complex: "arsitektur UI multi-halaman dengan banyak state dan integrasi", escalation: "konten atau navigasi memerlukan struktur komponen matang" },
+  "Dashboard UI Implementation": { initial: "satu area dashboard dengan data dan interaksi dasar", expanded: "tabel, filter, chart, dan state data yang saling terhubung", complex: "dashboard lintas role dengan data-heavy UI dan handoff detail", escalation: "data, permission, atau state interaksi saling bergantung" },
+  "Company Profile Website": { initial: "profil bisnis, layanan, dan jalur kontak yang jelas", expanded: "konten kaya, beberapa jalur lead, dan CMS ringan", complex: "struktur konten multi-audience, workflow editorial, dan integrasi lead", escalation: "bisnis memerlukan lebih dari informasi statis dan kontak sederhana" },
+  "E-Commerce Website": { initial: "katalog, detail produk, keranjang, dan transaksi inti", expanded: "payment, shipping, dashboard pesanan, dan katalog dinamis", complex: "operasi commerce lintas inventori, logistik, dan sistem internal", escalation: "aturan stok, promo, fulfillment, atau transaksi mulai kompleks" },
+  "Booking & Reservation Website": { initial: "informasi layanan, slot sederhana, dan form reservasi", expanded: "availability dinamis, notifikasi, dan dashboard booking", complex: "booking multi-resource, multi-branch, dan koordinasi operasional", escalation: "jadwal, kapasitas, atau aturan pembatalan saling bergantung" },
+  "Admin Dashboard System": { initial: "kontrol data dan satu alur administrasi utama", expanded: "modul operasional, role, filter, dan laporan aktif", complex: "workflow lintas divisi, approval berlapis, dan audit", escalation: "pengelolaan data perlu dibagi ke banyak peran" },
+  "Inventory & Stock Management System": { initial: "pencatatan stok masuk, keluar, dan laporan dasar", expanded: "supplier, mutasi, role, dan kontrol persediaan aktif", complex: "multi-gudang, audit stok, dan integrasi operasi", escalation: "akurasi stok perlu dijaga lintas lokasi atau sistem" },
+  "CRM & Sales Workflow System": { initial: "pencatatan lead dan follow-up pada satu alur sales", expanded: "pipeline, penugasan, reminder, dan reporting", complex: "handoff lintas sales/admin dengan control ownership dan integrasi", escalation: "lead perlu dipindahkan lintas tim atau dipantau lebih ketat" },
+  "Android Business Application": { initial: "satu tugas operasional utama di perangkat Android", expanded: "beberapa flow mobile, data aktif, dan notifikasi", complex: "operasi lintas tim/cabang dengan integrasi dan audit", escalation: "aplikasi perlu memakai lokasi, kamera, scan, atau data lintas sistem" },
+  "Android Booking Application": { initial: "booking satu layanan dengan jadwal dan konfirmasi dasar", expanded: "availability, reminder, akun user, dan perubahan jadwal", complex: "booking multi-resource dengan payment dan sinkronisasi real-time", escalation: "slot, cabang, atau resource perlu dikelola dinamis" },
+  "Android E-Commerce Application": { initial: "katalog mobile, cart, dan checkout sederhana", expanded: "akun, order tracking, payment, shipping, dan promo", complex: "commerce mobile terintegrasi dengan inventory dan fulfillment", escalation: "transaksi, stok, atau provider commerce perlu sinkron konsisten" },
+  "Point of Sale Application": { initial: "transaksi kasir inti dengan produk dan struk", expanded: "stok, pelanggan, role kasir, dan perangkat kasir", complex: "multi-outlet, audit transaksi, dan integrasi inventory/akuntansi", escalation: "transaksi perlu sinkron lintas perangkat atau cabang" },
+  "Inventory Desktop Application": { initial: "stok lokal dengan barang masuk, keluar, dan laporan dasar", expanded: "mutasi, role gudang, barcode, dan database aktif", complex: "inventory multi-user dengan audit dan integrasi perangkat/sistem", escalation: "gudang, jaringan, atau hardware memengaruhi akurasi data" },
+  "Custom Multi-User Desktop System": { initial: "satu proses bisnis internal di desktop", expanded: "workflow, role, dan data terpusat", complex: "sistem multi-user lintas unit dengan deployment khusus", escalation: "operasi perlu stabil pada banyak pengguna atau perangkat" },
+  "Website UI/UX Design": { initial: "struktur konten dan satu journey website utama", expanded: "beberapa journey, information architecture, dan prototype", complex: "riset, design system, dan handoff website kompleks", escalation: "pengunjung atau stakeholder memiliki kebutuhan alur beragam" },
+  "Application UI/UX Design": { initial: "satu use case aplikasi dengan flow dan screen inti", expanded: "flow aplikasi, state, dan prototype yang saling terhubung", complex: "arsitektur produk, design system, dan handoff lintas tim", escalation: "produk memiliki banyak role, state, atau perubahan kebutuhan" },
+  "UI/UX Audit & Redesign": { initial: "satu masalah usability dan area redesign terfokus", expanded: "beberapa flow yang perlu diaudit dan dirapikan", complex: "restrukturisasi UX lintas modul dengan governance desain", escalation: "masalah UX tersebar pada banyak journey atau stakeholder" },
+  "Backend System Development": { initial: "backend untuk satu workflow dan data inti", expanded: "modul backend, autentikasi, dan data operasional aktif", complex: "backend lintas sistem dengan security, audit, dan scale", escalation: "aturan bisnis atau integrasi memengaruhi arsitektur" },
+  "Database Design & Optimization": { initial: "struktur tabel dan relasi data yang perlu dirapikan", expanded: "data aktif, indexing, query, dan integrity yang ketat", complex: "arsitektur data sensitif dengan backup, audit, dan scale", escalation: "volume data atau risiko integritas mulai tinggi" },
+  "Admin Panel Development": { initial: "pengelolaan data dasar untuk tim internal", expanded: "modul admin, role, dan control operasional aktif", complex: "panel aman dengan audit, monitoring, dan workflow kompleks", escalation: "admin perlu mengelola banyak modul atau akses berbeda" },
+  "Data Import & Export": { initial: "satu sumber dan tujuan data dengan mapping sederhana", expanded: "sumber data, transformasi, dan validasi terstruktur", complex: "migrasi lintas sistem dengan logging dan rekonsiliasi", escalation: "kegagalan transfer dapat mengganggu operasi atau data penting" },
+  "Technical Documentation": { initial: "satu modul atau handoff teknis inti", expanded: "arsitektur, dependency, dan proses kerja yang terhubung", complex: "dokumentasi lintas sistem untuk audit dan maintenance jangka panjang", escalation: "dokumen menjadi acuan banyak tim atau environment" },
+  "Technical Consultation": { initial: "satu keputusan teknis atau kendala utama", expanded: "opsi solusi, trade-off, dan arahan implementasi", complex: "validasi arsitektur dan keputusan strategis sistem kompleks", escalation: "keputusan berdampak besar atau bergantung pada banyak sistem" },
+  "Website Maintenance": { initial: "satu perubahan ringan atau area website yang perlu dijaga", expanded: "beberapa bagian website dengan kontrol perubahan rapi", complex: "continuity website dengan banyak dependency dan risiko perubahan", escalation: "perubahan menyentuh integrasi, data, atau operasi penting" },
+  "Application Maintenance": { initial: "satu perbaikan atau penyesuaian aplikasi yang jelas", expanded: "beberapa alur aplikasi, data aktif, dan dependency terkontrol", complex: "continuity aplikasi dengan integrasi dan risiko perubahan tinggi", escalation: "perubahan memengaruhi banyak workflow, user, atau sistem lain" },
+  "Bug Fix & Technical Recovery": { initial: "diagnosis dan perbaikan satu masalah yang terisolasi", expanded: "penelusuran beberapa komponen dan pemulihan terarah", complex: "recovery kompleks dengan dependency, data, dan risiko tinggi", escalation: "gejala berdampak luas atau akar masalah belum dapat dipastikan" },
+};
+
+function applyServiceSpecificCopy(service: ServicesThreeCatalogService): ServicesThreeCatalogService {
+  const focus = serviceSpecificFocus[service.title];
+  if (!focus) return service;
+  return { ...service, levels: service.levels.map((level) => {
+    const copy = level.code === "ESSENTIAL" ? {
+      summary: `Untuk ${focus.initial}.`,
+      indicators: [focus.initial, "Ruang lingkup masih dapat dikelola dalam satu fokus delivery.", "Dependency dan risiko perubahan masih terbatas."],
+      escalationSignals: [focus.expanded, focus.escalation, "Scope perlu ditinjau ulang sebelum commitment delivery."],
+    } : level.code === "ADVANCED" ? {
+      summary: `Untuk ${focus.expanded}.`,
+      indicators: [focus.expanded, "Kebutuhan dan dependency berjalan lebih aktif.", "Perlu struktur implementasi yang lebih terarah."],
+      escalationSignals: [focus.complex, focus.escalation, "Risiko operasional atau teknis perlu direncanakan sejak awal."],
+    } : {
+      summary: `Untuk ${focus.complex}.`,
+      indicators: [focus.complex, "Dependency, kontrol perubahan, dan risiko delivery perlu dikelola ketat.", "Perlu keputusan teknis yang mendukung keberlanjutan solusi."],
+      escalationSignals: ["Scope mungkin perlu dipisah menjadi beberapa phase delivery.", "Discovery atau technical assessment diperlukan sebelum scope dikunci.", focus.escalation],
+    };
+    return { ...level, ...copy };
+  }) };
+}
+
+export const servicesThreeCatalog = baseServicesThreeCatalog.map(applyServiceSpecificCopy);
