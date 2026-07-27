@@ -6,6 +6,7 @@ import { z } from "zod";
 import { requireOwner } from "@/lib/authz";
 import { prisma } from "@/lib/db/prisma";
 import { defaultComplexityLevels, importDefaultServiceCatalog } from "@/features/services/catalog-defaults";
+import { importServicesThreeCatalog } from "@/features/services/services-iii-catalog-import";
 import { serviceComplexityLevelSchema, serviceSchema } from "@/features/services/schemas";
 
 export type ServiceActionState = { message?: string; errors?: Record<string, string[]> };
@@ -63,6 +64,17 @@ export async function importDefaultServiceCatalogAction() {
   revalidatePath("/start-project");
   revalidatePath("/owner/services");
   redirect(`/owner/services?catalog=imported&types=${result.createdTypes}&services=${result.createdServices}&levels=${result.createdLevels}&skipped=${result.skippedServices}`);
+}
+
+export async function importServicesThreeCatalogAction() {
+  await requireOwner();
+  const result = await prisma.$transaction((tx) => importServicesThreeCatalog(tx));
+  revalidatePath("/");
+  revalidatePath("/services");
+  revalidatePath("/start-project");
+  revalidatePath("/owner");
+  revalidatePath("/owner/services");
+  redirect(`/owner/services?preset=services-three&created=${result.createdServices}&updated=${result.updatedDraftServices}&skipped=${result.skippedProtectedServices}&levelsCreated=${result.createdLevels}&levelsUpdated=${result.updatedDraftLevels}&levelsSkipped=${result.skippedPublishedLevels}`);
 }
 
 export async function initializeServiceComplexityLevelsAction(formData: FormData) {

@@ -7,14 +7,14 @@ import { Input } from "@/components/ui/input";
 import { PaginationControls, pageSize, parsePage } from "@/components/ui/pagination-controls";
 import { WorkspaceModule } from "@/components/workspace/workspace-module";
 import { WorkspacePageHeader } from "@/components/workspace/workspace-page-header";
-import { importDefaultServiceCatalogAction } from "@/features/services/actions";
+import { importDefaultServiceCatalogAction, importServicesThreeCatalogAction } from "@/features/services/actions";
 import { prisma } from "@/lib/db/prisma";
 import { formatIdr } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function OwnerServicesPage({ searchParams }: { searchParams: Promise<{ page?: string; q?: string; type?: string; catalog?: string; types?: string; services?: string; levels?: string; skipped?: string }> }) {
-  const { page: rawPage, q: rawQuery, type: rawType, catalog, types: importedTypes, services: importedServices, levels: importedLevels, skipped } = await searchParams;
+export default async function OwnerServicesPage({ searchParams }: { searchParams: Promise<{ page?: string; q?: string; type?: string; catalog?: string; preset?: string; types?: string; services?: string; levels?: string; created?: string; updated?: string; skipped?: string; levelsCreated?: string; levelsUpdated?: string; levelsSkipped?: string }> }) {
+  const { page: rawPage, q: rawQuery, type: rawType, catalog, preset, types: importedTypes, services: importedServices, levels: importedLevels, created, updated, skipped, levelsCreated, levelsUpdated, levelsSkipped } = await searchParams;
   const page = parsePage(rawPage);
   const q = rawQuery?.trim() ?? "";
   const selectedType = rawType ? await prisma.serviceType.findUnique({ where: { slug: rawType }, select: { id: true, name: true, slug: true, isActive: true } }) : null;
@@ -28,8 +28,9 @@ export default async function OwnerServicesPage({ searchParams }: { searchParams
   const services = rows.slice(0, pageSize);
 
   return <>
-    <WorkspacePageHeader eyebrow="Layanan" title="Kelola katalog yang ditampilkan ke Client." description="Draf tidak tampil di halaman publik. Unpublish mempertahankan riwayat quotation dan inquiry tanpa menghapus relasinya." actions={<><form className="relative w-full sm:w-72">{selectedType ? <input type="hidden" name="type" value={selectedType.slug} /> : null}<Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-secondary" aria-hidden="true"/><Input name="q" defaultValue={q} placeholder="Cari layanan atau kategori" aria-label="Cari layanan" className="pl-10"/></form><form action={importDefaultServiceCatalogAction}><Button type="submit" variant="outline">Impor katalog default</Button></form><Button asChild variant="outline"><Link href="/owner/services/types">Jenis layanan</Link></Button><Button asChild><Link href={selectedType?.isActive ? `/owner/services/create?type=${encodeURIComponent(selectedType.slug)}` : "/owner/services/create"}><Plus className="size-4" aria-hidden="true"/>{selectedType?.isActive ? `Buat layanan di ${selectedType.name}` : "Buat layanan"}</Link></Button></>}/>
+    <WorkspacePageHeader eyebrow="Layanan" title="Kelola katalog yang ditampilkan ke Client." description="Draf tidak tampil di halaman publik. Unpublish mempertahankan riwayat quotation dan inquiry tanpa menghapus relasinya." actions={<><form className="relative w-full sm:w-72">{selectedType ? <input type="hidden" name="type" value={selectedType.slug} /> : null}<Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-secondary" aria-hidden="true"/><Input name="q" defaultValue={q} placeholder="Cari layanan atau kategori" aria-label="Cari layanan" className="pl-10"/></form><form action={importDefaultServiceCatalogAction}><Button type="submit" variant="outline">Impor katalog default</Button></form><form action={importServicesThreeCatalogAction}><Button type="submit" variant="outline">Impor preset Services III</Button></form><Button asChild variant="outline"><Link href="/owner/services/types">Jenis layanan</Link></Button><Button asChild><Link href={selectedType?.isActive ? `/owner/services/create?type=${encodeURIComponent(selectedType.slug)}` : "/owner/services/create"}><Plus className="size-4" aria-hidden="true"/>{selectedType?.isActive ? `Buat layanan di ${selectedType.name}` : "Buat layanan"}</Link></Button></>}/>
     {catalog === "imported" ? <p role="status" className="mt-6 rounded-[10px] bg-accent-soft px-4 py-3 text-sm font-semibold text-primary">Katalog default diperiksa: {importedTypes ?? "0"} jenis, {importedServices ?? "0"} layanan, dan {importedLevels ?? "0"} level baru ditambahkan; {skipped ?? "0"} layanan existing tidak diubah.</p> : null}
+    {preset === "services-three" ? <p role="status" className="mt-6 rounded-[10px] bg-accent-soft px-4 py-3 text-sm font-semibold text-primary">Preset Services III selesai: {created ?? "0"} layanan draft baru, {updated ?? "0"} layanan draft diperbarui, {levelsCreated ?? "0"} level baru, dan {levelsUpdated ?? "0"} level draft diperbarui. {skipped ?? "0"} layanan historis/published serta {levelsSkipped ?? "0"} level published tidak diubah.</p> : null}
     <dl className="mt-8 grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-3">
       <Metric label="Total layanan" value={total}/><Metric label="Sudah dipublikasikan" value={published}/><Metric label="Draf / belum tayang" value={total-published}/>
     </dl>

@@ -17,6 +17,9 @@ test("owner can open a service type workspace and create within its locked type"
   await expect(page).toHaveURL(/\/owner\/services\/create\?type=website-development/);
   await expect(page.getByLabel("Jenis layanan terkunci")).toHaveValue("Website Development");
   await expect(page.getByText("Dipilih dari workspace Jenis Layanan.")).toBeVisible();
+
+  await page.goto("/owner/services");
+  await expect(page.getByRole("button", { name: "Impor preset Services III" })).toBeVisible();
 });
 
 test("owner can create, publish, and unpublish a service without deleting it", async ({ page }) => {
