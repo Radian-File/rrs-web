@@ -2,6 +2,23 @@ import { expect, test } from "@playwright/test";
 
 test.describe.configure({ mode: "serial" });
 
+test("owner can open a service type workspace and create within its locked type", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("Email").fill(process.env.OWNER_EMAIL ?? "owner@example.com");
+  await page.getByLabel("Password").fill(process.env.OWNER_PASSWORD ?? "ChangeMe123!");
+  await page.getByRole("button", { name: "Sign In" }).click();
+  await expect(page).toHaveURL(/\/owner$/, { timeout: 30_000 });
+
+  await page.goto("/owner/services/types");
+  await page.getByRole("link", { name: "Buka layanan jenis Website Development" }).click();
+  await expect(page).toHaveURL(/\/owner\/services\?type=website-development/);
+  await expect(page.getByText("Jenis aktif:", { exact: true }).locator("..")).toContainText("Website Development");
+  await page.getByRole("link", { name: "Buat layanan di Website Development" }).click();
+  await expect(page).toHaveURL(/\/owner\/services\/create\?type=website-development/);
+  await expect(page.getByLabel("Jenis layanan terkunci")).toHaveValue("Website Development");
+  await expect(page.getByText("Dipilih dari workspace Jenis Layanan.")).toBeVisible();
+});
+
 test("owner can create, publish, and unpublish a service without deleting it", async ({ page }) => {
   test.setTimeout(90_000);
   const slug = `service-reference-${Date.now()}-${test.info().project.name}`;

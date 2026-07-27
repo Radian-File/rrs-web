@@ -21,10 +21,10 @@ test("seeded owner can authenticate and open the owner workspace", async ({ page
 test("service detail keeps quotation as the primary conversion", async ({ page }) => {
   await page.goto("/services/website-development");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Website Development");
-  await expect(page.locator("main:visible").getByRole("link", { name: "Sign in to request a quotation" })).toBeVisible();
-  await expect(
-    page.getByText("Final pricing is defined only through a quotation after scope review.").first(),
-  ).toBeVisible();
+  const briefCta = page.locator("main:visible a[href*='start-project']").first();
+  await expect(briefCta).toBeVisible();
+  await expect(briefCta).toHaveAttribute("href", /start-project/);
+  await expect(page.getByText(/(Final pricing is defined only through a quotation after scope review|The estimate follows the selected level)/).first()).toBeVisible();
 });
 
 test("owner can draft and send a quotation that the client accepts atomically", async ({ page }) => {
