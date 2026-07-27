@@ -239,6 +239,7 @@ const catalogServices: CatalogService[] = [
 export const defaultCatalogServiceSlugs = catalogServices.map((service) => service.slug);
 
 export type CatalogImportResult = {
+  runId: string;
   createdTypes: number;
   createdServices: number;
   createdLevels: number;
@@ -246,7 +247,8 @@ export type CatalogImportResult = {
 };
 
 export async function importDefaultServiceCatalog(tx: Prisma.TransactionClient): Promise<CatalogImportResult> {
-  const result: CatalogImportResult = { createdTypes: 0, createdServices: 0, createdLevels: 0, skippedServices: 0 };
+  const run = await tx.catalogImportRun.create({ data: { source: "DEFAULT_CATALOG" }, select: { id: true } });
+  const result: CatalogImportResult = { runId: run.id, createdTypes: 0, createdServices: 0, createdLevels: 0, skippedServices: 0 };
   const typeIds = new Map<string, string>();
 
   for (const type of serviceTypes) {
@@ -286,7 +288,10 @@ export async function importDefaultServiceCatalog(tx: Prisma.TransactionClient):
     })).id;
 
     if (existing) result.skippedServices += 1;
-    else result.createdServices += 1;
+    else {
+      result.createdServices += 1;
+      await tx.catalogImportEntry.create({ data: { runId: run.id, serviceId, operation: "CREATED" } });
+    }
 
     for (const level of service.levels ?? []) {
       const levelExists = await tx.serviceComplexityLevel.findUnique({

@@ -35,7 +35,7 @@ export async function submitProjectBrief(
 
     const inquiry = await prisma.$transaction(async (tx) => {
       const service = parsed.data.serviceSlug
-        ? await tx.service.findFirst({ where: { slug: parsed.data.serviceSlug, isPublished: true }, select: { id: true } })
+        ? await tx.service.findFirst({ where: { slug: parsed.data.serviceSlug, isPublished: true, archivedAt: null }, select: { id: true } })
         : null;
       if (parsed.data.serviceSlug && !service) throw new InvalidBriefSelectionError("serviceSlug");
 
@@ -48,6 +48,7 @@ export async function submitProjectBrief(
               service: {
                 id: service.id,
                 isPublished: true,
+                archivedAt: null,
                 showInPricingGuide: true,
                 catalogKind: "PROJECT",
               },

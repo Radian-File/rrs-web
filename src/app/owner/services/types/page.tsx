@@ -8,7 +8,7 @@ import { prisma } from "@/lib/db/prisma";
 const inputClass = "mt-2 h-11 w-full rounded-[10px] border border-border bg-surface px-3 text-sm";
 
 export default async function ServiceTypesPage() {
-  const types = await prisma.serviceType.findMany({ include: { _count: { select: { services: true } } }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }] });
+  const types = await prisma.serviceType.findMany({ include: { _count: { select: { services: { where: { archivedAt: null } } } } }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }] });
   return <>
     <WorkspacePageHeader eyebrow="Katalog layanan" title="Jenis layanan." description="Pilih jenis untuk membuka layanan terkait, lalu tambahkan layanan baru langsung ke jenis tersebut." actions={<Button asChild variant="outline"><Link href="/owner/services"><ArrowLeft className="size-4" aria-hidden="true"/>Kembali ke layanan</Link></Button>}/>
     <form action={createServiceTypeAction} className="mt-8 grid gap-4 rounded-[16px] border border-border bg-surface p-5 md:grid-cols-[1fr_1fr_.65fr_auto] md:items-end">

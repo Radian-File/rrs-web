@@ -37,11 +37,11 @@ export default async function ServicesPage({
     getLocale(),
     prisma.serviceType.findMany({
       where: { isActive: true },
-      include: { _count: { select: { services: { where: { isPublished: true } } } } },
+      include: { _count: { select: { services: { where: { isPublished: true, archivedAt: null } } } } },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
     }),
     auth(),
-    prisma.service.findFirst({ where: { isPublished: true, catalogKind: "MICRO_TASK" }, orderBy: { updatedAt: "desc" } }),
+    prisma.service.findFirst({ where: { isPublished: true, archivedAt: null, catalogKind: "MICRO_TASK" }, orderBy: { updatedAt: "desc" } }),
   ]);
 
   const dictionary = getDictionary(locale);
@@ -51,6 +51,7 @@ export default async function ServicesPage({
   const candidates = await prisma.service.findMany({
     where: {
       isPublished: true,
+      archivedAt: null,
       ...(type ? { serviceType: { slug: type, isActive: true } } : {}),
     },
     include: {

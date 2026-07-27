@@ -21,7 +21,7 @@ export default async function Home() {
     getLocale(),
     auth(),
     prisma.service.findMany({
-      where: { isPublished: true },
+      where: { isPublished: true, archivedAt: null },
       orderBy: [{ isFeatured: "desc" }, { updatedAt: "desc" }],
       take: 4,
       select: {

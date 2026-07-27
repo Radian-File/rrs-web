@@ -7,6 +7,7 @@ import { requireOwner } from "@/lib/authz";
 import { prisma } from "@/lib/db/prisma";
 import { defaultComplexityLevels, importDefaultServiceCatalog } from "@/features/services/catalog-defaults";
 import { importServicesThreeCatalog } from "@/features/services/services-iii-catalog-import";
+import { applyCatalogImportRevert, previewCatalogImportRevert, previewLegacyCatalogRevert } from "@/features/services/catalog-import-revert-preview";
 import { serviceComplexityLevelSchema, serviceSchema } from "@/features/services/schemas";
 
 export type ServiceActionState = { message?: string; errors?: Record<string, string[]> };
@@ -63,7 +64,7 @@ export async function importDefaultServiceCatalogAction() {
   revalidatePath("/services");
   revalidatePath("/start-project");
   revalidatePath("/owner/services");
-  redirect(`/owner/services?catalog=imported&types=${result.createdTypes}&services=${result.createdServices}&levels=${result.createdLevels}&skipped=${result.skippedServices}`);
+  redirect(`/owner/services?catalog=imported&run=${result.runId}&types=${result.createdTypes}&services=${result.createdServices}&levels=${result.createdLevels}&skipped=${result.skippedServices}`);
 }
 
 export async function importServicesThreeCatalogAction() {
@@ -74,7 +75,39 @@ export async function importServicesThreeCatalogAction() {
   revalidatePath("/start-project");
   revalidatePath("/owner");
   revalidatePath("/owner/services");
-  redirect(`/owner/services?preset=services-three&created=${result.createdServices}&updated=${result.updatedDraftServices}&skipped=${result.skippedProtectedServices}&levelsCreated=${result.createdLevels}&levelsUpdated=${result.updatedDraftLevels}&levelsSkipped=${result.skippedPublishedLevels}`);
+  redirect(`/owner/services?preset=services-three&run=${result.runId}&created=${result.createdServices}&updated=${result.updatedDraftServices}&skipped=${result.skippedProtectedServices}&levelsCreated=${result.createdLevels}&levelsUpdated=${result.updatedDraftLevels}&levelsSkipped=${result.skippedPublishedLevels}`);
+}
+
+export async function revertCatalogImportAction(formData: FormData) {
+  await requireOwner();
+  const source = z.enum(["DEFAULT_CATALOG", "SERVICES_III"]).safeParse(formData.get("source"));
+  const runId = z.string().cuid().optional().safeParse(formData.get("runId") || undefined);
+  const legacy = formData.get("legacy") === "true";
+  if (!source.success || !runId.success) throw new Error("Preview revert tidak valid.");
+  if (legacy && formData.get("confirmed") !== "on") throw new Error("Konfirmasi legacy revert diperlukan.");
+  await prisma.$transaction(async (tx) => {
+    const preview = legacy
+      ? await previewLegacyCatalogRevert(tx, source.data)
+      : runId.data ? await previewCatalogImportRevert(tx, runId.data) : null;
+    if (!preview || preview.source !== source.data) throw new Error("Preview revert tidak ditemukan.");
+    await applyCatalogImportRevert(tx, preview);
+  });
+  revalidatePath("/");
+  revalidatePath("/services");
+  revalidatePath("/start-project");
+  revalidatePath("/owner/services");
+  redirect(`/owner/services?reverted=${source.data.toLowerCase()}`);
+}
+
+export async function restoreArchivedServiceAction(formData: FormData) {
+  await requireOwner();
+  const serviceId = z.string().cuid().safeParse(formData.get("serviceId"));
+  if (!serviceId.success) throw new Error("Layanan tidak valid.");
+  const service = await prisma.service.findUnique({ where: { id: serviceId.data }, select: { id: true, slug: true, archivedAt: true } });
+  if (!service?.archivedAt) throw new Error("Layanan tidak berada di arsip.");
+  await prisma.service.update({ where: { id: service.id }, data: { archivedAt: null } });
+  revalidateServicePaths(service.slug);
+  revalidatePath("/owner/services");
 }
 
 export async function initializeServiceComplexityLevelsAction(formData: FormData) {
