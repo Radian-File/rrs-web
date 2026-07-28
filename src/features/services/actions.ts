@@ -7,6 +7,7 @@ import { requireOwner } from "@/lib/authz";
 import { prisma } from "@/lib/db/prisma";
 import { defaultComplexityLevels, importDefaultServiceCatalog } from "@/features/services/catalog-defaults";
 import { importServicesThreeCatalog } from "@/features/services/services-iii-catalog-import";
+import { servicesThreeCatalog } from "@/features/services/services-iii-catalog";
 import { serviceComplexityLevelSchema, serviceSchema } from "@/features/services/schemas";
 
 export type ServiceActionState = { message?: string; errors?: Record<string, string[]> };
@@ -75,6 +76,24 @@ export async function importServicesThreeCatalogAction() {
   revalidatePath("/owner");
   revalidatePath("/owner/services");
   redirect(`/owner/services?preset=services-three&created=${result.createdServices}&updated=${result.updatedDraftServices}&skipped=${result.skippedProtectedServices}&levelsCreated=${result.createdLevels}&levelsUpdated=${result.updatedDraftLevels}&levelsSkipped=${result.skippedPublishedLevels}`);
+}
+
+export async function publishServicesThreeCatalogAction(formData: FormData) {
+  await requireOwner();
+  if (formData.get("confirmed") !== "publish-services-three") throw new Error("Konfirmasi publish Services III diperlukan.");
+  const slugs = [...new Set(servicesThreeCatalog.flatMap((service) => [service.slug, ...service.matchSlugs]))];
+  const draftServices = await prisma.service.findMany({ where: { slug: { in: slugs }, isPublished: false }, select: { id: true } });
+  const serviceIds = draftServices.map((service) => service.id);
+  const [services, levels] = await prisma.$transaction([
+    prisma.service.updateMany({ where: { id: { in: serviceIds } }, data: { isPublished: true } }),
+    prisma.serviceComplexityLevel.updateMany({ where: { serviceId: { in: serviceIds }, isPublished: false }, data: { isPublished: true } }),
+  ]);
+  revalidatePath("/");
+  revalidatePath("/services");
+  revalidatePath("/start-project");
+  revalidatePath("/owner");
+  revalidatePath("/owner/services");
+  redirect(`/owner/services?drafts=services-three&publishedServices=${services.count}&publishedLevels=${levels.count}`);
 }
 
 export async function initializeServiceComplexityLevelsAction(formData: FormData) {
