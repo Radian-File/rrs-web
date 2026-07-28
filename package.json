@@ -16,6 +16,7 @@
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
+    "db:bootstrap-services-three": "tsx prisma/bootstrap-services-three.ts",
     "db:studio": "prisma studio",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build"
   },

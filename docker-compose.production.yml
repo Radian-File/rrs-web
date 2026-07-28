@@ -26,6 +26,21 @@ services:
     networks: [internal]
     restart: "no"
 
+  bootstrap-services-three:
+    build:
+      context: .
+      target: builder
+    env_file: ${RRS_ENV_FILE:-.env.production}
+    environment:
+      RRS_CONFIRM_BOOTSTRAP: ${RRS_CONFIRM_BOOTSTRAP:-}
+    command: ["npm", "run", "db:bootstrap-services-three"]
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [internal]
+    profiles: ["bootstrap"]
+    restart: "no"
+
   uploads-init:
     image: alpine:3.21
     command: ["sh", "-c", "chown -R 1001:1001 /uploads"]
