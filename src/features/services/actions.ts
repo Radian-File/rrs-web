@@ -96,6 +96,24 @@ export async function publishServicesThreeCatalogAction(formData: FormData) {
   redirect(`/owner/services?drafts=services-three&publishedServices=${services.count}&publishedLevels=${levels.count}`);
 }
 
+export async function unpublishServicesThreeCatalogAction(formData: FormData) {
+  await requireOwner();
+  if (formData.get("confirmed") !== "unpublish-services-three") throw new Error("Konfirmasi sembunyikan Services III diperlukan.");
+  const slugs = servicesThreeCatalog.map((service) => service.slug);
+  const publishedServices = await prisma.service.findMany({ where: { slug: { in: slugs }, isPublished: true }, select: { id: true } });
+  const serviceIds = publishedServices.map((service) => service.id);
+  const [services, levels] = await prisma.$transaction([
+    prisma.service.updateMany({ where: { id: { in: serviceIds } }, data: { isPublished: false, showInPricingGuide: false } }),
+    prisma.serviceComplexityLevel.updateMany({ where: { serviceId: { in: serviceIds }, isPublished: true }, data: { isPublished: false } }),
+  ]);
+  revalidatePath("/");
+  revalidatePath("/services");
+  revalidatePath("/start-project");
+  revalidatePath("/owner");
+  revalidatePath("/owner/services");
+  redirect(`/owner/services?drafts=services-three&unpublishedServices=${services.count}&unpublishedLevels=${levels.count}`);
+}
+
 export async function initializeServiceComplexityLevelsAction(formData: FormData) {
   await requireOwner();
   const serviceId = z.string().cuid().safeParse(formData.get("serviceId"));
