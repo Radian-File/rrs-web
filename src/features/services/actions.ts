@@ -81,11 +81,11 @@ export async function importServicesThreeCatalogAction() {
 export async function publishServicesThreeCatalogAction(formData: FormData) {
   await requireOwner();
   if (formData.get("confirmed") !== "publish-services-three") throw new Error("Konfirmasi publish Services III diperlukan.");
-  const slugs = [...new Set(servicesThreeCatalog.flatMap((service) => [service.slug, ...service.matchSlugs]))];
+  const slugs = servicesThreeCatalog.map((service) => service.slug);
   const draftServices = await prisma.service.findMany({ where: { slug: { in: slugs }, isPublished: false }, select: { id: true } });
   const serviceIds = draftServices.map((service) => service.id);
   const [services, levels] = await prisma.$transaction([
-    prisma.service.updateMany({ where: { id: { in: serviceIds } }, data: { isPublished: true } }),
+    prisma.service.updateMany({ where: { id: { in: serviceIds } }, data: { isPublished: true, showInPricingGuide: true } }),
     prisma.serviceComplexityLevel.updateMany({ where: { serviceId: { in: serviceIds }, isPublished: false }, data: { isPublished: true } }),
   ]);
   revalidatePath("/");
