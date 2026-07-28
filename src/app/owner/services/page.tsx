@@ -7,41 +7,56 @@ import { Input } from "@/components/ui/input";
 import { PaginationControls, pageSize, parsePage } from "@/components/ui/pagination-controls";
 import { WorkspaceModule } from "@/components/workspace/workspace-module";
 import { WorkspacePageHeader } from "@/components/workspace/workspace-page-header";
-import { importDefaultServiceCatalogAction, importServicesThreeCatalogAction } from "@/features/services/actions";
-import { previewServicesThreeCatalog, type ServicesThreeImportPreview } from "@/features/services/services-iii-catalog-import";
+import { defaultCatalogServiceSlugs } from "@/features/services/catalog-defaults";
+import { servicesThreeCatalog } from "@/features/services/services-iii-catalog";
 import { prisma } from "@/lib/db/prisma";
 import { formatIdr } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function OwnerServicesPage({ searchParams }: { searchParams: Promise<{ page?: string; q?: string; type?: string; catalog?: string; preset?: string; preview?: string; types?: string; services?: string; levels?: string; created?: string; updated?: string; skipped?: string; levelsCreated?: string; levelsUpdated?: string; levelsSkipped?: string }> }) {
-  const { page: rawPage, q: rawQuery, type: rawType, catalog, preset, preview, types: importedTypes, services: importedServices, levels: importedLevels, created, updated, skipped, levelsCreated, levelsUpdated, levelsSkipped } = await searchParams;
+export default async function OwnerServicesPage({ searchParams }: { searchParams: Promise<{ page?: string; q?: string; type?: string; drafts?: string }> }) {
+  const { page: rawPage, q: rawQuery, type: rawType, drafts } = await searchParams;
   const page = parsePage(rawPage);
   const q = rawQuery?.trim() ?? "";
-  const [selectedType, servicesThreePreview] = await Promise.all([
-    rawType ? prisma.serviceType.findUnique({ where: { slug: rawType }, select: { id: true, name: true, slug: true, isActive: true } }) : null,
-    preview === "services-three" ? previewServicesThreeCatalog(prisma) : null,
-  ]);
-  const filter = { ...(selectedType ? { serviceTypeId: selectedType.id } : {}), ...(q ? { OR: [{ title: { contains: q, mode: "insensitive" as const } }, { slug: { contains: q, mode: "insensitive" as const } }, { category: { contains: q, mode: "insensitive" as const } }] } : {}) };
+  const visibleDraftPresets = new Set((drafts ?? "").split(",").filter((preset): preset is "default" | "services-three" => preset === "default" || preset === "services-three"));
+  const showDefaultDrafts = visibleDraftPresets.has("default");
+  const showServicesThreeDrafts = visibleDraftPresets.has("services-three");
+  const servicesThreeDraftSlugs = [...new Set(servicesThreeCatalog.flatMap((service) => [service.slug, ...service.matchSlugs]))];
+  const allPresetDraftSlugs = [...new Set([...defaultCatalogServiceSlugs, ...servicesThreeDraftSlugs])];
+  const selectedType = rawType ? await prisma.serviceType.findUnique({ where: { slug: rawType }, select: { id: true, name: true, slug: true, isActive: true } }) : null;
+  const visibilityFilter = {
+    OR: [
+      { isPublished: true },
+      { isPublished: false, slug: { notIn: allPresetDraftSlugs } },
+      ...(showDefaultDrafts ? [{ isPublished: false, slug: { in: defaultCatalogServiceSlugs } }] : []),
+      ...(showServicesThreeDrafts ? [{ isPublished: false, slug: { in: servicesThreeDraftSlugs } }] : []),
+    ],
+  };
+  const filter = { AND: [visibilityFilter, ...(selectedType ? [{ serviceTypeId: selectedType.id }] : []), ...(q ? [{ OR: [{ title: { contains: q, mode: "insensitive" as const } }, { slug: { contains: q, mode: "insensitive" as const } }, { category: { contains: q, mode: "insensitive" as const } }] }] : [])] };
   const [rows, total, published] = await Promise.all([
     prisma.service.findMany({ where: filter, orderBy: [{ isPublished: "asc" }, { category: "asc" }, { title: "asc" }], skip: (page - 1) * pageSize, take: pageSize + 1, select: { id: true, isPublished: true, isFeatured: true, catalogKind: true, showInPricingGuide: true, title: true, category: true, startingPrice: true, summary: true, updatedAt: true, _count: { select: { complexityLevels: true } } } }),
-    prisma.service.count(),
-    prisma.service.count({ where: { isPublished: true } }),
+    prisma.service.count({ where: filter }),
+    prisma.service.count({ where: { AND: [filter, { isPublished: true }] } }),
   ]);
   const hasNext = rows.length > pageSize;
   const services = rows.slice(0, pageSize);
 
+  const currentDrafts = [...visibleDraftPresets].sort().join(",");
+  const togglePresetHref = (preset: "default" | "services-three") => {
+    const next = new Set(visibleDraftPresets);
+    if (next.has(preset)) next.delete(preset); else next.add(preset);
+    return ownerServicesHref({ q, type: selectedType?.slug, drafts: [...next].sort().join(",") });
+  };
+
   return <>
-    <WorkspacePageHeader eyebrow="Layanan" title="Kelola katalog yang ditampilkan ke Client." description="Draf tidak tampil di halaman publik. Unpublish mempertahankan riwayat quotation dan inquiry tanpa menghapus relasinya." actions={<><form className="relative w-full sm:w-72">{selectedType ? <input type="hidden" name="type" value={selectedType.slug} /> : null}<Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-secondary" aria-hidden="true"/><Input name="q" defaultValue={q} placeholder="Cari layanan atau kategori" aria-label="Cari layanan" className="pl-10"/></form><form action={importDefaultServiceCatalogAction}><Button type="submit" variant="outline">Impor katalog default</Button></form><Button asChild variant="outline"><Link href="/owner/services?preview=services-three">Preview preset Services III</Link></Button><Button asChild variant="outline"><Link href="/owner/services/types">Jenis layanan</Link></Button><Button asChild><Link href={selectedType?.isActive ? `/owner/services/create?type=${encodeURIComponent(selectedType.slug)}` : "/owner/services/create"}><Plus className="size-4" aria-hidden="true"/>{selectedType?.isActive ? `Buat layanan di ${selectedType.name}` : "Buat layanan"}</Link></Button></>}/>
-    {catalog === "imported" ? <p role="status" className="mt-6 rounded-[10px] bg-accent-soft px-4 py-3 text-sm font-semibold text-primary">Katalog default diperiksa: {importedTypes ?? "0"} jenis, {importedServices ?? "0"} layanan, dan {importedLevels ?? "0"} level baru ditambahkan; {skipped ?? "0"} layanan existing tidak diubah.</p> : null}
-    {preset === "services-three" ? <p role="status" className="mt-6 rounded-[10px] bg-accent-soft px-4 py-3 text-sm font-semibold text-primary">Preset Services III selesai: {created ?? "0"} layanan draft baru, {updated ?? "0"} layanan draft diperbarui, {levelsCreated ?? "0"} level baru, dan {levelsUpdated ?? "0"} level draft diperbarui. {skipped ?? "0"} layanan historis/published serta {levelsSkipped ?? "0"} level published tidak diubah.</p> : null}
-    {servicesThreePreview ? <ServicesThreePreview preview={servicesThreePreview} /> : null}
+    <WorkspacePageHeader eyebrow="Layanan" title="Kelola katalog yang ditampilkan ke Client." description="Draf tidak tampil di halaman publik. Preset draft dapat ditampilkan atau disembunyikan dari daftar Owner tanpa mengubah data." actions={<><form className="relative w-full sm:w-72">{selectedType ? <input type="hidden" name="type" value={selectedType.slug} /> : null}{currentDrafts ? <input type="hidden" name="drafts" value={currentDrafts} /> : null}<Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-secondary" aria-hidden="true"/><Input name="q" defaultValue={q} placeholder="Cari layanan atau kategori" aria-label="Cari layanan" className="pl-10"/></form><Button asChild variant={showDefaultDrafts ? "secondary" : "outline"}><Link href={togglePresetHref("default")}>{showDefaultDrafts ? "Sembunyikan draft default" : "Tampilkan draft default"}</Link></Button><Button asChild variant={showServicesThreeDrafts ? "secondary" : "outline"}><Link href={togglePresetHref("services-three")}>{showServicesThreeDrafts ? "Sembunyikan draft Services III" : "Tampilkan draft Services III"}</Link></Button><Button asChild variant="outline"><Link href="/owner/services/types">Jenis layanan</Link></Button><Button asChild><Link href={selectedType?.isActive ? `/owner/services/create?type=${encodeURIComponent(selectedType.slug)}` : "/owner/services/create"}><Plus className="size-4" aria-hidden="true"/>{selectedType?.isActive ? `Buat layanan di ${selectedType.name}` : "Buat layanan"}</Link></Button></>}/>
+    <p className="mt-6 rounded-[10px] bg-accent-soft px-4 py-3 text-sm text-primary">{showDefaultDrafts || showServicesThreeDrafts ? "Draft preset yang dipilih sedang ditampilkan di daftar Owner. Menyembunyikannya tidak menghapus atau mengubah status layanan." : "Draft katalog default dan Services III sedang disembunyikan dari daftar Owner. Gunakan tombol di atas untuk menampilkannya."}</p>
     <dl className="mt-8 grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-3">
-      <Metric label="Total layanan" value={total}/><Metric label="Sudah dipublikasikan" value={published}/><Metric label="Draf / belum tayang" value={total-published}/>
+      <Metric label="Layanan terlihat" value={total}/><Metric label="Sudah dipublikasikan" value={published}/><Metric label="Draf terlihat" value={total-published}/>
     </dl>
     {selectedType ? <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[14px] border border-primary/20 bg-accent-soft/50 px-4 py-3 text-sm"><p><span className="font-semibold">Jenis aktif:</span> {selectedType.name}{q ? ` · Pencarian: “${q}”` : ""}</p><Button asChild size="sm" variant="outline"><Link href="/owner/services">Tampilkan semua layanan</Link></Button></div> : null}
     {services.length === 0 ? <EmptyState className="mt-8" icon={BriefcaseBusiness} title={page > 1 ? "Tidak ada layanan di halaman ini" : selectedType ? `Belum ada layanan di ${selectedType.name}` : "Belum ada layanan"} description={page > 1 ? "Kembali ke halaman pertama untuk melihat record layanan." : selectedType?.isActive ? `Buat layanan pertama yang langsung masuk ke jenis ${selectedType.name}.` : "Buat layanan pertama atau jalankan seed untuk memuat referensi layanan."}/> : <div className="mt-8 grid gap-5 lg:grid-cols-2">{services.map((service) => <WorkspaceModule key={service.id} titleId={`service-${service.id}`}><div className="p-5 md:p-6"><div className="flex justify-between gap-4"><div className="min-w-0"><div className="flex flex-wrap gap-2"><Badge variant={service.isPublished ? "success" : "neutral"}>{service.isPublished ? "Published" : "Draft"}</Badge>{service.catalogKind === "MICRO_TASK" && <Badge variant="warning">Micro Task</Badge>}{service.showInPricingGuide && <Badge>Project Fit Guide</Badge>}{service.isFeatured && <Badge><Star className="size-3" aria-hidden="true"/>Unggulan</Badge>}</div><h2 id={`service-${service.id}`} className="mt-4 font-display text-xl font-extrabold">{service.title}</h2><p className="mt-2 text-sm text-secondary">{service.category} · {service.startingPrice ? `Mulai dari ${formatIdr(service.startingPrice.toString())}` : "Custom scope"}</p><p className="mt-1 text-xs text-secondary">{service._count.complexityLevels > 0 ? `${service._count.complexityLevels} level tersedia` : "Tanpa complexity level"}</p></div>{service.isPublished ? <Eye className="size-5 shrink-0 text-success" aria-label="Dipublikasikan"/> : <EyeOff className="size-5 shrink-0 text-secondary" aria-label="Draf"/>}</div><p className="mt-5 line-clamp-2 text-sm leading-6 text-secondary">{service.summary}</p><div className="mt-6 flex flex-col justify-between gap-3 border-t border-border pt-5 sm:flex-row sm:items-center"><p className="text-xs text-secondary">Diperbarui {service.updatedAt.toLocaleDateString("id-ID")}</p><Button asChild size="sm" variant="outline"><Link href={`/owner/services/${service.id}/edit`}><Pencil className="size-4" aria-hidden="true"/>Edit</Link></Button></div></div></WorkspaceModule>)}</div>}
-    <PaginationControls pathname="/owner/services" page={page} hasNext={hasNext} params={{ q: q || undefined, type: selectedType?.slug }}/>
+    <PaginationControls pathname="/owner/services" page={page} hasNext={hasNext} params={{ q: q || undefined, type: selectedType?.slug, drafts: currentDrafts || undefined }}/>
   </>;
 }
 
@@ -49,13 +64,11 @@ function Metric({ label, value }: { label: string; value: number }) {
   return <div className="bg-surface p-5 md:p-6"><dt className="text-[10px] font-bold uppercase tracking-[.14em] text-muted">{label}</dt><dd className="mt-3 font-display text-4xl font-extrabold tabular-nums">{value}</dd></div>;
 }
 
-function ServicesThreePreview({ preview }: { preview: ServicesThreeImportPreview }) {
-  const groups = [
-    { key: "CREATE_DRAFT", label: "Draft baru", items: preview.items.filter((item) => item.action === "CREATE_DRAFT") },
-    { key: "UPDATE_DRAFT", label: "Draft diperbarui", items: preview.items.filter((item) => item.action === "UPDATE_DRAFT") },
-    { key: "SKIP_PROTECTED", label: "Published / historis dilindungi", items: preview.items.filter((item) => item.action === "SKIP_PROTECTED") },
-    { key: "SKIP_MISSING_TYPE", label: "Jenis layanan tidak ditemukan", items: preview.items.filter((item) => item.action === "SKIP_MISSING_TYPE") },
-  ].filter((group) => group.items.length > 0);
-
-  return <section className="mt-6 rounded-[16px] border border-primary/25 bg-accent-soft/35 p-5 md:p-6" aria-labelledby="services-three-preview-title"><div className="flex flex-col justify-between gap-5 md:flex-row md:items-start"><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-primary">Preview tanpa perubahan data</p><h2 id="services-three-preview-title" className="mt-2 font-display text-2xl font-extrabold">Dampak preset Services III</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-secondary">Tinjau dampak import sebelum menerapkannya. Konfirmasi di bawah hanya membuat atau memperbarui draft; record published dan historis tetap dilindungi.</p></div><form action={importServicesThreeCatalogAction}><Button type="submit">Terapkan preset sebagai draft</Button></form></div><dl className="mt-6 grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-3"><Metric label="Draft baru" value={preview.createdServices}/><Metric label="Draft diperbarui" value={preview.updatedDraftServices}/><Metric label="Record dilindungi" value={preview.skippedProtectedServices + preview.skippedMissingTypes}/></dl><p className="mt-4 text-xs leading-5 text-secondary">Level: {preview.createdLevels} baru · {preview.updatedDraftLevels} draft diperbarui · {preview.skippedPublishedLevels} published dilindungi.</p><div className="mt-6 grid gap-4 lg:grid-cols-2">{groups.map((group) => <div key={group.key} className="rounded-[12px] border border-border bg-surface p-4"><h3 className="text-sm font-bold">{group.label} <span className="text-secondary">({group.items.length})</span></h3><ul className="mt-3 space-y-2 text-sm text-secondary">{group.items.map((item) => <li key={`${group.key}-${item.service}`}><span className="font-semibold text-foreground">{item.service}</span><span className="block text-xs">{item.sourceCategory} · {item.levelsToCreate} level baru · {item.levelsToUpdate} level draft update{item.publishedLevelsProtected ? ` · ${item.publishedLevelsProtected} level published dilindungi` : ""}</span></li>)}</ul></div>)}</div></section>;
+function ownerServicesHref({ q, type, drafts }: { q?: string; type?: string; drafts?: string }) {
+  const params = new URLSearchParams();
+  if (q) params.set("q", q);
+  if (type) params.set("type", type);
+  if (drafts) params.set("drafts", drafts);
+  const query = params.toString();
+  return `/owner/services${query ? `?${query}` : ""}`;
 }
