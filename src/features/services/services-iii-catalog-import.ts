@@ -1,6 +1,5 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { servicesThreeCatalog } from "@/features/services/services-iii-catalog";
-import { serviceSnapshotSelect, snapshotForImport } from "@/features/services/catalog-import-revert";
 
 type CatalogClient = Pick<Prisma.TransactionClient, "service" | "serviceType" | "serviceComplexityLevel">;
 type ServiceAction = "CREATE_DRAFT" | "UPDATE_DRAFT" | "SKIP_PROTECTED" | "SKIP_MISSING_TYPE";
@@ -26,7 +25,7 @@ export type ServicesThreeImportPreview = {
   items: ServicesThreeImportPreviewItem[];
 };
 
-export type ServicesThreeImportResult = Omit<ServicesThreeImportPreview, "skippedMissingTypes" | "items"> & { runId: string };
+export type ServicesThreeImportResult = Omit<ServicesThreeImportPreview, "skippedMissingTypes" | "items">;
 
 const selection = {
   id: true,
@@ -106,7 +105,6 @@ export async function previewServicesThreeCatalog(db: CatalogClient): Promise<Se
 
 export async function importServicesThreeCatalog(tx: Prisma.TransactionClient): Promise<ServicesThreeImportResult> {
   const preview = await previewServicesThreeCatalog(tx);
-  const run = await tx.catalogImportRun.create({ data: { source: "SERVICES_III" }, select: { id: true } });
 
   for (const preset of servicesThreeCatalog) {
     const type = await tx.serviceType.findUnique({ where: { slug: preset.typeSlug }, select: { id: true } });
@@ -114,7 +112,6 @@ export async function importServicesThreeCatalog(tx: Prisma.TransactionClient): 
     const existing = await resolveExistingService(tx, preset.slug, preset.matchSlugs);
     if (isProtectedService(existing)) continue;
 
-    const before = existing ? await tx.service.findUnique({ where: { id: existing.id }, select: serviceSnapshotSelect }) : null;
     const data = {
       title: preset.title,
       slug: preset.slug,
@@ -137,7 +134,6 @@ export async function importServicesThreeCatalog(tx: Prisma.TransactionClient): 
     const service = existing
       ? await tx.service.update({ where: { id: existing.id }, data, select: { id: true } })
       : await tx.service.create({ data, select: { id: true } });
-    await tx.catalogImportEntry.create({ data: { runId: run.id, serviceId: service.id, operation: existing ? "UPDATED" : "CREATED", snapshot: before ? snapshotForImport(before) : undefined } });
 
     for (const level of preset.levels) {
       const currentLevel = await tx.serviceComplexityLevel.findUnique({
@@ -161,7 +157,6 @@ export async function importServicesThreeCatalog(tx: Prisma.TransactionClient): 
   }
 
   return {
-    runId: run.id,
     createdServices: preview.createdServices,
     updatedDraftServices: preview.updatedDraftServices,
     skippedProtectedServices: preview.skippedProtectedServices,

@@ -38,16 +38,6 @@ enum ComplexityLevelCode {
   PREMIUM
 }
 
-enum CatalogImportSource {
-  DEFAULT_CATALOG
-  SERVICES_III
-}
-
-enum CatalogImportOperation {
-  CREATED
-  UPDATED
-}
-
 enum InquiryStatus {
   DRAFT
   SUBMITTED
@@ -314,47 +304,17 @@ model Service {
   isPublished        Boolean            @default(false)
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
-  archivedAt         DateTime?
 
-  serviceType        ServiceType?             @relation(fields: [serviceTypeId], references: [id], onDelete: SetNull)
-  complexityLevels   ServiceComplexityLevel[]
-  inquiries          Inquiry[]
-  quotations         Quotation[]
-  reviews            Review[]
-  catalogImportEntries CatalogImportEntry[] @relation("CatalogImportEntryService")
+  serviceType      ServiceType?             @relation(fields: [serviceTypeId], references: [id], onDelete: SetNull)
+  complexityLevels ServiceComplexityLevel[]
+  inquiries        Inquiry[]
+  quotations       Quotation[]
+  reviews          Review[]
 
   @@index([category])
   @@index([serviceTypeId])
   @@index([isPublished, isFeatured])
   @@index([showInPricingGuide, isPublished])
-  @@index([archivedAt, isPublished])
-}
-
-model CatalogImportRun {
-  id        String              @id @default(cuid())
-  source    CatalogImportSource
-  createdAt DateTime            @default(now())
-  revertedAt DateTime?
-  entries   CatalogImportEntry[]
-
-  @@index([source, createdAt])
-  @@index([revertedAt])
-}
-
-model CatalogImportEntry {
-  id          String                 @id @default(cuid())
-  runId       String
-  serviceId   String
-  operation   CatalogImportOperation
-  snapshot    Json?
-  appliedAt   DateTime               @default(now())
-  revertedAt  DateTime?
-
-  run     CatalogImportRun @relation(fields: [runId], references: [id], onDelete: Cascade)
-  service Service @relation("CatalogImportEntryService", fields: [serviceId], references: [id], onDelete: Restrict)
-
-  @@index([runId, revertedAt])
-  @@index([serviceId])
 }
 
 model ServiceComplexityLevel {

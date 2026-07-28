@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const service = await prisma.service.findFirst({ where: { slug, isPublished: true, archivedAt: null }, select: { title: true, summary: true } });
+  const service = await prisma.service.findFirst({ where: { slug, isPublished: true }, select: { title: true, summary: true } });
   return service ? { title: service.title, description: service.summary } : { title: "Service not found", robots: { index: false, follow: false } };
 }
 
@@ -28,7 +28,7 @@ export default async function ServiceDetailPage({
 }) {
   const [{ slug }, { level: requestedLevel }, locale, session] = await Promise.all([params, searchParams, getLocale(), auth()]);
   const service = await prisma.service.findFirst({
-    where: { slug, isPublished: true, archivedAt: null },
+    where: { slug, isPublished: true },
     include: {
       complexityLevels: {
         where: { isPublished: true },

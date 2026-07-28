@@ -28,7 +28,7 @@ export default async function StartProjectPage({
     requireClient(callbackUrl),
     getLocale(),
     prisma.service.findMany({
-      where: { isPublished: true, archivedAt: null },
+      where: { isPublished: true },
       select: {
         slug: true,
         title: true,
