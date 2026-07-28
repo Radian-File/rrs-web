@@ -2,10 +2,13 @@ import { describe, expect, it } from "vitest";
 import { servicesThreeCatalog } from "@/features/services/services-iii-catalog";
 
 describe("Services III catalog preset", () => {
-  it("contains the approved 36 draft service definitions across 12 source families", () => {
-    expect(servicesThreeCatalog).toHaveLength(36);
-    expect(new Set(servicesThreeCatalog.map((service) => service.sourceCategory)).size).toBe(12);
-    expect(new Set(servicesThreeCatalog.map((service) => service.slug)).size).toBe(36);
+  it("contains exactly three Top 3 services for every supported Service Type", () => {
+    expect(servicesThreeCatalog).toHaveLength(24);
+    expect(new Set(servicesThreeCatalog.map((service) => service.typeSlug)).size).toBe(8);
+    expect(new Set(servicesThreeCatalog.map((service) => service.slug)).size).toBe(24);
+    for (const services of Object.values(Object.groupBy(servicesThreeCatalog, (service) => service.typeSlug))) {
+      expect(services).toHaveLength(3);
+    }
   });
 
   it("uses service-specific Level language instead of one generic endpoint/module template", () => {
@@ -19,7 +22,7 @@ describe("Services III catalog preset", () => {
   });
 
   it("gives every service its own description, delivery focus, and Project Fit language", () => {
-    expect(new Set(servicesThreeCatalog.map((service) => service.description)).size).toBe(36);
+    expect(new Set(servicesThreeCatalog.map((service) => service.description)).size).toBe(24);
     for (const service of servicesThreeCatalog) {
       expect(service.description).not.toContain("Detail scope, deliverables, timeline, revisi, provider cost");
       expect(service.deliverables).not.toContain("Scope yang disepakati melalui quotation");

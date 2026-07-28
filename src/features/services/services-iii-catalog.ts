@@ -3239,4 +3239,22 @@ function applyServiceSpecificCopy(service: ServicesThreeCatalogService): Service
   };
 }
 
-export const servicesThreeCatalog = baseServicesThreeCatalog.map(applyServiceSpecificCopy);
+// Services III is an authoring coverage target: every Service Type gets its
+// three strongest project-shaped starting points. The source list intentionally
+// contains additional alternatives so Owner can evolve the catalog later, but
+// the preset itself must not inflate one type with six near-overlapping guides
+// while another type only receives three.
+function selectTopThreeServicesPerType(catalog: ServicesThreeCatalogService[]) {
+  const selectedPerType = new Map<string, number>();
+
+  return catalog.filter((service) => {
+    const selected = selectedPerType.get(service.typeSlug) ?? 0;
+    if (selected >= 3) return false;
+    selectedPerType.set(service.typeSlug, selected + 1);
+    return true;
+  });
+}
+
+export const servicesThreeCatalog = selectTopThreeServicesPerType(
+  baseServicesThreeCatalog.map(applyServiceSpecificCopy),
+);
