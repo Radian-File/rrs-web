@@ -3183,22 +3183,60 @@ const serviceSpecificFocus: Record<string, ServiceSpecificFocus> = {
 function applyServiceSpecificCopy(service: ServicesThreeCatalogService): ServicesThreeCatalogService {
   const focus = serviceSpecificFocus[service.title];
   if (!focus) return service;
-  return { ...service, levels: service.levels.map((level) => {
-    const copy = level.code === "ESSENTIAL" ? {
-      summary: `Untuk ${focus.initial}.`,
-      indicators: [focus.initial, "Ruang lingkup masih dapat dikelola dalam satu fokus delivery.", "Dependency dan risiko perubahan masih terbatas."],
-      escalationSignals: [focus.expanded, focus.escalation, "Scope perlu ditinjau ulang sebelum commitment delivery."],
-    } : level.code === "ADVANCED" ? {
-      summary: `Untuk ${focus.expanded}.`,
-      indicators: [focus.expanded, "Kebutuhan dan dependency berjalan lebih aktif.", "Perlu struktur implementasi yang lebih terarah."],
-      escalationSignals: [focus.complex, focus.escalation, "Risiko operasional atau teknis perlu direncanakan sejak awal."],
-    } : {
-      summary: `Untuk ${focus.complex}.`,
-      indicators: [focus.complex, "Dependency, kontrol perubahan, dan risiko delivery perlu dikelola ketat.", "Perlu keputusan teknis yang mendukung keberlanjutan solusi."],
-      escalationSignals: ["Scope mungkin perlu dipisah menjadi beberapa phase delivery.", "Discovery atau technical assessment diperlukan sebelum scope dikunci.", focus.escalation],
-    };
-    return { ...level, ...copy };
-  }) };
+  return {
+    ...service,
+    description: `${service.summary} Fokus awalnya adalah ${focus.initial}; bila kebutuhan berkembang, layanan ini diarahkan untuk ${focus.expanded}. Scope, timeline, revisi, biaya provider, dan harga final selalu dikunci melalui quotation Owner.`,
+    deliverables: [
+      `Rancangan ${service.title} berdasarkan ${focus.initial}.`,
+      `Implementasi yang mendukung ${focus.expanded}.`,
+      `Handoff teknis dengan catatan keputusan terkait ${focus.escalation}.`,
+    ],
+    technologies: [
+      `Praktik ${service.sourceCategory}`,
+      `Implementasi ${service.title}`,
+      `Technical handoff untuk ${focus.escalation}`,
+    ],
+    levels: service.levels.map((level) => {
+      const copy = level.code === "ESSENTIAL" ? {
+        summary: `Untuk ${focus.initial}.`,
+        indicators: [
+          `Delivery berpusat pada ${focus.initial}.`,
+          `Batas pekerjaan dapat dijaga tanpa memperluas ke ${focus.expanded}.`,
+          `Keputusan teknis belum menuntut ${focus.escalation}.`,
+        ],
+        escalationSignals: [
+          `Kebutuhan mulai berkembang menjadi ${focus.expanded}.`,
+          `Perlu memprioritaskan ${focus.escalation}.`,
+          `Output awal tidak lagi cukup untuk tujuan operasional Client.`,
+        ],
+      } : level.code === "ADVANCED" ? {
+        summary: `Untuk ${focus.expanded}.`,
+        indicators: [
+          `Implementasi mencakup ${focus.expanded}.`,
+          `${focus.escalation} perlu direncanakan dalam alur delivery.`,
+          `Batas perubahan dan dependency perlu ditetapkan sebelum build.`,
+        ],
+        escalationSignals: [
+          `Kebutuhan berkembang menuju ${focus.complex}.`,
+          `${focus.escalation} berpotensi memengaruhi operasi utama.`,
+          `Risiko teknis perlu divalidasi sebelum estimasi dikunci.`,
+        ],
+      } : {
+        summary: `Untuk ${focus.complex}.`,
+        indicators: [
+          `Solusi ditujukan untuk ${focus.complex}.`,
+          `${focus.escalation} menjadi bagian dari keputusan arsitektur.`,
+          `Tahap delivery, validasi, dan handoff perlu dirancang sejak awal.`,
+        ],
+        escalationSignals: [
+          `Delivery mungkin perlu dibagi agar ${focus.complex} dapat divalidasi per phase.`,
+          `Technical assessment diperlukan sebelum ${focus.escalation} dikunci dalam quotation.`,
+          `Dependency Client atau provider yang mendukung ${focus.expanded} perlu diuji lebih awal.`,
+        ],
+      };
+      return { ...level, ...copy };
+    }),
+  };
 }
 
 export const servicesThreeCatalog = baseServicesThreeCatalog.map(applyServiceSpecificCopy);
