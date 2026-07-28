@@ -15,8 +15,8 @@ import { formatIdr } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function OwnerServicesPage({ searchParams }: { searchParams: Promise<{ page?: string; q?: string; type?: string; archive?: string; catalog?: string; preset?: string; preview?: string; run?: string; legacy?: string; reverted?: string; archived?: string; restored?: string; types?: string; services?: string; levels?: string; created?: string; updated?: string; skipped?: string; levelsCreated?: string; levelsUpdated?: string; levelsSkipped?: string }> }) {
-  const { page: rawPage, q: rawQuery, type: rawType, archive, catalog, preset, preview, run, legacy, reverted, archived, restored, types: importedTypes, services: importedServices, levels: importedLevels, created, updated, skipped, levelsCreated, levelsUpdated, levelsSkipped } = await searchParams;
+export default async function OwnerServicesPage({ searchParams }: { searchParams: Promise<{ page?: string; q?: string; type?: string; archive?: string; catalog?: string; preset?: string; preview?: string; run?: string; legacy?: string; reverted?: string; types?: string; services?: string; levels?: string; created?: string; updated?: string; skipped?: string; levelsCreated?: string; levelsUpdated?: string; levelsSkipped?: string }> }) {
+  const { page: rawPage, q: rawQuery, type: rawType, archive, catalog, preset, preview, run, legacy, reverted, types: importedTypes, services: importedServices, levels: importedLevels, created, updated, skipped, levelsCreated, levelsUpdated, levelsSkipped } = await searchParams;
   const page = parsePage(rawPage);
   const q = rawQuery?.trim() ?? "";
   const archiveMode = archive === "1";
@@ -41,7 +41,7 @@ export default async function OwnerServicesPage({ searchParams }: { searchParams
     {catalog === "imported" ? <p role="status" className="mt-6 rounded-[10px] bg-accent-soft px-4 py-3 text-sm font-semibold text-primary">Katalog default diperiksa: {importedTypes ?? "0"} jenis, {importedServices ?? "0"} layanan, dan {importedLevels ?? "0"} level baru ditambahkan; {skipped ?? "0"} layanan existing tidak diubah.</p> : null}
     {preset === "services-three" ? <p role="status" className="mt-6 rounded-[10px] bg-accent-soft px-4 py-3 text-sm font-semibold text-primary">Preset Services III selesai: {created ?? "0"} layanan draft baru, {updated ?? "0"} layanan draft diperbarui, {levelsCreated ?? "0"} level baru, dan {levelsUpdated ?? "0"} level draft diperbarui. {skipped ?? "0"} layanan historis/published serta {levelsSkipped ?? "0"} level published tidak diubah.</p> : null}
     {servicesThreePreview ? <ServicesThreePreview preview={servicesThreePreview} /> : null}
-    {reverted ? <p role="status" className="mt-6 rounded-[10px] bg-accent-soft px-4 py-3 text-sm font-semibold text-primary">{Number(archived ?? 0) + Number(restored ?? 0) > 0 ? `Revert import selesai: ${archived ?? "0"} draft diarsipkan dan ${restored ?? "0"} draft dipulihkan. Record terlindungi tetap tidak diubah.` : "Tidak ada draft yang dapat diubah oleh revert ini. Run tersebut tidak membuat perubahan katalog, atau semua record sudah dilindungi/berubah setelah import."}</p> : null}
+    {reverted ? <p role="status" className="mt-6 rounded-[10px] bg-accent-soft px-4 py-3 text-sm font-semibold text-primary">Revert import selesai. Hanya draft aman yang diarsipkan atau dipulihkan; record terlindungi tetap tidak diubah.</p> : null}
     {revertPreview ? <CatalogRevertPreview preview={revertPreview} /> : null}
     <dl className="mt-8 grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-3">
       <Metric label="Total layanan" value={total}/><Metric label="Sudah dipublikasikan" value={published}/><Metric label="Draf / belum tayang" value={total-published}/>
