@@ -33,7 +33,7 @@ services:
     env_file: ${RRS_ENV_FILE:-.env.production}
     environment:
       RRS_CONFIRM_BOOTSTRAP: ${RRS_CONFIRM_BOOTSTRAP:-}
-    command: ["npm", "run", "db:bootstrap-services-three"]
+    command: ["sh", "-c", "npm run db:seed && npm run db:bootstrap-services-three"]
     depends_on:
       db:
         condition: service_healthy
