@@ -43,7 +43,7 @@ export function PublicEmptyState({
           </p>
           <h2
             id={titleId}
-            className="mt-4 font-display text-[clamp(2.5rem,5vw,4.8rem)] font-black uppercase leading-[.88] tracking-[-.06em]"
+            className="mt-4 break-words font-display text-[clamp(2.5rem,5vw,4.8rem)] font-black uppercase leading-[.88] tracking-[-.06em]"
           >
             {title}
           </h2>

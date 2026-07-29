@@ -29,7 +29,7 @@ export function PublicEditorialIndex({
             </p>
             <h2
               id={titleId}
-              className="mt-4 max-w-3xl font-display text-[clamp(2.7rem,4.8vw,5rem)] font-black uppercase leading-[.88] tracking-[-.065em]"
+              className="mt-4 max-w-3xl break-words font-display text-[clamp(2.7rem,4.8vw,5rem)] font-black uppercase leading-[.88] tracking-[-.065em]"
             >
               {title}
             </h2>

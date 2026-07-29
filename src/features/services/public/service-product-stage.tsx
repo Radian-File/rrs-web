@@ -60,7 +60,7 @@ export function ServiceProductStage({ service, isId }: { service: ServiceDiscove
               <span className="grid size-9 place-items-center rounded-full bg-accent-lime font-display font-black text-background">R</span>
               <span className="text-[9px] font-black uppercase tracking-[.16em] text-white/35">01 / Published</span>
             </div>
-            <p className="mt-8 text-[9px] font-black uppercase tracking-[.18em] text-accent-lime lg:mt-0">RRS / {service.category}</p>
+            <p className="mt-8 break-words text-[9px] font-black uppercase tracking-[.18em] text-accent-lime lg:mt-0">RRS / {service.category}</p>
             <h2 id="primary-service-title" className="mt-5 break-words font-display text-[clamp(2.75rem,4.6vw,5.15rem)] font-black uppercase leading-[.86] tracking-[-.065em]">{service.title}</h2>
             <p className="mt-6 max-w-xl text-sm leading-7 text-white/58">{service.summary}</p>
 
@@ -78,7 +78,7 @@ export function ServiceProductStage({ service, isId }: { service: ServiceDiscove
             <div className="grid gap-5 sm:grid-cols-2">
               <div>
                 <p className="text-[9px] font-bold uppercase tracking-[.14em] text-white/35">{copy.estimate}</p>
-                <p className="mt-2 font-display text-3xl font-black text-accent-lime">{service.estimate}</p>
+                <p className="mt-2 break-words font-display text-3xl font-black text-accent-lime">{service.estimate}</p>
               </div>
               <div>
                 <p className="text-[9px] font-bold uppercase tracking-[.14em] text-white/35">{copy.delivery}</p>
@@ -106,7 +106,7 @@ export function ServiceProductStage({ service, isId }: { service: ServiceDiscove
             <div className="rounded-[18px] border border-white/10 bg-[#292c2a] p-5">
               <Layers3 className="size-5 text-accent-lime" aria-hidden="true" />
               <p className="mt-8 text-[8px] font-black uppercase tracking-[.15em] text-white/35">{copy.overview}</p>
-              <p className="mt-3 font-display text-2xl font-black leading-[.95] tracking-[-.04em]">{service.category}</p>
+              <p className="mt-3 break-words font-display text-2xl font-black leading-[.95] tracking-[-.04em]">{service.category}</p>
               <div className="mt-8 border-t border-white/10 pt-4">
                 <Clock3 className="size-4 text-white/35" aria-hidden="true" />
                 <p className="mt-2 text-[10px] leading-5 text-white/45">{service.deliveryEstimate ?? copy.deliveryFallback}</p>

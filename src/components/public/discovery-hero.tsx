@@ -51,12 +51,12 @@ export function PublicDiscoveryHero({
             id={titleId}
             aria-label={titleLines.join(" ")}
             className={cn(
-              "mt-7 font-display text-[clamp(3.15rem,5.75vw,6.4rem)] font-black uppercase leading-[.82] tracking-[-.075em] text-[#f5f2ea]",
+              "mt-7 break-words font-display text-[clamp(3.15rem,5.75vw,6.4rem)] font-black uppercase leading-[.82] tracking-[-.075em] text-[#f5f2ea]",
               titleClassName,
             )}
           >
             {titleLines.map((line) => (
-              <span key={line} className="block pb-[.08em] lg:whitespace-nowrap">
+              <span key={line} className="block pb-[.08em]">
                 {line}
               </span>
             ))}

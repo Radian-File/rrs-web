@@ -129,7 +129,7 @@ export function ProjectFitGuide({
                   onClick={() => selectService(service.slug)}
                   onKeyDown={(event) => handleServiceKeyDown(event, index)}
                   className={cn(
-                    "min-h-11 shrink-0 rounded-[14px] border px-4 py-3 text-left text-sm font-bold transition-[background-color,border-color,transform] duration-200 motion-reduce:transition-none xl:w-full",
+                    "min-h-11 shrink-0 break-words rounded-[14px] border px-4 py-3 text-left text-sm font-bold transition-[background-color,border-color,transform] duration-200 motion-reduce:transition-none xl:w-full",
                     selected ? "border-accent-lime/45 bg-accent-lime text-background" : "border-white/10 bg-white/[.035] text-white hover:border-white/25 hover:bg-white/[.07]",
                   )}
                 >
@@ -151,7 +151,7 @@ export function ProjectFitGuide({
 
         <section id="project-fit-detail" role="tabpanel" aria-live="polite" aria-labelledby={`project-fit-service-${activeService.slug}`} className="rounded-[22px] border border-white/10 bg-[#202620] p-5 sm:p-7 lg:p-8">
           <p className="text-[9px] font-black uppercase tracking-[.18em] text-accent-lime">{activeService.title} / {level.code}</p>
-          <h2 id="project-fit-guide-title" className="mt-5 max-w-3xl font-display text-[clamp(2.9rem,5vw,5.6rem)] font-black uppercase leading-[.86] tracking-[-.07em] text-white">{level.title}</h2>
+          <h2 id="project-fit-guide-title" className="mt-5 max-w-3xl break-words font-display text-[clamp(2.9rem,5vw,5.6rem)] font-black uppercase leading-[.86] tracking-[-.07em] text-white">{level.title}</h2>
           <p className="mt-5 max-w-3xl text-sm leading-7 text-white/65">{level.summary}</p>
           <div className="mt-7 grid gap-5 border-t border-white/10 pt-6 lg:grid-cols-2">
             <GuideList icon={Check} title={copy.indicators} items={level.indicators} />
@@ -160,7 +160,7 @@ export function ProjectFitGuide({
           <div className="mt-7 flex flex-col gap-5 border-t border-white/10 pt-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-[9px] font-black uppercase tracking-[.16em] text-white/40">{copy.estimate}</p>
-              <p className="mt-2 font-display text-3xl font-black text-accent-lime">{level.estimate ?? copy.estimateFallback}</p>
+              <p className="mt-2 break-words font-display text-3xl font-black text-accent-lime">{level.estimate ?? copy.estimateFallback}</p>
             </div>
             <Button asChild size="lg" className="rounded-full bg-accent-lime px-6 text-background hover:bg-[#d7f58f]"><Link href={actionHref}>{actionLabel}<ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
           </div>

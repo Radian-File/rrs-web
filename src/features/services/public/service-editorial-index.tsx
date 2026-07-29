@@ -62,7 +62,7 @@ export function ServiceEditorialIndex({
             <div className="flex items-start justify-between gap-5">
               <div>
                 <p className="font-display text-2xl font-black tracking-[-.06em] text-white/24">{String(index + 1).padStart(2, "0")}</p>
-                <p className="mt-2 text-[8px] font-black uppercase tracking-[.16em] text-accent-lime">{service.serviceTypeName ?? service.category}</p>
+                <p className="mt-2 break-words text-[8px] font-black uppercase tracking-[.16em] text-accent-lime">{service.serviceTypeName ?? service.category}</p>
               </div>
               {service.isFeatured && mode === "curated" && <span className="rounded-full border border-accent-lime/25 bg-accent-lime/10 px-3 py-1 text-[8px] font-black uppercase tracking-[.13em] text-accent-lime">Top pick</span>}
             </div>
@@ -78,7 +78,7 @@ export function ServiceEditorialIndex({
             <div className="mt-auto grid gap-5 border-t border-white/10 pt-6 sm:grid-cols-[1fr_auto] sm:items-end">
               <div>
                 <p className="text-[8px] font-bold uppercase tracking-[.14em] text-white/35">{copy.estimate}</p>
-                <p className="mt-2 font-display text-2xl font-black text-accent-lime">{service.estimate}</p>
+                <p className="mt-2 break-words font-display text-2xl font-black text-accent-lime">{service.estimate}</p>
               </div>
               <Button asChild variant="outline" className="rounded-full border-white/15 bg-white/[.04] text-white hover:bg-white/[.08]">
                 <Link href={`/services/${service.slug}`}>{copy.action}<ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" /></Link>
